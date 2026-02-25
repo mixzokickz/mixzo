@@ -2,14 +2,15 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Search, ShoppingBag, User, Menu, X } from 'lucide-react'
+import { Search, ShoppingBag, User, Menu, X, Instagram } from 'lucide-react'
 import { useCartStore } from '@/stores/cart'
 import { cn } from '@/lib/utils'
 import { SearchOverlay } from '@/components/shop/search-overlay'
+import { BUSINESS_INSTAGRAM } from '@/lib/constants'
 
 const NAV_LINKS = [
   { href: '/shop', label: 'Shop' },
-  { href: '/drops', label: 'Drops' },
+  { href: '/deals', label: 'Deals' },
   { href: '/cleaning', label: 'Cleaning' },
   { href: '/about', label: 'About' },
 ]
@@ -54,10 +55,13 @@ export function ShopHeader() {
             ))}
           </nav>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
             <button onClick={() => setSearchOpen(true)} className="h-10 w-10 flex items-center justify-center rounded-xl text-text-secondary hover:text-text hover:bg-elevated transition-colors cursor-pointer">
               <Search className="w-5 h-5" />
             </button>
+            <a href={`https://instagram.com/${BUSINESS_INSTAGRAM.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="h-10 w-10 flex items-center justify-center rounded-xl text-text-secondary hover:text-pink hover:bg-elevated transition-colors">
+              <Instagram className="w-5 h-5" />
+            </a>
             <Link href="/cart" className="relative h-10 w-10 flex items-center justify-center rounded-xl text-text-secondary hover:text-text hover:bg-elevated transition-colors">
               <ShoppingBag className="w-5 h-5" />
               {count > 0 && (

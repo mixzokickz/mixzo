@@ -28,22 +28,18 @@ const STEPS = [
 
 const TIERS = [
   {
-    name: 'Basic Clean',
-    price: '$25',
-    features: ['Exterior wipe down', 'Lace cleaning', 'Deodorize treatment', 'Quick turnaround'],
+    value: 'cleaning',
+    name: 'Sneaker Cleaning',
+    price: '$20',
+    features: ['Full exterior clean', 'Lace cleaning', 'Deodorize treatment', 'Quick turnaround (2-3 days)'],
     popular: false,
   },
   {
-    name: 'Deep Clean',
-    price: '$45',
-    features: ['Full disassembly', 'Sole cleaning & whitening', 'Deep scrub all surfaces', 'Lace replacement (if needed)', 'Deodorize & sanitize'],
+    value: 'cleaning_icing',
+    name: 'Cleaning + Icing',
+    price: '$30',
+    features: ['Everything in Cleaning', 'Sole icing & whitening', 'Deep scrub all surfaces', 'Deodorize & sanitize', '3-5 day turnaround'],
     popular: true,
-  },
-  {
-    name: 'Full Restoration',
-    price: '$75+',
-    features: ['Everything in Deep Clean', 'Color touch-up & repainting', 'Sole swap (if needed)', 'Stain removal treatment', 'Complete rehab'],
-    popular: false,
   },
 ]
 
@@ -113,9 +109,9 @@ export default function CleaningPage() {
               Professional sneaker cleaning and restoration from Denver, CO. From a quick refresh to a complete rehab — we bring your kicks back to life.
             </p>
             <div className="mt-8">
-              <Link href="/contact">
+              <Link href="#pricing">
                 <Button size="lg">
-                  Get Started
+                  View Pricing
                   <ArrowRight className="w-4 h-4" />
                 </Button>
               </Link>
@@ -158,7 +154,7 @@ export default function CleaningPage() {
             <p className="text-text-secondary text-center mb-12 max-w-lg mx-auto">
               Choose the level of care your kicks need. Not sure? We&apos;ll help you decide after seeing them.
             </p>
-            <div className="grid md:grid-cols-3 gap-6">
+            <div className="grid md:grid-cols-2 gap-6 max-w-2xl mx-auto">
               {TIERS.map((tier) => (
                 <div
                   key={tier.name}
@@ -170,7 +166,7 @@ export default function CleaningPage() {
                 >
                   {tier.popular && (
                     <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-pink text-white text-xs font-semibold">
-                      Most Popular
+                      Popular
                     </div>
                   )}
                   <h3 className="text-lg font-bold mb-2">{tier.name}</h3>
@@ -183,7 +179,7 @@ export default function CleaningPage() {
                       </li>
                     ))}
                   </ul>
-                  <Link href="/contact" className="block mt-8">
+                  <Link href={`/account/cleaning/new?tier=${tier.value}`} className="block mt-8">
                     <Button variant={tier.popular ? 'primary' : 'outline'} className="w-full">
                       Get Started
                     </Button>
@@ -246,10 +242,10 @@ export default function CleaningPage() {
           {/* Bottom CTA */}
           <div className="text-center">
             <h2 className="text-2xl font-bold mb-4">Ready to Refresh Your Kicks?</h2>
-            <p className="text-text-secondary mb-8">Get in touch and we&apos;ll take care of the rest.</p>
-            <Link href="/contact">
+            <p className="text-text-secondary mb-8">Submit a request and we&apos;ll take care of the rest.</p>
+            <Link href="/account/cleaning/new">
               <Button size="lg">
-                Get Started
+                Submit Request
                 <ArrowRight className="w-4 h-4" />
               </Button>
             </Link>

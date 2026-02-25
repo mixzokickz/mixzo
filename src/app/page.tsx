@@ -165,8 +165,8 @@ export default function HomePage() {
             className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8"
           >
             <div>
-              <h2 className="text-2xl md:text-3xl font-bold">Latest Drops</h2>
-              <p className="text-sm text-text-muted mt-1">Fresh inventory, updated daily</p>
+              <h2 className="text-2xl md:text-3xl font-bold">Shop</h2>
+              <p className="text-sm text-text-muted mt-1">Authenticated sneakers, updated daily</p>
             </div>
             <FilterTabs
               tabs={[
@@ -182,11 +182,13 @@ export default function HomePage() {
           {loading ? (
             <ProductGridSkeleton count={8} />
           ) : filtered.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-20 text-center">
-              <Package className="w-16 h-16 text-text-muted mb-4" />
-              <h3 className="text-xl font-semibold text-text mb-2">No products yet</h3>
-              <p className="text-text-muted max-w-sm">
-                We are stocking up with fresh inventory. Check back soon for the latest drops.
+            <div className="flex flex-col items-center justify-center py-24 text-center">
+              <div className="w-16 h-16 rounded-2xl bg-card border border-border flex items-center justify-center mb-6">
+                <Package className="w-7 h-7 text-text-muted" />
+              </div>
+              <h3 className="text-lg font-semibold text-text mb-2">Inventory Coming Soon</h3>
+              <p className="text-sm text-text-muted max-w-xs">
+                Fresh drops loading. Follow us on Instagram to get notified when new pairs land.
               </p>
             </div>
           ) : (

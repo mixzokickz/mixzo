@@ -6,9 +6,9 @@ import { usePathname } from 'next/navigation'
 import {
   LayoutDashboard, ScanBarcode, Package, ShoppingCart,
   Users, Flame, BarChart3, Settings, Menu, X, LogOut,
-  Tag, FileText, Scale, Boxes, Truck, Gift, RefreshCw,
+  Tag, FileText, Scale, Boxes, Truck, RefreshCw,
   ClipboardCheck, Activity, HelpCircle, Star, Link2,
-  Receipt, Bell, UserCog, Sparkles
+  Receipt, Bell, UserCog, Sparkles, ExternalLink
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { SITE_NAME } from '@/lib/constants'
@@ -49,9 +49,8 @@ const NAV_SECTIONS = [
   {
     label: 'Marketing',
     items: [
-      { href: '/admin/daily-deals', label: 'Daily Deals', icon: Flame },
-      { href: '/admin/discounts', label: 'Discounts', icon: Tag },
-      { href: '/admin/gift-cards', label: 'Gift Cards', icon: Gift },
+      { href: '/admin/daily-deals', label: 'Deals', icon: Flame },
+      { href: '/admin/discounts', label: 'Discount Codes', icon: Tag },
     ],
   },
   {
@@ -153,7 +152,7 @@ export default function AdminSidebar() {
     <>
       {/* Mobile header */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 h-14 bg-[var(--bg-card)]/95 backdrop-blur-md border-b border-[var(--border)]">
-        <Link href="/admin" className="gradient-text text-lg font-bold tracking-tight">{SITE_NAME}</Link>
+        <Link href="/admin" className="text-lg font-bold tracking-tight text-white">{SITE_NAME}</Link>
         <button onClick={() => setOpen(!open)} className="text-white p-2 -mr-2">
           {open ? <X size={22} /> : <Menu size={22} />}
         </button>
@@ -174,9 +173,14 @@ export default function AdminSidebar() {
 
       {/* Desktop sidebar */}
       <aside className="hidden lg:flex fixed top-0 left-0 h-full w-60 bg-[var(--bg-card)] border-r border-[var(--border)] flex-col z-40">
-        <div className="p-4 pb-2 border-b border-[var(--border)]">
-          <Link href="/admin" className="gradient-text text-xl font-bold tracking-tight">{SITE_NAME}</Link>
-          <p className="text-[var(--text-muted)] text-[11px] mt-0.5">Admin Panel</p>
+        <div className="p-4 pb-3 border-b border-[var(--border)]">
+          <Link href="/admin" className="text-xl font-bold tracking-tight text-white">{SITE_NAME}</Link>
+          <div className="flex items-center justify-between mt-1">
+            <p className="text-[var(--text-muted)] text-[11px]">Admin Panel</p>
+            <Link href="/" target="_blank" className="flex items-center gap-1 text-[10px] text-[var(--text-muted)] hover:text-[var(--pink)] transition-colors">
+              View Store <ExternalLink size={10} />
+            </Link>
+          </div>
         </div>
         {navContent}
       </aside>

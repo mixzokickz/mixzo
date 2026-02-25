@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Phone, Mail, MapPin } from 'lucide-react'
+import { Phone, Mail, MapPin, Instagram } from 'lucide-react'
 import { BUSINESS_PHONE, BUSINESS_EMAIL, BUSINESS_INSTAGRAM, BUSINESS_LOCATION } from '@/lib/constants'
 
 export function Footer() {
@@ -23,7 +23,7 @@ export function Footer() {
               {[
                 { href: '/shop?condition=new', label: 'New Arrivals' },
                 { href: '/shop?condition=used', label: 'Preowned' },
-                { href: '/drops', label: 'Drops' },
+                { href: '/deals', label: 'Deals' },
               ].map((link) => (
                 <li key={link.href}>
                   <Link href={link.href} className="text-sm text-text-muted hover:text-text transition-colors">{link.label}</Link>
@@ -83,7 +83,8 @@ export function Footer() {
                 <MapPin className="w-4 h-4 shrink-0" />
                 <span>{BUSINESS_LOCATION}</span>
               </li>
-              <li className="text-sm text-text-muted">
+              <li className="flex items-center gap-2.5 text-sm text-text-muted">
+                <Instagram className="w-4 h-4 shrink-0" />
                 <a href={`https://instagram.com/${BUSINESS_INSTAGRAM.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="hover:text-pink transition-colors">
                   {BUSINESS_INSTAGRAM}
                 </a>

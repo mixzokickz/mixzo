@@ -69,13 +69,25 @@ export default function SettingsPage() {
               <p className="font-medium text-sm">StockX API</p>
               <p className="text-xs text-[var(--text-muted)]">Product lookup and pricing</p>
             </div>
-            {stockxStatus === 'checking' ? (
-              <Loader2 size={18} className="animate-spin text-[var(--text-muted)]" />
-            ) : stockxStatus === 'ok' ? (
-              <div className="flex items-center gap-1 text-green-400 text-sm"><CheckCircle size={16} /> Connected</div>
-            ) : (
-              <div className="flex items-center gap-1 text-red-400 text-sm"><XCircle size={16} /> Error</div>
-            )}
+            <div className="flex items-center gap-3">
+              {stockxStatus === 'checking' ? (
+                <Loader2 size={18} className="animate-spin text-[var(--text-muted)]" />
+              ) : stockxStatus === 'ok' ? (
+                <div className="flex items-center gap-1 text-green-400 text-sm"><CheckCircle size={16} /> Connected</div>
+              ) : (
+                <button
+                  onClick={async () => {
+                    const res = await fetch('/api/stockx/auth')
+                    const data = await res.json()
+                    if (data.auth_url) window.location.href = data.auth_url
+                    else toast.error('Failed to start StockX auth')
+                  }}
+                  className="px-3 py-1.5 bg-[#FF2E88] text-white text-xs font-medium rounded-lg hover:opacity-90 transition"
+                >
+                  Connect
+                </button>
+              )}
+            </div>
           </div>
         </div>
 

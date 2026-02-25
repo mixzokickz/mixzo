@@ -50,14 +50,20 @@ export const THEME = {
 }
 
 export const CLEANING_TIERS = [
-  { value: 'basic', label: 'Basic Clean', price: 25, description: 'Exterior wipe, lace cleaning, deodorize' },
-  { value: 'deep', label: 'Deep Clean', price: 45, description: 'Full disassembly, sole cleaning, deep scrub, lace replacement' },
-  { value: 'restoration', label: 'Full Restoration', price: 75, description: 'Color touch-up, sole restoration, complete rehab, premium treatment' },
+  { value: 'cleaning', label: 'Sneaker Cleaning', price: 20, description: 'Full exterior clean, lace cleaning, deodorize, quick turnaround' },
+  { value: 'cleaning_icing', label: 'Cleaning + Icing', price: 30, description: 'Full clean plus sole icing/whitening, deep scrub all surfaces' },
 ] as const
 
 export const CLEANING_STATUSES = [
   'pending', 'quoted', 'approved', 'shipped_to_us', 'in_progress', 'completed', 'shipped_back', 'cancelled'
 ] as const
+
+// StockX OAuth
+export const STOCKX_AUTH_URL = 'https://accounts.stockx.com/authorize'
+export const STOCKX_TOKEN_URL = 'https://accounts.stockx.com/oauth/token'
+export const STOCKX_API_BASE = 'https://api.stockx.com'
+export const STOCKX_AUDIENCE = 'gateway.stockx.com'
+export const STOCKX_REDIRECT_URI = 'https://mixzokickz.com/stockx/callback'
 
 export const SNEAKER_BRANDS = [
   'nike', 'jordan', 'air jordan', 'adidas', 'yeezy', 'new balance',
