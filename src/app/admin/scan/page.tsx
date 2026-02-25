@@ -28,8 +28,6 @@ export default function ScanPage() {
   const [price, setPrice] = useState('')
   const [cost, setCost] = useState('')
   const [quantity, setQuantity] = useState('1')
-  const [hasBox, setHasBox] = useState(true)
-
   // Search modal
   const [searchQuery, setSearchQuery] = useState('')
   const [searchResults, setSearchResults] = useState<any[]>([])
@@ -178,7 +176,6 @@ export default function ScanPage() {
           quantity: parseInt(quantity) || 1,
           images: result.imageUrls.length > 0 ? result.imageUrls : [],
           status: 'active',
-          has_box: hasBox,
           colorway: result.colorway,
         }),
       })
@@ -202,7 +199,6 @@ export default function ScanPage() {
     setPrice('')
     setCost('')
     setQuantity('1')
-    setHasBox(true)
     setTimeout(() => inputRef.current?.focus(), 100)
   }
 
@@ -440,32 +436,15 @@ export default function ScanPage() {
               </div>
             )}
 
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="text-xs text-[var(--text-secondary)] mb-1.5 block">Condition</label>
-                <select
-                  value={condition}
-                  onChange={e => setCondition(e.target.value)}
-                  className="w-full bg-[var(--bg-elevated)] border border-[var(--border)] rounded-xl px-3 py-3 text-sm text-white appearance-none"
-                >
-                  {CONDITIONS.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
-                </select>
-              </div>
-              <div>
-                <label className="text-xs text-[var(--text-secondary)] mb-1.5 block">Has Box?</label>
-                <button
-                  type="button"
-                  onClick={() => setHasBox(!hasBox)}
-                  className={cn(
-                    'w-full py-3 rounded-xl border text-sm font-medium transition-all',
-                    hasBox
-                      ? 'bg-[#FF2E88]/10 border-[#FF2E88]/30 text-white'
-                      : 'bg-[var(--bg-elevated)] border-[var(--border)] text-[var(--text-muted)]'
-                  )}
-                >
-                  {hasBox ? '✓ Yes' : 'No'}
-                </button>
-              </div>
+            <div>
+              <label className="text-xs text-[var(--text-secondary)] mb-1.5 block">Condition</label>
+              <select
+                value={condition}
+                onChange={e => setCondition(e.target.value)}
+                className="w-full bg-[var(--bg-elevated)] border border-[var(--border)] rounded-xl px-3 py-3 text-sm text-white appearance-none"
+              >
+                {CONDITIONS.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
+              </select>
             </div>
 
             <div className="grid grid-cols-3 gap-3">
