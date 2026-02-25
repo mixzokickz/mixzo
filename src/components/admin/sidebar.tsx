@@ -25,9 +25,8 @@ const NAV_SECTIONS = [
   {
     label: 'Products',
     items: [
-      { href: '/admin/products', label: 'All Products', icon: Package },
+      { href: '/admin/products', label: 'Products', icon: Package },
       { href: '/admin/products/new', label: 'Add Product', icon: Boxes },
-      { href: '/admin/inventory', label: 'Inventory', icon: Scale },
       { href: '/admin/price-sync', label: 'Price Sync', icon: RefreshCw },
     ],
   },
