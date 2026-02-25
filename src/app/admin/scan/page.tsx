@@ -252,16 +252,9 @@ export default function ScanPage() {
     }
     setScanState('adding')
     try {
-      const { data: { session } } = await supabase.auth.getSession()
-      const token = session?.access_token
-      if (!token) {
-        toast.error('Not authenticated — please log in again')
-        setScanState('found')
-        return
-      }
       const res = await fetch('/api/admin/products', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: result.name,
           brand: result.brand,
