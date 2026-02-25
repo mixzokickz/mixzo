@@ -7,7 +7,7 @@ import {
   LayoutDashboard, ScanBarcode, Package, ShoppingCart,
   Users, Flame, BarChart3, Settings, Menu, X, LogOut,
   Tag, FileText, Scale, Boxes, Truck, RefreshCw,
-  ClipboardCheck, Activity, HelpCircle, Star, Link2,
+  Activity, Star, Link2,
   Receipt, Bell, UserCog, Sparkles, ExternalLink
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -54,13 +54,18 @@ const NAV_SECTIONS = [
     ],
   },
   {
+    label: 'Cleaning',
+    items: [
+      { href: '/admin/cleaning', label: 'Cleaning Requests', icon: Sparkles },
+    ],
+  },
+  {
     label: 'Finance',
     items: [
       { href: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
       { href: '/admin/reports', label: 'Reports', icon: FileText },
       { href: '/admin/purchases', label: 'Purchases', icon: Receipt },
       { href: '/admin/payment-links', label: 'Payment Links', icon: Link2 },
-      { href: '/admin/reconciliation', label: 'Reconciliation', icon: ClipboardCheck },
     ],
   },
   {
@@ -71,16 +76,9 @@ const NAV_SECTIONS = [
     ],
   },
   {
-    label: 'Cleaning',
-    items: [
-      { href: '/admin/cleaning', label: 'Cleaning Requests', icon: Sparkles },
-    ],
-  },
-  {
     label: 'System',
     items: [
       { href: '/admin/monitoring', label: 'Monitoring', icon: Activity },
-      { href: '/admin/help', label: 'Help', icon: HelpCircle },
       { href: '/admin/settings', label: 'Store Settings', icon: Settings },
     ],
   },
