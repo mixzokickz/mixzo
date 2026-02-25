@@ -109,7 +109,7 @@ export default function ReturnsPage() {
               <h3 className="font-semibold mb-2">Questions About Our Policy?</h3>
               <p className="text-sm text-text-secondary">
                 Email us at <a href={`mailto:${BUSINESS_EMAIL}`} className="text-pink hover:underline">{BUSINESS_EMAIL}</a> or
-                DM us on Instagram <a href="https://instagram.com/mixzo.Kickz" target="_blank" rel="noopener noreferrer" className="text-pink hover:underline">{BUSINESS_INSTAGRAM}</a>
+                DM us on Instagram <a href="https://instagram.com/mixzo.kickz" target="_blank" rel="noopener noreferrer" className="text-pink hover:underline">{BUSINESS_INSTAGRAM}</a>
               </p>
             </div>
           </motion.div>

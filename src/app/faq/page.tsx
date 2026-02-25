@@ -130,7 +130,7 @@ export default function FAQPage() {
             <div className="flex flex-wrap justify-center gap-3">
               <a href={`mailto:${BUSINESS_EMAIL}`} className="text-sm text-pink hover:underline">{BUSINESS_EMAIL}</a>
               <span className="text-text-muted">•</span>
-              <a href="https://instagram.com/mixzo.Kickz" target="_blank" rel="noopener noreferrer" className="text-sm text-pink hover:underline">{BUSINESS_INSTAGRAM}</a>
+              <a href="https://instagram.com/mixzo.kickz" target="_blank" rel="noopener noreferrer" className="text-sm text-pink hover:underline">{BUSINESS_INSTAGRAM}</a>
             </div>
           </motion.div>
         </div>

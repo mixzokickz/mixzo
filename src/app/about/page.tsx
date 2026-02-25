@@ -246,7 +246,7 @@ export default function AboutPage() {
               </div>
               <div className="flex flex-col items-center gap-2">
                 <Instagram className="w-5 h-5 text-pink" />
-                <a href="https://instagram.com/mixzo.Kickz" target="_blank" rel="noopener noreferrer" className="text-sm text-text-secondary hover:text-pink transition-colors">{BUSINESS_INSTAGRAM}</a>
+                <a href="https://instagram.com/mixzo.kickz" target="_blank" rel="noopener noreferrer" className="text-sm text-text-secondary hover:text-pink transition-colors">{BUSINESS_INSTAGRAM}</a>
               </div>
             </div>
             <div className="flex flex-wrap justify-center gap-4">
