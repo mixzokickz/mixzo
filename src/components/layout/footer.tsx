@@ -6,8 +6,8 @@ export function Footer() {
   return (
     <footer className="border-t border-border mt-auto">
       <div className="h-px bg-gradient-to-r from-pink via-cyan to-pink" />
-      <div className="max-w-7xl mx-auto px-4 py-16">
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-10">
+      <div className="max-w-7xl mx-auto px-4 py-20">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-12">
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
             <span className="text-2xl font-black tracking-tight text-text">MIXZO</span>
