@@ -145,7 +145,7 @@ export default function AdminDashboard() {
     <div className="space-y-6 page-enter">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Welcome back 👋</h1>
+          <h1 className="text-2xl font-bold text-white">Welcome back</h1>
           <p className="text-sm text-[var(--text-muted)]">Here&apos;s what&apos;s happening with your store</p>
         </div>
         <div className="hidden sm:flex items-center gap-2">

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect, useCallback } from 'react'
-import { Keyboard, Camera, Search, Loader2, Check, X, Package, RotateCcw, ChevronDown, Link2 } from 'lucide-react'
+import { Keyboard, Camera, Search, Loader2, Check, X, Package, RotateCcw, ChevronDown, Link2, Sparkles, ShoppingBag, Box, ImagePlus } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { supabase } from '@/lib/supabase'
 import { toast } from 'sonner'
@@ -171,7 +171,7 @@ export default function ScanPage() {
       setPendingBarcode(code)
       setSearchQuery('')
       setTab('search')
-      toast('Barcode not recognized yet — search by shoe name to link it', { icon: '🔗' })
+      toast('Barcode not recognized yet — search by shoe name to link it')
     } catch (err) {
       console.error('Lookup error:', err)
       setScanState('not_found')
@@ -239,7 +239,7 @@ export default function ScanPage() {
     // If we came from a barcode scan, link this barcode to the product
     if (pendingBarcode) {
       saveToCache(pendingBarcode, product)
-      toast.success(`Barcode ${pendingBarcode} linked! Future scans will be instant.`, { icon: '🔗' })
+      toast.success(`Barcode ${pendingBarcode} linked! Future scans will be instant.`)
       setPendingBarcode(null)
     }
   }
@@ -559,46 +559,58 @@ export default function ScanPage() {
                   type="button"
                   onClick={() => setCondition('new')}
                   className={cn(
-                    'py-3 rounded-xl text-sm font-semibold border transition-all',
+                    'py-3 rounded-xl text-sm font-semibold border transition-all flex items-center justify-center gap-2',
                     condition === 'new'
                       ? 'bg-[#FF2E88] text-white border-[#FF2E88]'
                       : 'bg-[var(--bg-elevated)] border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--pink)]/40'
                   )}
                 >
-                  🏷️ New / DS
+                  <Sparkles size={16} className={condition === 'new' ? 'animate-pulse' : ''} />
+                  New / DS
                 </button>
                 <button
                   type="button"
                   onClick={() => setCondition('preowned')}
                   className={cn(
-                    'py-3 rounded-xl text-sm font-semibold border transition-all',
+                    'py-3 rounded-xl text-sm font-semibold border transition-all flex items-center justify-center gap-2',
                     condition === 'preowned'
                       ? 'bg-[#FF2E88] text-white border-[#FF2E88]'
                       : 'bg-[var(--bg-elevated)] border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--pink)]/40'
                   )}
                 >
-                  👟 Preowned
+                  <ShoppingBag size={16} />
+                  Preowned
                 </button>
               </div>
             </div>
 
             {/* Has Box Toggle */}
-            <div className="flex items-center justify-between bg-[var(--bg-elevated)] rounded-xl px-4 py-3 border border-[var(--border)]">
-              <span className="text-sm text-[var(--text-secondary)]">📦 Has Original Box</span>
-              <button
-                type="button"
-                onClick={() => setHasBox(!hasBox)}
-                className={cn(
-                  'relative w-12 h-7 rounded-full transition-colors',
-                  hasBox ? 'bg-[#FF2E88]' : 'bg-[var(--border)]'
-                )}
-              >
-                <span className={cn(
-                  'absolute top-0.5 w-6 h-6 rounded-full bg-white shadow transition-transform',
-                  hasBox ? 'translate-x-5' : 'translate-x-0.5'
+            <button
+              type="button"
+              onClick={() => setHasBox(!hasBox)}
+              className={cn(
+                'flex items-center justify-between w-full rounded-xl px-4 py-3.5 border transition-all',
+                hasBox
+                  ? 'bg-[#FF2E88]/10 border-[#FF2E88]/30'
+                  : 'bg-[var(--bg-elevated)] border-[var(--border)]'
+              )}
+            >
+              <div className="flex items-center gap-3">
+                <Box size={18} className={hasBox ? 'text-[#FF2E88]' : 'text-[var(--text-muted)]'} />
+                <span className={cn('text-sm font-medium', hasBox ? 'text-white' : 'text-[var(--text-secondary)]')}>
+                  Has Original Box
+                </span>
+              </div>
+              <div className={cn(
+                'relative w-11 h-6 rounded-full transition-colors',
+                hasBox ? 'bg-[#FF2E88]' : 'bg-[var(--border)]'
+              )}>
+                <div className={cn(
+                  'absolute top-1 w-4 h-4 rounded-full bg-white shadow-sm transition-transform duration-200',
+                  hasBox ? 'translate-x-6' : 'translate-x-1'
                 )} />
-              </button>
-            </div>
+              </div>
+            </button>
 
             {/* Photo Upload (for preowned) */}
             {condition === 'preowned' && (
@@ -624,7 +636,7 @@ export default function ScanPage() {
                     onClick={() => fileInputRef.current?.click()}
                     className="w-20 h-20 rounded-lg border-2 border-dashed border-[var(--border)] flex flex-col items-center justify-center text-[var(--text-muted)] hover:border-[var(--pink)]/40 hover:text-[var(--pink)] transition"
                   >
-                    <Camera size={20} />
+                    <ImagePlus size={20} />
                     <span className="text-[10px] mt-1">Add</span>
                   </button>
                   <input
