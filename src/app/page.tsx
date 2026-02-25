@@ -278,7 +278,7 @@ export default function HomePage() {
               </div>
               <h3 className="text-lg font-semibold text-text mb-2">Inventory Coming Soon</h3>
               <p className="text-sm text-text-muted max-w-xs">
-                Fresh drops loading. Follow us on Instagram to get notified when new pairs land.
+                New inventory coming soon. Follow us on Instagram to get notified first.
               </p>
             </div>
           ) : (

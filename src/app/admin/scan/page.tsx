@@ -82,8 +82,9 @@ export default function ScanPage() {
       let data = await res.json()
       let products = data.products || []
 
-      // Step 2: If numeric barcode and no results, try UPC lookup for name
+      // Step 2: If numeric barcode and no results, try multiple UPC sources
       if (products.length === 0 && /^\d{10,14}$/.test(code)) {
+        // Try UPCitemdb
         const upcRes = await fetch(`/api/upc-lookup?upc=${encodeURIComponent(code)}`)
         const upcData = await upcRes.json()
         if (upcData.title || upcData.brand) {
@@ -91,6 +92,14 @@ export default function ScanPage() {
           res = await fetch(`/api/stockx/search?q=${encodeURIComponent(searchTerm)}`)
           data = await res.json()
           products = data.products || []
+        }
+
+        // Still nothing? Show the search tab with a prompt
+        if (products.length === 0) {
+          setScanState('not_found')
+          toast.error('Barcode not in database — use Search tab to find the shoe by name')
+          setTab('search')
+          return
         }
       }
 
