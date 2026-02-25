@@ -75,17 +75,12 @@ export default function SettingsPage() {
               ) : stockxStatus === 'ok' ? (
                 <div className="flex items-center gap-1 text-green-400 text-sm"><CheckCircle size={16} /> Connected</div>
               ) : (
-                <button
-                  onClick={async () => {
-                    const res = await fetch('/api/stockx/auth')
-                    const data = await res.json()
-                    if (data.auth_url) window.location.href = data.auth_url
-                    else toast.error('Failed to start StockX auth')
-                  }}
-                  className="px-3 py-1.5 bg-[#FF2E88] text-white text-xs font-medium rounded-lg hover:opacity-90 transition"
+                <a
+                  href="/api/stockx/auth"
+                  className="px-3 py-1.5 bg-[#FF2E88] text-white text-xs font-medium rounded-lg hover:opacity-90 transition inline-block"
                 >
                   Connect
-                </button>
+                </a>
               )}
             </div>
           </div>

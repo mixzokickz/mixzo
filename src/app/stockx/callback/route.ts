@@ -1,18 +1,28 @@
 import { NextResponse } from 'next/server'
-import { supabaseAdmin } from '@/lib/supabase-server'
+import { cookies } from 'next/headers'
+import { saveStockXTokens } from '@/lib/stockx'
 
 const STOCKX_CLIENT_ID = process.env.STOCKX_CLIENT_ID || 'ZMGLMVVsrD6CCJcCCl9IqneTulbgYQiw'
 const STOCKX_CLIENT_SECRET = process.env.STOCKX_CLIENT_SECRET || '4FIgqrNP2ZEBs_xZzPjUhGM2u5JEHoN_HKcrvNN4yCTl6O3nfg_neu1RLm6G7if6'
 
 export async function GET(request: Request) {
+  const origin = new URL(request.url).origin
   try {
     const { searchParams } = new URL(request.url)
     const code = searchParams.get('code')
-    const origin = new URL(request.url).origin
+    const state = searchParams.get('state')
 
     if (!code) {
       return NextResponse.redirect(`${origin}/admin/settings?stockx=error&reason=no_code`)
     }
+
+    // Verify state
+    const cookieStore = await cookies()
+    const savedState = cookieStore.get('stockx_oauth_state')?.value
+    if (state && savedState && state !== savedState) {
+      return NextResponse.redirect(`${origin}/admin/settings?stockx=error&reason=invalid_state`)
+    }
+    cookieStore.delete('stockx_oauth_state')
 
     const res = await fetch('https://accounts.stockx.com/oauth/token', {
       method: 'POST',
@@ -34,17 +44,17 @@ export async function GET(request: Request) {
 
     const tokens = await res.json()
 
-    await supabaseAdmin.from('settings').update({
-      stockx_access_token: tokens.access_token,
-      stockx_refresh_token: tokens.refresh_token,
-      stockx_token_expires: new Date(Date.now() + tokens.expires_in * 1000).toISOString(),
-      stockx_connected: true,
-    }).eq('id', 1)
+    await saveStockXTokens({
+      access_token: tokens.access_token,
+      refresh_token: tokens.refresh_token,
+      token_type: tokens.token_type,
+      expires_in: tokens.expires_in,
+      scope: tokens.scope,
+    })
 
     return NextResponse.redirect(`${origin}/admin/settings?stockx=connected`)
   } catch (error) {
     console.error('StockX callback error:', error)
-    const origin = new URL(request.url).origin
     return NextResponse.redirect(`${origin}/admin/settings?stockx=error`)
   }
 }
