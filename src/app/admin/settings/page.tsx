@@ -69,20 +69,13 @@ export default function SettingsPage() {
               <p className="font-medium text-sm">StockX API</p>
               <p className="text-xs text-[var(--text-muted)]">Product lookup and pricing</p>
             </div>
-            <div className="flex items-center gap-3">
-              {stockxStatus === 'checking' ? (
-                <Loader2 size={18} className="animate-spin text-[var(--text-muted)]" />
-              ) : stockxStatus === 'ok' ? (
-                <div className="flex items-center gap-1 text-green-400 text-sm"><CheckCircle size={16} /> Connected</div>
-              ) : (
-                <a
-                  href="/api/stockx/auth"
-                  className="px-3 py-1.5 bg-[#FF2E88] text-white text-xs font-medium rounded-lg hover:opacity-90 transition inline-block"
-                >
-                  Connect
-                </a>
-              )}
-            </div>
+            {stockxStatus === 'checking' ? (
+              <Loader2 size={18} className="animate-spin text-[var(--text-muted)]" />
+            ) : stockxStatus === 'ok' ? (
+              <div className="flex items-center gap-1 text-green-400 text-sm"><CheckCircle size={16} /> Connected</div>
+            ) : (
+              <div className="flex items-center gap-1 text-red-400 text-sm"><XCircle size={16} /> Error</div>
+            )}
           </div>
         </div>
 
