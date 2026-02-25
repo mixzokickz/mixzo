@@ -41,13 +41,42 @@ export default function ScanPage() {
     if (tab === 'search') setTimeout(() => searchInputRef.current?.focus(), 100)
   }, [tab])
 
-  // ── Barcode Lookup Flow (matches Dave's) ──
+  // ── Barcode Lookup Flow (matches Dave's with local cache) ──
   const lookupBarcode = useCallback(async (code: string) => {
     if (!code.trim()) return
     setScanState('looking_up')
     setResult(null)
 
     try {
+      // Step 0: Check local barcode cache first (instant!)
+      try {
+        const cacheRes = await fetch(`/api/admin/barcode-cache?barcode=${encodeURIComponent(code)}`)
+        const cacheData = await cacheRes.json()
+        if (cacheData.found && cacheData.product) {
+          const cp = cacheData.product
+          setResult({
+            source: 'stockx',
+            barcode: code,
+            productName: cp.name,
+            brand: cp.brand,
+            colorway: cp.colorway,
+            styleId: cp.styleId,
+            size: cp.size,
+            retailPrice: cp.retailPrice,
+            imageUrl: cp.imageUrl,
+            imageUrls: cp.imageUrls || [],
+            stockxProductId: cp.stockxProductId,
+            variants: [],
+            marketData: null,
+          })
+          if (cp.size) setSelectedSize(cp.size)
+          if (cp.retailPrice) setPrice(cp.retailPrice.toString())
+          setScanState('found')
+          toast.success(`Found (cached, scan #${cacheData.scanCount}): ${cp.name}`)
+          return
+        }
+      } catch {}
+
       // Step 1: Search directly (works for style IDs, names)
       let res = await fetch(`/api/stockx/search?q=${encodeURIComponent(code)}`)
       let data = await res.json()
@@ -126,6 +155,24 @@ export default function ScanPage() {
       if (p.retailPrice) setPrice(p.retailPrice.toString())
       setScanState('found')
       toast.success(`Found: ${scanResult.productName}`)
+
+      // Save to local cache for faster future lookups
+      fetch('/api/admin/barcode-cache', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          barcode: code,
+          productName: scanResult.productName,
+          brand: scanResult.brand,
+          colorway: scanResult.colorway,
+          styleId: scanResult.styleId,
+          size: detectedSize,
+          retailPrice: scanResult.retailPrice,
+          imageUrl: scanResult.imageUrl,
+          imageUrls: scanResult.imageUrls,
+          stockxProductId: scanResult.stockxProductId,
+        }),
+      }).catch(() => {}) // fire and forget
     } catch (err) {
       console.error('Lookup error:', err)
       setScanState('not_found')
@@ -495,8 +542,8 @@ export default function ScanPage() {
               disabled={(scanState as string) === 'adding' || !selectedSize || !price}
               className="w-full bg-[#FF2E88] text-white font-bold py-4 rounded-xl text-base flex items-center justify-center gap-2 hover:opacity-90 transition disabled:opacity-40"
             >
-              {scanState === 'adding' ? <Loader2 size={20} className="animate-spin" /> : <Check size={20} />}
-              {scanState === 'adding' ? 'Adding...' : 'Add to Inventory'}
+              {(scanState as string) === 'adding' ? <Loader2 size={20} className="animate-spin" /> : <Check size={20} />}
+              {(scanState as string) === 'adding' ? 'Adding...' : 'Add to Inventory'}
             </button>
           </div>
         </div>
