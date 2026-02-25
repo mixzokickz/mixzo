@@ -67,7 +67,7 @@ export default function HomePage() {
       <ShopHeader />
 
       {/* Hero */}
-      <section className="relative pt-36 pb-28 md:pt-52 md:pb-44 px-4 overflow-hidden">
+      <section className="relative pt-40 pb-28 md:pt-56 md:pb-48 px-6 md:px-12 lg:px-16 overflow-hidden">
         {/* Concrete texture background */}
         <div className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-30" style={{ backgroundImage: 'url(/hero-bg.webp)' }} />
         <div className="absolute inset-0 bg-gradient-to-b from-[#0C0C0C]/60 via-transparent to-[#0C0C0C]" />
@@ -155,7 +155,7 @@ export default function HomePage() {
       </section>
 
       {/* Products Section */}
-      <section className="px-4 pt-16 pb-32 pb-mobile-nav">
+      <section className="px-6 md:px-12 lg:px-16 pt-20 pb-32 pb-mobile-nav">
         <div className="max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}

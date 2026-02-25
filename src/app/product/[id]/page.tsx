@@ -80,7 +80,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
     return (
       <div className="min-h-screen flex flex-col">
         <ShopHeader />
-        <main className="flex-1 pt-20 px-4">
+        <main className="flex-1 pt-24 px-6 md:px-12 lg:px-16">
           <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-10">
             <Skeleton className="aspect-square w-full rounded-2xl" />
             <div className="space-y-4 py-4">
@@ -117,7 +117,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
   return (
     <div className="min-h-screen flex flex-col">
       <ShopHeader />
-      <main className="flex-1 pt-20 px-4 pb-mobile-nav">
+      <main className="flex-1 pt-24 px-6 md:px-12 lg:px-16 pb-mobile-nav">
         <div className="max-w-6xl mx-auto">
           {/* Breadcrumb */}
           <nav className="flex items-center gap-2 text-sm text-text-muted mb-6">

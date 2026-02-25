@@ -35,9 +35,9 @@ export function ShopHeader() {
     <>
       <header className={cn(
         'fixed top-0 left-0 right-0 z-40 transition-all duration-300',
-        scrolled ? 'glass border-b border-border shadow-lg shadow-black/20' : 'bg-transparent'
+        scrolled ? 'glass border-b border-border shadow-lg shadow-black/20' : 'bg-[#0C0C0C]/80 backdrop-blur-md'
       )}>
-        <div className="max-w-7xl mx-auto px-4 h-18 md:h-20 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16 h-16 md:h-20 flex items-center justify-between">
           <Link href="/" className="text-2xl font-black tracking-tight text-text hover:text-pink transition-colors">
             MIXZO
           </Link>

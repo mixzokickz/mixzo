@@ -103,7 +103,7 @@ export default function CleaningRequestPage() {
     return (
       <div className="min-h-screen flex flex-col">
         <ShopHeader />
-        <main className="flex-1 pt-20 px-4"><div className="max-w-2xl mx-auto py-12"><div className="skeleton h-96 w-full rounded-2xl" /></div></main>
+        <main className="flex-1 pt-24 px-6 md:px-12 lg:px-16"><div className="max-w-2xl mx-auto py-12"><div className="skeleton h-96 w-full rounded-2xl" /></div></main>
       </div>
     )
   }
@@ -112,7 +112,7 @@ export default function CleaningRequestPage() {
     return (
       <div className="min-h-screen flex flex-col">
         <ShopHeader />
-        <main className="flex-1 pt-20 px-4 pb-mobile-nav">
+        <main className="flex-1 pt-24 px-6 md:px-12 lg:px-16 pb-mobile-nav">
           <div className="max-w-2xl mx-auto py-12 text-center">
             <div className="w-20 h-20 rounded-full bg-green-500/10 flex items-center justify-center mx-auto mb-6">
               <Check size={40} className="text-green-400" />
@@ -153,7 +153,7 @@ export default function CleaningRequestPage() {
   return (
     <div className="min-h-screen flex flex-col">
       <ShopHeader />
-      <main className="flex-1 pt-20 px-4 pb-mobile-nav">
+      <main className="flex-1 pt-24 px-6 md:px-12 lg:px-16 pb-mobile-nav">
         <div className="max-w-2xl mx-auto py-6">
           <Link href="/cleaning" className="inline-flex items-center gap-2 text-sm text-[var(--text-secondary)] hover:text-white transition-colors mb-6">
             <ArrowLeft size={16} /> Cleaning Service

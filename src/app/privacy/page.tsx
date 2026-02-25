@@ -7,7 +7,7 @@ export default function PrivacyPage() {
   return (
     <div className="min-h-screen flex flex-col">
       <ShopHeader />
-      <main className="flex-1 pt-20 px-4 pb-mobile-nav">
+      <main className="flex-1 pt-24 px-6 md:px-12 lg:px-16 pb-mobile-nav">
         <div className="max-w-3xl mx-auto py-6">
           <h1 className="text-2xl md:text-3xl font-bold mb-2">Privacy Policy</h1>
           <p className="text-sm text-text-muted mb-8">Last updated: February 2025</p>

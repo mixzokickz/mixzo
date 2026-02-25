@@ -53,7 +53,7 @@ export default function ConfirmationPage() {
   return (
     <div className="min-h-screen flex flex-col">
       <ShopHeader />
-      <main className="flex-1 pt-20 px-4">
+      <main className="flex-1 pt-24 px-6 md:px-12 lg:px-16">
         <Suspense fallback={<div className="flex items-center justify-center py-20 text-text-muted">Loading...</div>}>
           <ConfirmationContent />
         </Suspense>

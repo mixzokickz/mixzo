@@ -70,7 +70,7 @@ export default function CheckoutPage() {
     return (
       <div className="min-h-screen flex flex-col">
         <ShopHeader />
-        <main className="flex-1 pt-20 flex flex-col items-center justify-center text-center px-4">
+        <main className="flex-1 pt-24 flex flex-col items-center justify-center text-center px-6 md:px-12 lg:px-16">
           <CreditCard className="w-16 h-16 text-text-muted mb-4" />
           <h1 className="text-2xl font-bold mb-2">Nothing to checkout</h1>
           <p className="text-text-muted mb-6">Add some items to your cart first.</p>
@@ -84,7 +84,7 @@ export default function CheckoutPage() {
   return (
     <div className="min-h-screen flex flex-col">
       <ShopHeader />
-      <main className="flex-1 pt-20 px-4 pb-12">
+      <main className="flex-1 pt-24 px-6 md:px-12 lg:px-16 pb-12">
         <div className="max-w-5xl mx-auto">
           <Link href="/cart" className="inline-flex items-center gap-1.5 text-sm text-text-muted hover:text-text transition-colors mb-6">
             <ArrowLeft className="w-4 h-4" /> Back to Cart

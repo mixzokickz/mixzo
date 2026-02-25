@@ -1,6 +1,6 @@
 export default function ShopLoading() {
   return (
-    <div className="min-h-screen bg-[var(--bg)] pt-24 px-4">
+    <div className="min-h-screen bg-[var(--bg)] pt-28 px-6 md:px-12 lg:px-16">
       <div className="max-w-7xl mx-auto">
         <div className="h-10 w-48 bg-[var(--bg-elevated)] rounded-xl animate-pulse mb-8" />
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">

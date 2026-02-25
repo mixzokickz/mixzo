@@ -12,7 +12,7 @@ export default function ReturnsPage() {
   return (
     <div className="min-h-screen flex flex-col">
       <ShopHeader />
-      <main className="flex-1 pt-20 px-4 pb-mobile-nav">
+      <main className="flex-1 pt-24 px-6 md:px-12 lg:px-16 pb-mobile-nav">
         <div className="max-w-3xl mx-auto py-6">
           <Link href="/" className="inline-flex items-center gap-2 text-text-muted hover:text-white mb-8 text-sm transition-colors">
             <ArrowLeft className="w-4 h-4" /> Back to Home

@@ -76,7 +76,7 @@ export default function DropsPage() {
   return (
     <div className="min-h-screen flex flex-col">
       <ShopHeader />
-      <main className="flex-1 pt-20 px-4 pb-mobile-nav">
+      <main className="flex-1 pt-24 px-6 md:px-12 lg:px-16 pb-mobile-nav">
         <div className="max-w-7xl mx-auto py-6">
           {/* Header */}
           <motion.div
