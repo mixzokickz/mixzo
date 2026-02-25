@@ -73,59 +73,149 @@ export default function HomePage() {
         <div className="absolute inset-0 bg-gradient-to-b from-[#0C0C0C]/60 via-transparent to-[#0C0C0C]" />
 
         <div className="max-w-7xl mx-auto relative">
-          <div className="max-w-3xl">
-            <motion.div
-              initial="hidden"
-              animate="visible"
-              custom={0}
-              variants={fadeUp}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-card border border-border text-xs text-text-muted mb-8"
-            >
-              <Sparkles className="w-3.5 h-3.5 text-pink" />
-              LIVE HEAT. TRUSTED PAIRS. — Denver, CO
-            </motion.div>
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            {/* Left: Text */}
+            <div>
+              <motion.div
+                initial="hidden"
+                animate="visible"
+                custom={0}
+                variants={fadeUp}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-card border border-border text-xs text-text-muted mb-8"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-pink" />
+                LIVE HEAT. TRUSTED PAIRS. — Denver, CO
+              </motion.div>
 
-            <motion.h1
-              initial="hidden"
-              animate="visible"
-              custom={1}
-              variants={fadeUp}
-              className="text-5xl sm:text-6xl lg:text-8xl font-black leading-[0.95] tracking-tight"
-            >
-              Premium Kicks,
-              <br />
-              <span className="text-pink">Fair Prices</span>
-            </motion.h1>
+              <motion.h1
+                initial="hidden"
+                animate="visible"
+                custom={1}
+                variants={fadeUp}
+                className="text-5xl sm:text-6xl lg:text-7xl font-black leading-[0.95] tracking-tight"
+              >
+                Premium Kicks,
+                <br />
+                <span className="text-pink">Fair Prices</span>
+              </motion.h1>
 
-            <motion.p
-              initial="hidden"
-              animate="visible"
-              custom={2}
-              variants={fadeUp}
-              className="mt-6 text-lg md:text-xl text-text-secondary max-w-lg leading-relaxed"
-            >
-              Shop authenticated new and preowned sneakers from Denver. Every pair verified, every purchase backed by our guarantee.
-            </motion.p>
+              <motion.p
+                initial="hidden"
+                animate="visible"
+                custom={2}
+                variants={fadeUp}
+                className="mt-6 text-lg md:text-xl text-text-secondary max-w-lg leading-relaxed"
+              >
+                Shop authenticated new and preowned sneakers from Denver. Every pair verified, every purchase backed by our guarantee.
+              </motion.p>
 
-            <motion.div
-              initial="hidden"
-              animate="visible"
-              custom={3}
-              variants={fadeUp}
-              className="flex flex-wrap gap-4 mt-10"
-            >
-              <Link href="/shop">
-                <Button size="lg">
-                  Shop Now
-                  <ArrowRight className="w-4 h-4" />
-                </Button>
-              </Link>
-              <Link href="/cleaning">
-                <Button variant="outline" size="lg">
-                  Cleaning Service
-                </Button>
-              </Link>
-            </motion.div>
+              <motion.div
+                initial="hidden"
+                animate="visible"
+                custom={3}
+                variants={fadeUp}
+                className="flex flex-wrap gap-4 mt-10"
+              >
+                <Link href="/shop">
+                  <Button size="lg">
+                    Shop Now
+                    <ArrowRight className="w-4 h-4" />
+                  </Button>
+                </Link>
+                <Link href="/cleaning">
+                  <Button variant="outline" size="lg">
+                    Cleaning Service
+                  </Button>
+                </Link>
+              </motion.div>
+            </div>
+
+            {/* Right: Animated Sneaker Showcase */}
+            <div className="hidden lg:block relative">
+              <div className="relative w-full aspect-square max-w-lg mx-auto">
+                {/* Glow effects */}
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full bg-[#FF2E88]/10 blur-[100px]" />
+                <div className="absolute top-1/3 right-0 w-48 h-48 rounded-full bg-[#00C2D6]/8 blur-[80px]" />
+
+                {/* Main floating sneaker */}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8, y: 40 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: 0.3 }}
+                  className="relative z-10"
+                >
+                  <motion.img
+                    src="/images/library/hero-sneaker.webp"
+                    alt="Premium Sneaker"
+                    className="w-full h-full object-contain drop-shadow-2xl"
+                    animate={{ y: [-8, 8, -8] }}
+                    transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+                  />
+                </motion.div>
+
+                {/* Orbiting smaller sneakers */}
+                <motion.div
+                  className="absolute top-4 right-4 w-28 h-28 rounded-2xl overflow-hidden border border-border/50 bg-card/80 backdrop-blur-sm shadow-xl"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.8, duration: 0.6 }}
+                >
+                  <motion.img
+                    src="/images/library/pedestal.webp"
+                    alt=""
+                    className="w-full h-full object-cover"
+                    animate={{ scale: [1, 1.05, 1] }}
+                    transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
+                  />
+                </motion.div>
+
+                <motion.div
+                  className="absolute bottom-8 -left-4 w-24 h-24 rounded-2xl overflow-hidden border border-border/50 bg-card/80 backdrop-blur-sm shadow-xl"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 1, duration: 0.6 }}
+                >
+                  <motion.img
+                    src="/images/library/deals-banner.webp"
+                    alt=""
+                    className="w-full h-full object-cover"
+                    animate={{ scale: [1, 1.03, 1] }}
+                    transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
+                  />
+                </motion.div>
+
+                <motion.div
+                  className="absolute bottom-24 right-0 w-20 h-20 rounded-xl overflow-hidden border border-[#FF2E88]/20 bg-card/80 backdrop-blur-sm shadow-xl"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 1.2, duration: 0.6 }}
+                >
+                  <motion.img
+                    src="/images/library/collection.webp"
+                    alt=""
+                    className="w-full h-full object-cover"
+                    animate={{ scale: [1, 1.04, 1] }}
+                    transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
+                  />
+                </motion.div>
+
+                {/* Floating badge */}
+                <motion.div
+                  className="absolute top-16 -left-2 px-3 py-2 rounded-xl bg-card/90 border border-border/50 backdrop-blur-sm shadow-lg"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 1.4, duration: 0.5 }}
+                >
+                  <motion.div
+                    animate={{ y: [-3, 3, -3] }}
+                    transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }}
+                  >
+                    <p className="text-[10px] text-text-muted">Verified ✓</p>
+                    <p className="text-xs font-bold text-white">100% Authentic</p>
+                  </motion.div>
+                </motion.div>
+              </div>
+            </div>
           </div>
 
           {/* Trust signals */}
