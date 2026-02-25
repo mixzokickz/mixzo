@@ -23,11 +23,11 @@ interface ProductResult {
   goatProductId?: string
 }
 
-const CONDITIONS = [
-  { value: 'new', label: 'New / DS' },
-  { value: 'used_like_new', label: 'Used - Like New' },
-  { value: 'used_good', label: 'Used - Good' },
-  { value: 'used_fair', label: 'Used - Fair' },
+// Standard men's sneaker sizes
+const SNEAKER_SIZES = [
+  '3.5', '4', '4.5', '5', '5.5', '6', '6.5', '7', '7.5', '8', '8.5',
+  '9', '9.5', '10', '10.5', '11', '11.5', '12', '12.5', '13', '13.5',
+  '14', '14.5', '15', '16', '17', '18',
 ]
 
 export default function ScanPage() {
@@ -39,10 +39,13 @@ export default function ScanPage() {
 
   // Form fields
   const [selectedSize, setSelectedSize] = useState('')
-  const [condition, setCondition] = useState('new')
+  const [condition, setCondition] = useState<'new' | 'preowned'>('new')
+  const [hasBox, setHasBox] = useState(true)
   const [price, setPrice] = useState('')
   const [cost, setCost] = useState('')
   const [quantity, setQuantity] = useState('1')
+  const [photos, setPhotos] = useState<string[]>([])
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   // Search
   const [searchQuery, setSearchQuery] = useState('')
@@ -260,10 +263,13 @@ export default function ScanPage() {
           style_id: result.styleId,
           size: selectedSize,
           condition,
+          has_box: hasBox,
           price: parseFloat(price),
           cost: cost ? parseFloat(cost) : null,
           quantity: parseInt(quantity) || 1,
-          images: result.imageUrls.length > 0 ? result.imageUrls : [],
+          images: condition === 'preowned' && photos.length > 0
+            ? photos
+            : result.imageUrls.length > 0 ? result.imageUrls : [],
           status: 'active',
           colorway: result.colorway,
         }),
@@ -278,6 +284,24 @@ export default function ScanPage() {
     }
   }
 
+  // Photo upload handler
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files
+    if (!files) return
+    Array.from(files).forEach(file => {
+      const reader = new FileReader()
+      reader.onload = () => {
+        if (reader.result) setPhotos(prev => [...prev, reader.result as string])
+      }
+      reader.readAsDataURL(file)
+    })
+    e.target.value = ''
+  }
+
+  const removePhoto = (index: number) => {
+    setPhotos(prev => prev.filter((_, i) => i !== index))
+  }
+
   const resetScan = () => {
     setScanState('idle')
     setResult(null)
@@ -285,9 +309,11 @@ export default function ScanPage() {
     setPendingBarcode(null)
     setSelectedSize('')
     setCondition('new')
+    setHasBox(true)
     setPrice('')
     setCost('')
     setQuantity('1')
+    setPhotos([])
     setSearchQuery('')
     setSearchResults([])
     setTab('scan')
@@ -498,33 +524,125 @@ export default function ScanPage() {
           </div>
 
           {/* Add Form */}
-          <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl p-5 space-y-4">
+          <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl p-5 space-y-5">
             <h3 className="text-sm font-bold text-white">Add to Inventory</h3>
 
+            {/* Size Grid */}
             <div>
-              <label className="text-xs text-[var(--text-secondary)] mb-1.5 block">Size *</label>
-              <input
-                value={selectedSize}
-                onChange={e => setSelectedSize(e.target.value)}
-                placeholder="e.g. 10.5"
-                className="w-full bg-[var(--bg-elevated)] border border-[var(--border)] rounded-xl px-4 py-3 text-sm text-white focus:border-[var(--pink)] focus:outline-none"
-              />
+              <label className="text-xs text-[var(--text-secondary)] mb-2.5 block font-medium">
+                Size {selectedSize && <span className="text-[var(--pink)]">— {selectedSize}</span>}
+              </label>
+              <div className="grid grid-cols-7 sm:grid-cols-9 gap-1.5">
+                {SNEAKER_SIZES.map(s => (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => setSelectedSize(s)}
+                    className={cn(
+                      'py-2 rounded-lg text-xs font-semibold transition-all border',
+                      selectedSize === s
+                        ? 'bg-[#FF2E88] text-white border-[#FF2E88] shadow-lg shadow-[#FF2E88]/20'
+                        : 'bg-[var(--bg-elevated)] border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--pink)]/40 hover:text-white'
+                    )}
+                  >
+                    {s}
+                  </button>
+                ))}
+              </div>
             </div>
 
+            {/* Condition Toggle */}
             <div>
-              <label className="text-xs text-[var(--text-secondary)] mb-1.5 block">Condition</label>
-              <select
-                value={condition}
-                onChange={e => setCondition(e.target.value)}
-                className="w-full bg-[var(--bg-elevated)] border border-[var(--border)] rounded-xl px-3 py-3 text-sm text-white appearance-none"
+              <label className="text-xs text-[var(--text-secondary)] mb-2.5 block font-medium">Condition</label>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setCondition('new')}
+                  className={cn(
+                    'py-3 rounded-xl text-sm font-semibold border transition-all',
+                    condition === 'new'
+                      ? 'bg-[#FF2E88] text-white border-[#FF2E88]'
+                      : 'bg-[var(--bg-elevated)] border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--pink)]/40'
+                  )}
+                >
+                  🏷️ New / DS
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setCondition('preowned')}
+                  className={cn(
+                    'py-3 rounded-xl text-sm font-semibold border transition-all',
+                    condition === 'preowned'
+                      ? 'bg-[#FF2E88] text-white border-[#FF2E88]'
+                      : 'bg-[var(--bg-elevated)] border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--pink)]/40'
+                  )}
+                >
+                  👟 Preowned
+                </button>
+              </div>
+            </div>
+
+            {/* Has Box Toggle */}
+            <div className="flex items-center justify-between bg-[var(--bg-elevated)] rounded-xl px-4 py-3 border border-[var(--border)]">
+              <span className="text-sm text-[var(--text-secondary)]">📦 Has Original Box</span>
+              <button
+                type="button"
+                onClick={() => setHasBox(!hasBox)}
+                className={cn(
+                  'relative w-12 h-7 rounded-full transition-colors',
+                  hasBox ? 'bg-[#FF2E88]' : 'bg-[var(--border)]'
+                )}
               >
-                {CONDITIONS.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
-              </select>
+                <span className={cn(
+                  'absolute top-0.5 w-6 h-6 rounded-full bg-white shadow transition-transform',
+                  hasBox ? 'translate-x-5' : 'translate-x-0.5'
+                )} />
+              </button>
             </div>
 
+            {/* Photo Upload (for preowned) */}
+            {condition === 'preowned' && (
+              <div>
+                <label className="text-xs text-[var(--text-secondary)] mb-2.5 block font-medium">
+                  Photos <span className="text-[var(--text-muted)]">(show actual condition)</span>
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {photos.map((photo, i) => (
+                    <div key={i} className="relative w-20 h-20 rounded-lg overflow-hidden border border-[var(--border)]">
+                      <img src={photo} alt="" className="w-full h-full object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => removePhoto(i)}
+                        className="absolute top-0.5 right-0.5 w-5 h-5 rounded-full bg-black/70 flex items-center justify-center"
+                      >
+                        <X size={12} className="text-white" />
+                      </button>
+                    </div>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="w-20 h-20 rounded-lg border-2 border-dashed border-[var(--border)] flex flex-col items-center justify-center text-[var(--text-muted)] hover:border-[var(--pink)]/40 hover:text-[var(--pink)] transition"
+                  >
+                    <Camera size={20} />
+                    <span className="text-[10px] mt-1">Add</span>
+                  </button>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    className="hidden"
+                    onChange={handlePhotoUpload}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Price / Cost / Qty */}
             <div className="grid grid-cols-3 gap-3">
               <div>
-                <label className="text-xs text-[var(--text-secondary)] mb-1.5 block">Sell Price ($) *</label>
+                <label className="text-xs text-[var(--text-secondary)] mb-1.5 block font-medium">Sell Price ($) *</label>
                 <input
                   type="number"
                   step="0.01"
@@ -535,7 +653,7 @@ export default function ScanPage() {
                 />
               </div>
               <div>
-                <label className="text-xs text-[var(--text-secondary)] mb-1.5 block">Cost ($)</label>
+                <label className="text-xs text-[var(--text-secondary)] mb-1.5 block font-medium">Cost ($)</label>
                 <input
                   type="number"
                   step="0.01"
@@ -546,7 +664,7 @@ export default function ScanPage() {
                 />
               </div>
               <div>
-                <label className="text-xs text-[var(--text-secondary)] mb-1.5 block">Qty</label>
+                <label className="text-xs text-[var(--text-secondary)] mb-1.5 block font-medium">Qty</label>
                 <input
                   type="number"
                   value={quantity}
@@ -557,6 +675,7 @@ export default function ScanPage() {
               </div>
             </div>
 
+            {/* Margin */}
             {price && cost && parseFloat(cost) > 0 && (
               <div className="text-xs text-[var(--text-muted)] bg-[var(--bg-elevated)] rounded-lg px-3 py-2">
                 Margin: <span className="text-white font-medium">${(parseFloat(price) - parseFloat(cost)).toFixed(2)}</span>
@@ -566,7 +685,7 @@ export default function ScanPage() {
 
             <button
               onClick={handleAdd}
-              disabled={scanState as string === 'adding' || !selectedSize || !price}
+              disabled={(scanState as string) === 'adding' || !selectedSize || !price}
               className="w-full bg-[#FF2E88] text-white font-bold py-4 rounded-xl text-base flex items-center justify-center gap-2 hover:opacity-90 transition disabled:opacity-40"
             >
               {(scanState as string) === 'adding' ? <Loader2 size={20} className="animate-spin" /> : <Check size={20} />}
