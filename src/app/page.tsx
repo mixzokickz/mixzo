@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { ArrowRight, Shield, Truck, RefreshCw, Package } from 'lucide-react'
+import { Package } from 'lucide-react'
+import { motion } from 'framer-motion'
 import { supabase } from '@/lib/supabase'
 import { ShopHeader } from '@/components/layout/shop-header'
 import { Footer } from '@/components/layout/footer'
@@ -10,7 +11,6 @@ import { MobileBottomNav } from '@/components/layout/mobile-bottom-nav'
 import { ProductCard } from '@/components/shop/product-card'
 import { FilterTabs } from '@/components/shop/filter-tabs'
 import { ProductGridSkeleton } from '@/components/ui/skeleton'
-import { Button } from '@/components/ui/button'
 
 interface Product {
   id: string
@@ -22,12 +22,6 @@ interface Product {
   image_url: string | null
   status: string
 }
-
-const TRUST_SIGNALS = [
-  { icon: Shield, label: 'Authenticated', desc: 'Every pair verified' },
-  { icon: Truck, label: 'Fast Shipping', desc: 'Free over $200' },
-  { icon: RefreshCw, label: 'Easy Returns', desc: 'Hassle-free process' },
-]
 
 export default function HomePage() {
   const [products, setProducts] = useState<Product[]>([])
@@ -57,70 +51,80 @@ export default function HomePage() {
       <ShopHeader />
 
       {/* Hero */}
-      <section className="relative pt-24 pb-16 md:pt-32 md:pb-24 px-4 overflow-hidden">
-        {/* Background effects */}
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-pink/8 rounded-full blur-[120px] pointer-events-none" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-cyan/8 rounded-full blur-[120px] pointer-events-none" />
-
-        <div className="max-w-7xl mx-auto relative">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-card border border-border text-xs text-text-muted mb-6">
-                <Package className="w-3.5 h-3.5" />
-                Based in Denver, CO
-              </div>
-              <h1 className="text-4xl sm:text-5xl lg:text-7xl font-black leading-[1.05] tracking-tight">
-                Premium Kicks,{' '}
-                <span className="gradient-text">Fair Prices</span>
-              </h1>
-              <p className="mt-5 text-lg text-text-secondary max-w-md leading-relaxed">
-                Shop authenticated new and preowned sneakers. Every pair verified, every purchase backed by our guarantee.
-              </p>
-              <div className="flex flex-wrap gap-3 mt-8">
-                <Link href="/shop">
-                  <Button size="lg">
-                    Shop Now
-                    <ArrowRight className="w-4 h-4" />
-                  </Button>
-                </Link>
-                <Link href="/shop?condition=used">
-                  <Button variant="secondary" size="lg">Shop Preowned</Button>
-                </Link>
-              </div>
-              <div className="flex flex-wrap gap-6 mt-10">
-                {TRUST_SIGNALS.map(({ icon: Icon, label, desc }) => (
-                  <div key={label} className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-card border border-border flex items-center justify-center">
-                      <Icon className="w-5 h-5 text-pink" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold text-text">{label}</p>
-                      <p className="text-xs text-text-muted">{desc}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Right side — animated gradient orb */}
-            <div className="hidden md:flex items-center justify-center">
-              <div className="relative w-full aspect-square max-w-md">
-                <div className="absolute inset-8 rounded-full bg-gradient-to-br from-pink/25 via-transparent to-cyan/25 animate-[spin_20s_linear_infinite]" />
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 rounded-full bg-gradient-to-r from-pink to-cyan opacity-15 blur-3xl animate-pulse" />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-[120px] font-black gradient-text opacity-20 select-none">MX</span>
-                </div>
-                <div className="absolute inset-0 rounded-3xl border border-border/50" />
-              </div>
-            </div>
-          </div>
+      <section className="relative min-h-[80vh] flex items-center justify-center overflow-hidden">
+        {/* Animated mesh gradient background */}
+        <div className="absolute inset-0">
+          <div className="mesh-gradient w-[500px] h-[500px] bg-pink/10 top-[-10%] left-[-5%]" />
+          <div className="mesh-gradient w-[600px] h-[600px] bg-cyan/8 bottom-[-15%] right-[-10%]" style={{ animationDelay: '-7s' }} />
+          <div className="mesh-gradient w-[400px] h-[400px] bg-pink/5 top-[40%] right-[20%]" style={{ animationDelay: '-13s' }} />
         </div>
+
+        {/* Subtle grid pattern */}
+        <div
+          className="absolute inset-0 opacity-[0.03]"
+          style={{
+            backgroundImage: 'linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)',
+            backgroundSize: '64px 64px',
+          }}
+        />
+
+        <div className="relative z-10 max-w-5xl mx-auto px-4 text-center pt-20 pb-16">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <h1 className="text-[clamp(3.5rem,12vw,9rem)] font-black leading-[0.9] tracking-[-0.05em]">
+              <span className="gradient-text">MIXZO</span>
+            </h1>
+          </motion.div>
+
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
+            className="mt-6 text-lg sm:text-xl text-text-secondary max-w-lg mx-auto leading-relaxed"
+          >
+            Authenticated kicks. New and preowned.
+            <br className="hidden sm:block" />
+            Denver&apos;s source for heat you can trust.
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            className="flex flex-wrap items-center justify-center gap-4 mt-10"
+          >
+            <Link
+              href="/shop?condition=new"
+              className="h-13 px-8 rounded-2xl bg-gradient-to-r from-pink to-cyan text-white font-semibold text-base inline-flex items-center justify-center hover:opacity-90 active:scale-[0.98] transition-all shadow-lg shadow-pink/20"
+            >
+              Shop New
+            </Link>
+            <Link
+              href="/shop?condition=used"
+              className="h-13 px-8 rounded-2xl bg-white/5 border border-white/10 text-text font-semibold text-base inline-flex items-center justify-center hover:bg-white/10 hover:border-white/20 active:scale-[0.98] transition-all"
+            >
+              Shop Preowned
+            </Link>
+          </motion.div>
+        </div>
+
+        {/* Bottom fade */}
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-bg to-transparent" />
       </section>
 
       {/* Products Section */}
-      <section className="px-4 pb-24 pb-mobile-nav">
+      <section className="px-4 pb-24 pb-mobile-nav -mt-8 relative z-10">
         <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-50px' }}
+            transition={{ duration: 0.6 }}
+            className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8"
+          >
             <div>
               <h2 className="text-2xl font-bold">Latest Drops</h2>
               <p className="text-sm text-text-muted mt-1">Fresh inventory, updated daily</p>
@@ -134,36 +138,38 @@ export default function HomePage() {
               value={filter}
               onChange={setFilter}
             />
-          </div>
+          </motion.div>
 
           {loading ? (
             <ProductGridSkeleton count={8} />
           ) : filtered.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-20 text-center">
-              <Package className="w-16 h-16 text-text-muted mb-4" />
-              <h3 className="text-xl font-semibold text-text mb-2">No products yet</h3>
-              <p className="text-text-muted max-w-sm">
-                We are stocking up with fresh inventory. Check back soon for the latest drops.
-              </p>
-            </div>
-          ) : (
-            <>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {filtered.map((product) => (
-                  <ProductCard key={product.id} product={product} />
-                ))}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex flex-col items-center justify-center py-24 text-center"
+            >
+              <div className="w-20 h-20 rounded-2xl bg-card border border-border flex items-center justify-center mb-6">
+                <Package className="w-8 h-8 text-text-muted" />
               </div>
-              {products.length >= 12 && (
-                <div className="flex justify-center mt-10">
-                  <Link href="/shop">
-                    <Button variant="secondary" size="lg">
-                      View All Products
-                      <ArrowRight className="w-4 h-4" />
-                    </Button>
-                  </Link>
-                </div>
-              )}
-            </>
+              <h3 className="text-xl font-semibold text-text mb-2">Coming Soon</h3>
+              <p className="text-text-muted max-w-sm">
+                Fresh inventory dropping soon. We&apos;re curating the best kicks for you.
+              </p>
+            </motion.div>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {filtered.map((product, i) => (
+                <motion.div
+                  key={product.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: '-30px' }}
+                  transition={{ duration: 0.4, delay: i * 0.05 }}
+                >
+                  <ProductCard product={product} />
+                </motion.div>
+              ))}
+            </div>
           )}
         </div>
       </section>

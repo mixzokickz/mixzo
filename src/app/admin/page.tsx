@@ -2,55 +2,29 @@
 
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
-import { DollarSign, Package, ShoppingCart, Users, TrendingUp, TrendingDown, ArrowUpRight } from 'lucide-react'
+import { DollarSign, Package, ShoppingCart, Users, ArrowUpRight, ScanBarcode, Plus, Boxes } from 'lucide-react'
 import { formatPrice } from '@/lib/utils'
 import Link from 'next/link'
-import dynamic from 'next/dynamic'
-
-const RechartsArea = dynamic(
-  () => import('recharts').then(mod => {
-    const { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } = mod
-    return function Chart({ data }: { data: Array<{ date: string; revenue: number }> }) {
-      return (
-        <ResponsiveContainer width="100%" height={220}>
-          <AreaChart data={data}>
-            <defs>
-              <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#FF2E88" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="#FF2E88" stopOpacity={0} />
-              </linearGradient>
-            </defs>
-            <XAxis dataKey="date" stroke="#6A6A80" fontSize={11} tickLine={false} axisLine={false} />
-            <YAxis stroke="#6A6A80" fontSize={11} tickLine={false} axisLine={false} tickFormatter={(v: number) => `$${v}`} />
-            <Tooltip
-              contentStyle={{ background: '#141418', border: '1px solid #1E1E26', borderRadius: '12px', fontSize: '12px' }}
-              labelStyle={{ color: '#A0A0B8' }}
-              itemStyle={{ color: '#FF2E88' }}
-              formatter={((value: number | undefined) => [`$${value ?? 0}`, 'Revenue']) as never}
-            />
-            <Area type="monotone" dataKey="revenue" stroke="#FF2E88" fill="url(#colorRevenue)" strokeWidth={2} />
-          </AreaChart>
-        </ResponsiveContainer>
-      )
-    }
-  }),
-  { ssr: false, loading: () => <div className="skeleton h-[220px] w-full rounded-xl" /> }
-)
+import { motion } from 'framer-motion'
 
 interface Stats {
   revenue: number
   orders: number
   products: number
   customers: number
-  revenueChange: number
-  ordersChange: number
 }
 
 export default function AdminDashboard() {
-  const [stats, setStats] = useState<Stats>({ revenue: 0, orders: 0, products: 0, customers: 0, revenueChange: 0, ordersChange: 0 })
-  const [chartData, setChartData] = useState<Array<{ date: string; revenue: number }>>([])
+  const [stats, setStats] = useState<Stats>({ revenue: 0, orders: 0, products: 0, customers: 0 })
   const [recentOrders, setRecentOrders] = useState<Array<{ id: string; total: number; status: string; created_at: string; customer_name?: string }>>([])
   const [loading, setLoading] = useState(true)
+
+  const getGreeting = () => {
+    const h = new Date().getHours()
+    if (h < 12) return 'Good morning'
+    if (h < 17) return 'Good afternoon'
+    return 'Good evening'
+  }
 
   useEffect(() => {
     async function load() {
@@ -60,30 +34,16 @@ export default function AdminDashboard() {
         supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('role', 'customer'),
       ])
 
-      const allOrders = await supabase.from('orders').select('total, created_at, status')
+      const allOrders = await supabase.from('orders').select('total, status')
       const totalRevenue = allOrders.data?.filter(o => o.status !== 'cancelled').reduce((sum, o) => sum + (o.total || 0), 0) || 0
-
-      // Build chart data (last 7 days)
-      const days: Array<{ date: string; revenue: number }> = []
-      for (let i = 6; i >= 0; i--) {
-        const d = new Date()
-        d.setDate(d.getDate() - i)
-        const dateStr = d.toISOString().split('T')[0]
-        const dayRevenue = allOrders.data
-          ?.filter(o => o.created_at?.startsWith(dateStr) && o.status !== 'cancelled')
-          .reduce((sum, o) => sum + (o.total || 0), 0) || 0
-        days.push({ date: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), revenue: dayRevenue })
-      }
+      const activeOrders = allOrders.data?.filter(o => !['delivered', 'cancelled'].includes(o.status)).length || 0
 
       setStats({
         revenue: totalRevenue,
-        orders: allOrders.data?.length || 0,
+        orders: activeOrders,
         products: products.count || 0,
         customers: customers.count || 0,
-        revenueChange: 12.5,
-        ordersChange: 8.2,
       })
-      setChartData(days)
       setRecentOrders(orders.data || [])
       setLoading(false)
     }
@@ -91,60 +51,84 @@ export default function AdminDashboard() {
   }, [])
 
   const statCards = [
-    { label: 'Total Revenue', value: formatPrice(stats.revenue), change: stats.revenueChange, icon: DollarSign, href: '/admin/analytics' },
-    { label: 'Total Orders', value: stats.orders.toString(), change: stats.ordersChange, icon: ShoppingCart, href: '/admin/orders' },
-    { label: 'Products', value: stats.products.toString(), change: null, icon: Package, href: '/admin/products' },
-    { label: 'Customers', value: stats.customers.toString(), change: null, icon: Users, href: '/admin/customers' },
+    { label: 'Total Products', value: stats.products.toString(), icon: Package, color: 'var(--pink)' },
+    { label: 'Active Orders', value: stats.orders.toString(), icon: ShoppingCart, color: 'var(--cyan)' },
+    { label: 'Revenue', value: formatPrice(stats.revenue), icon: DollarSign, color: '#10B981' },
+    { label: 'Customers', value: stats.customers.toString(), icon: Users, color: '#8B5CF6' },
+  ]
+
+  const quickActions = [
+    { label: 'Scan Product', href: '/admin/scan', icon: ScanBarcode },
+    { label: 'Create Order', href: '/admin/orders/new', icon: Plus },
+    { label: 'View Inventory', href: '/admin/inventory', icon: Boxes },
   ]
 
   if (loading) {
     return (
       <div className="space-y-6">
-        <div className="skeleton h-8 w-48" />
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          {[1, 2, 3, 4].map(i => <div key={i} className="skeleton h-28 rounded-xl" />)}
+        <div className="skeleton h-10 w-64 rounded-lg" />
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {[1, 2, 3, 4].map(i => <div key={i} className="skeleton h-32 rounded-xl" />)}
         </div>
-        <div className="skeleton h-72 rounded-xl" />
+        <div className="skeleton h-64 rounded-xl" />
       </div>
     )
   }
 
   return (
-    <div className="space-y-6 page-enter">
+    <div className="space-y-8">
+      {/* Welcome */}
       <div>
-        <h1 className="text-2xl font-bold text-white">Dashboard</h1>
-        <p className="text-sm text-[var(--text-muted)]">Overview of your store performance</p>
+        <h1 className="text-2xl lg:text-3xl font-bold text-white">{getGreeting()} 👋</h1>
+        <p className="text-[var(--text-secondary)] mt-1">Here&apos;s what&apos;s happening with your store today.</p>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        {statCards.map(({ label, value, change, icon: Icon, href }) => (
-          <Link key={label} href={href} className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl p-4 hover:border-[var(--pink)]/30 transition-colors">
-            <div className="flex items-center justify-between mb-3">
-              <div className="w-9 h-9 rounded-lg bg-[var(--bg-elevated)] flex items-center justify-center">
-                <Icon size={18} className="text-[var(--text-secondary)]" />
-              </div>
-              {change !== null && (
-                <span className={`text-xs font-medium flex items-center gap-0.5 ${change >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                  {change >= 0 ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
-                  {Math.abs(change)}%
-                </span>
-              )}
+      {/* Stat Cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {statCards.map(({ label, value, icon: Icon, color }, i) => (
+          <motion.div
+            key={label}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.1, duration: 0.4 }}
+            className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl p-5 hover:border-[var(--pink)]/30 transition-all duration-300 group"
+            style={{ '--hover-color': color } as React.CSSProperties}
+          >
+            <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-3" style={{ background: `${color}15` }}>
+              <Icon size={20} style={{ color }} />
             </div>
-            <p className="text-xl font-bold text-white">{value}</p>
-            <p className="text-xs text-[var(--text-muted)] mt-0.5">{label}</p>
-          </Link>
+            <p className="text-2xl lg:text-3xl font-bold text-white">{value}</p>
+            <p className="text-xs text-[var(--text-muted)] mt-1">{label}</p>
+          </motion.div>
         ))}
       </div>
 
-      {/* Chart */}
-      <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl p-5">
-        <h2 className="text-sm font-semibold text-white mb-4">Revenue (Last 7 Days)</h2>
-        <RechartsArea data={chartData} />
+      {/* Quick Actions */}
+      <div>
+        <h2 className="text-sm font-semibold text-white mb-3">Quick Actions</h2>
+        <div className="grid grid-cols-3 gap-3">
+          {quickActions.map(({ label, href, icon: Icon }) => (
+            <Link
+              key={label}
+              href={href}
+              className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl p-4 flex flex-col items-center gap-2 hover:border-[var(--pink)]/30 transition-all duration-200 text-center"
+            >
+              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[var(--pink)] to-[var(--cyan)] flex items-center justify-center">
+                <Icon size={20} className="text-white" />
+              </div>
+              <span className="text-xs font-medium text-[var(--text-secondary)]">{label}</span>
+            </Link>
+          ))}
+        </div>
       </div>
 
       {/* Recent Orders */}
-      <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl p-5">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4, duration: 0.4 }}
+        className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl p-5"
+      >
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-sm font-semibold text-white">Recent Orders</h2>
           <Link href="/admin/orders" className="text-xs text-[var(--pink)] hover:underline flex items-center gap-1">
@@ -154,7 +138,7 @@ export default function AdminDashboard() {
         {recentOrders.length === 0 ? (
           <p className="text-sm text-[var(--text-muted)] text-center py-8">No orders yet</p>
         ) : (
-          <div className="space-y-2">
+          <div className="space-y-1">
             {recentOrders.map(order => (
               <Link
                 key={order.id}
@@ -180,7 +164,7 @@ export default function AdminDashboard() {
             ))}
           </div>
         )}
-      </div>
+      </motion.div>
     </div>
   )
 }

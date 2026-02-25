@@ -49,6 +49,13 @@ export const THEME = {
   gradient: 'linear-gradient(135deg, #FF2E88, #00C2D6)',
 }
 
+// StockX OAuth
+export const STOCKX_AUTH_URL = 'https://accounts.stockx.com/authorize'
+export const STOCKX_TOKEN_URL = 'https://accounts.stockx.com/oauth/token'
+export const STOCKX_API_BASE = 'https://api.stockx.com'
+export const STOCKX_AUDIENCE = 'gateway.stockx.com'
+export const STOCKX_REDIRECT_URI = 'https://mixzokickz.com/stockx/callback'
+
 export const SNEAKER_BRANDS = [
   'nike', 'jordan', 'air jordan', 'adidas', 'yeezy', 'new balance',
   'puma', 'reebok', 'asics', 'converse', 'vans', 'saucony',

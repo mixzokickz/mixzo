@@ -6,44 +6,32 @@ import { usePathname } from 'next/navigation'
 import {
   LayoutDashboard, ScanBarcode, Package, ShoppingCart,
   Users, Flame, BarChart3, Settings, Menu, X, LogOut,
-  Tag, FileText, Scale, Boxes, Truck, Gift, RefreshCw,
-  ClipboardCheck, Activity, HelpCircle, Star, Link2,
-  Receipt, Bell, UserCog
+  Tag, FileText, Boxes
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { SITE_NAME } from '@/lib/constants'
 import { supabase } from '@/lib/supabase'
+import { motion, AnimatePresence } from 'framer-motion'
 
 const NAV_SECTIONS = [
   {
-    label: 'Overview',
+    label: 'Main',
     items: [
       { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
-      { href: '/admin/scan', label: 'Scan Product', icon: ScanBarcode },
+      { href: '/admin/scan', label: 'Scan In', icon: ScanBarcode },
     ],
   },
   {
-    label: 'Products',
+    label: 'Store',
     items: [
-      { href: '/admin/products', label: 'All Products', icon: Package },
-      { href: '/admin/products/new', label: 'Add Product', icon: Boxes },
-      { href: '/admin/inventory', label: 'Inventory', icon: Scale },
-      { href: '/admin/price-sync', label: 'Price Sync', icon: RefreshCw },
+      { href: '/admin/inventory', label: 'Inventory', icon: Boxes },
+      { href: '/admin/products', label: 'Products', icon: Package },
+      { href: '/admin/orders', label: 'Orders', icon: ShoppingCart },
     ],
   },
   {
-    label: 'Orders',
+    label: 'People',
     items: [
-      { href: '/admin/orders', label: 'All Orders', icon: ShoppingCart },
-      { href: '/admin/orders/new', label: 'Create Order', icon: FileText },
-      { href: '/admin/shipping', label: 'Shipping', icon: Truck },
-    ],
-  },
-  {
-    label: 'Customers',
-    items: [
-      { href: '/admin/customers', label: 'All Customers', icon: Users },
-      { href: '/admin/reviews', label: 'Reviews', icon: Star },
+      { href: '/admin/customers', label: 'Customers', icon: Users },
     ],
   },
   {
@@ -51,32 +39,19 @@ const NAV_SECTIONS = [
     items: [
       { href: '/admin/daily-deals', label: 'Daily Deals', icon: Flame },
       { href: '/admin/discounts', label: 'Discounts', icon: Tag },
-      { href: '/admin/gift-cards', label: 'Gift Cards', icon: Gift },
     ],
   },
   {
-    label: 'Finance',
+    label: 'Business',
     items: [
       { href: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
       { href: '/admin/reports', label: 'Reports', icon: FileText },
-      { href: '/admin/purchases', label: 'Purchases', icon: Receipt },
-      { href: '/admin/payment-links', label: 'Payment Links', icon: Link2 },
-      { href: '/admin/reconciliation', label: 'Reconciliation', icon: ClipboardCheck },
-    ],
-  },
-  {
-    label: 'Team',
-    items: [
-      { href: '/admin/staff', label: 'Staff', icon: UserCog },
-      { href: '/admin/notifications', label: 'Notifications', icon: Bell },
     ],
   },
   {
     label: 'System',
     items: [
-      { href: '/admin/monitoring', label: 'Monitoring', icon: Activity },
-      { href: '/admin/help', label: 'Help', icon: HelpCircle },
-      { href: '/admin/settings', label: 'Store Settings', icon: Settings },
+      { href: '/admin/settings', label: 'Settings', icon: Settings },
     ],
   },
 ]
@@ -97,13 +72,13 @@ export default function AdminSidebar() {
 
   const navContent = (
     <div className="flex flex-col h-full">
-      <div className="flex-1 overflow-y-auto py-2 space-y-5 no-scrollbar">
+      <div className="flex-1 overflow-y-auto py-4 space-y-6 no-scrollbar">
         {NAV_SECTIONS.map((section) => (
           <div key={section.label}>
-            <p className="px-4 text-[10px] font-semibold uppercase tracking-widest text-[var(--text-muted)] mb-1.5">
+            <p className="px-6 text-[11px] font-semibold uppercase tracking-[0.15em] text-[var(--text-muted)] mb-2">
               {section.label}
             </p>
-            <nav className="flex flex-col gap-0.5">
+            <nav className="flex flex-col gap-0.5 px-3">
               {section.items.map(({ href, label, icon: Icon }) => {
                 const active = isActive(href)
                 return (
@@ -112,16 +87,16 @@ export default function AdminSidebar() {
                     href={href}
                     onClick={() => setOpen(false)}
                     className={cn(
-                      'flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all relative',
+                      'flex items-center gap-3 px-4 py-2.5 rounded-lg text-[14px] font-medium transition-all duration-200 relative group',
                       active
-                        ? 'text-white bg-white/5'
+                        ? 'text-white bg-white/[0.06]'
                         : 'text-[var(--text-secondary)] hover:text-white hover:bg-white/[0.03]'
                     )}
                   >
                     {active && (
                       <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full bg-gradient-to-b from-[var(--pink)] to-[var(--cyan)]" />
                     )}
-                    <Icon size={18} className={active ? 'text-[var(--pink)]' : ''} />
+                    <Icon size={20} className={cn('transition-colors duration-200', active ? 'text-[var(--pink)]' : 'group-hover:text-[var(--text-primary)]')} />
                     {label}
                   </Link>
                 )
@@ -131,12 +106,12 @@ export default function AdminSidebar() {
         ))}
       </div>
 
-      <div className="border-t border-[var(--border)] p-3">
+      <div className="border-t border-[var(--border)] p-4">
         <button
           onClick={handleSignOut}
-          className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-[var(--text-muted)] hover:text-red-400 hover:bg-red-500/10 transition-all w-full"
+          className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-[14px] font-medium text-[var(--text-muted)] hover:text-red-400 hover:bg-red-500/10 transition-all duration-200 w-full"
         >
-          <LogOut size={18} />
+          <LogOut size={20} />
           Sign Out
         </button>
       </div>
@@ -147,30 +122,47 @@ export default function AdminSidebar() {
     <>
       {/* Mobile header */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 h-14 bg-[var(--bg-card)]/95 backdrop-blur-md border-b border-[var(--border)]">
-        <Link href="/admin" className="gradient-text text-lg font-bold tracking-tight">{SITE_NAME}</Link>
+        <Link href="/admin" className="flex items-baseline gap-1.5">
+          <span className="gradient-text text-xl font-bold tracking-tight">MIXZO</span>
+          <span className="text-[var(--text-muted)] text-xs">Admin</span>
+        </Link>
         <button onClick={() => setOpen(!open)} className="text-white p-2 -mr-2">
-          {open ? <X size={22} /> : <Menu size={22} />}
+          {open ? <X size={24} /> : <Menu size={24} />}
         </button>
       </div>
 
-      {/* Mobile overlay */}
-      {open && (
-        <div className="lg:hidden fixed inset-0 z-40 bg-black/60 backdrop-blur-sm" onClick={() => setOpen(false)} />
-      )}
-
-      {/* Mobile drawer */}
-      <aside className={cn(
-        'lg:hidden fixed top-0 left-0 z-50 h-full w-72 bg-[var(--bg-card)] border-r border-[var(--border)] pt-14 flex flex-col transition-transform duration-300 ease-out',
-        open ? 'translate-x-0' : '-translate-x-full'
-      )}>
-        {navContent}
-      </aside>
+      {/* Mobile overlay + drawer */}
+      <AnimatePresence>
+        {open && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="lg:hidden fixed inset-0 z-40 bg-black/70 backdrop-blur-sm"
+              onClick={() => setOpen(false)}
+            />
+            <motion.aside
+              initial={{ x: '-100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '-100%' }}
+              transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+              className="lg:hidden fixed inset-0 z-50 w-full max-w-[320px] bg-[var(--bg-card)] border-r border-[var(--border)] pt-14 flex flex-col"
+            >
+              {navContent}
+            </motion.aside>
+          </>
+        )}
+      </AnimatePresence>
 
       {/* Desktop sidebar */}
-      <aside className="hidden lg:flex fixed top-0 left-0 h-full w-60 bg-[var(--bg-card)] border-r border-[var(--border)] flex-col z-40">
-        <div className="p-4 pb-2 border-b border-[var(--border)]">
-          <Link href="/admin" className="gradient-text text-xl font-bold tracking-tight">{SITE_NAME}</Link>
-          <p className="text-[var(--text-muted)] text-[11px] mt-0.5">Admin Panel</p>
+      <aside className="hidden lg:flex fixed top-0 left-0 h-full w-[280px] bg-[var(--bg-card)] border-r border-[var(--border)] flex-col z-40">
+        <div className="p-6 pb-4 border-b border-[var(--border)]">
+          <Link href="/admin" className="flex items-baseline gap-2">
+            <span className="gradient-text text-2xl font-bold tracking-tight">MIXZO</span>
+            <span className="text-[var(--text-muted)] text-xs font-medium">Admin</span>
+          </Link>
         </div>
         {navContent}
       </aside>

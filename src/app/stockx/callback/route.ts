@@ -1,28 +1,40 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-server'
+import { STOCKX_TOKEN_URL, STOCKX_REDIRECT_URI } from '@/lib/constants'
 
-const STOCKX_CLIENT_ID = process.env.STOCKX_CLIENT_ID || 'ZMGLMVVsrD6CCJcCCl9IqneTulbgYQiw'
-const STOCKX_CLIENT_SECRET = process.env.STOCKX_CLIENT_SECRET || '4FIgqrNP2ZEBs_xZzPjUhGM2u5JEHoN_HKcrvNN4yCTl6O3nfg_neu1RLm6G7if6'
+export async function GET(request: NextRequest) {
+  const origin = new URL(request.url).origin
 
-export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url)
     const code = searchParams.get('code')
-    const origin = new URL(request.url).origin
+    const state = searchParams.get('state')
+    const savedState = request.cookies.get('stockx_state')?.value
 
     if (!code) {
       return NextResponse.redirect(`${origin}/admin/settings?stockx=error&reason=no_code`)
     }
 
-    const res = await fetch('https://accounts.stockx.com/oauth/token', {
+    if (!state || state !== savedState) {
+      return NextResponse.redirect(`${origin}/admin/settings?stockx=error&reason=invalid_state`)
+    }
+
+    const clientId = process.env.STOCKX_CLIENT_ID
+    const clientSecret = process.env.STOCKX_CLIENT_SECRET
+
+    if (!clientId || !clientSecret) {
+      return NextResponse.redirect(`${origin}/admin/settings?stockx=error&reason=missing_config`)
+    }
+
+    const res = await fetch(STOCKX_TOKEN_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         grant_type: 'authorization_code',
-        client_id: STOCKX_CLIENT_ID,
-        client_secret: STOCKX_CLIENT_SECRET,
+        client_id: clientId,
+        client_secret: clientSecret,
         code,
-        redirect_uri: `${origin}/stockx/callback`,
+        redirect_uri: STOCKX_REDIRECT_URI,
       }),
     })
 
@@ -33,18 +45,34 @@ export async function GET(request: Request) {
     }
 
     const tokens = await res.json()
+    const expiresAt = new Date(Date.now() + tokens.expires_in * 1000).toISOString()
 
-    await supabaseAdmin.from('settings').update({
-      stockx_access_token: tokens.access_token,
-      stockx_refresh_token: tokens.refresh_token,
-      stockx_token_expires: new Date(Date.now() + tokens.expires_in * 1000).toISOString(),
-      stockx_connected: true,
-    }).eq('id', 1)
+    // Save tokens to settings table
+    const tokenData = {
+      access_token: tokens.access_token,
+      refresh_token: tokens.refresh_token,
+      expires_at: expiresAt,
+    }
 
-    return NextResponse.redirect(`${origin}/admin/settings?stockx=connected`)
+    // Upsert into settings table
+    const { error } = await supabaseAdmin
+      .from('settings')
+      .upsert({
+        key: 'stockx_tokens',
+        value: tokenData,
+      }, { onConflict: 'key' })
+
+    if (error) {
+      console.error('Failed to save StockX tokens:', error)
+      return NextResponse.redirect(`${origin}/admin/settings?stockx=error&reason=save_failed`)
+    }
+
+    const response = NextResponse.redirect(`${origin}/admin/settings?stockx=connected`)
+    // Clear state cookie
+    response.cookies.delete('stockx_state')
+    return response
   } catch (error) {
     console.error('StockX callback error:', error)
-    const origin = new URL(request.url).origin
     return NextResponse.redirect(`${origin}/admin/settings?stockx=error`)
   }
 }

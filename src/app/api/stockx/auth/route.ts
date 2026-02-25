@@ -1,20 +1,34 @@
 import { NextResponse } from 'next/server'
+import { STOCKX_AUTH_URL, STOCKX_AUDIENCE, STOCKX_REDIRECT_URI } from '@/lib/constants'
 
-const STOCKX_CLIENT_ID = process.env.STOCKX_CLIENT_ID || 'ZMGLMVVsrD6CCJcCCl9IqneTulbgYQiw'
-
-export async function GET(request: Request) {
+export async function GET() {
   try {
-    const { searchParams } = new URL(request.url)
-    const redirectUri = searchParams.get('redirect_uri') || `${new URL(request.url).origin}/stockx/callback`
+    const clientId = process.env.STOCKX_CLIENT_ID
+    if (!clientId) {
+      return NextResponse.json({ error: 'StockX client ID not configured' }, { status: 500 })
+    }
 
-    const authUrl = new URL('https://accounts.stockx.com/authorize')
-    authUrl.searchParams.set('client_id', STOCKX_CLIENT_ID)
+    // Generate random state
+    const state = crypto.randomUUID()
+
+    const authUrl = new URL(STOCKX_AUTH_URL)
+    authUrl.searchParams.set('client_id', clientId)
     authUrl.searchParams.set('response_type', 'code')
-    authUrl.searchParams.set('redirect_uri', redirectUri)
-    authUrl.searchParams.set('scope', 'openid offline_access')
-    authUrl.searchParams.set('audience', 'gateway.stockx.com')
+    authUrl.searchParams.set('redirect_uri', STOCKX_REDIRECT_URI)
+    authUrl.searchParams.set('scope', 'offline_access openid')
+    authUrl.searchParams.set('audience', STOCKX_AUDIENCE)
+    authUrl.searchParams.set('state', state)
 
-    return NextResponse.json({ auth_url: authUrl.toString() })
+    const response = NextResponse.redirect(authUrl.toString())
+    response.cookies.set('stockx_state', state, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'lax',
+      maxAge: 600, // 10 minutes
+      path: '/',
+    })
+
+    return response
   } catch (error) {
     console.error('StockX auth error:', error)
     return NextResponse.json({ error: 'Server error' }, { status: 500 })

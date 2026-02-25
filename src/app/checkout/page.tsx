@@ -4,23 +4,30 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
-import { ArrowLeft, AlertTriangle, Lock, CreditCard } from 'lucide-react'
+import { ArrowLeft, AlertTriangle, Lock, CreditCard, ChevronDown } from 'lucide-react'
+import { motion } from 'framer-motion'
 import { useCartStore } from '@/stores/cart'
 import { ShopHeader } from '@/components/layout/shop-header'
 import { Footer } from '@/components/layout/footer'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { formatPrice, generateOrderId } from '@/lib/utils'
 import { FREE_SHIPPING_THRESHOLD } from '@/lib/constants'
 import { supabase } from '@/lib/supabase'
 import { toast } from 'sonner'
 
+const US_STATES = [
+  'AL','AK','AZ','AR','CA','CO','CT','DE','FL','GA','HI','ID','IL','IN','IA','KS','KY','LA','ME','MD',
+  'MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK','OR','PA','RI','SC',
+  'SD','TN','TX','UT','VT','VA','WA','WV','WI','WY','DC',
+]
+
 export default function CheckoutPage() {
   const router = useRouter()
   const { items, getTotal, clear } = useCartStore()
   const [loading, setLoading] = useState(false)
+  const [summaryOpen, setSummaryOpen] = useState(false)
   const [form, setForm] = useState({
-    firstName: '', lastName: '', email: '', phone: '',
+    fullName: '', email: '', phone: '',
     address: '', city: '', state: '', zip: '',
   })
 
@@ -34,7 +41,7 @@ export default function CheckoutPage() {
     e.preventDefault()
     if (items.length === 0) return
 
-    const required = ['firstName', 'lastName', 'email', 'address', 'city', 'state', 'zip'] as const
+    const required = ['fullName', 'email', 'address', 'city', 'state', 'zip'] as const
     for (const field of required) {
       if (!form[field].trim()) {
         toast.error('Please fill in all required fields')
@@ -48,7 +55,7 @@ export default function CheckoutPage() {
       await supabase.from('orders').insert({
         order_id: orderId,
         customer_email: form.email,
-        customer_name: `${form.firstName} ${form.lastName}`,
+        customer_name: form.fullName,
         customer_phone: form.phone,
         shipping_address: `${form.address}, ${form.city}, ${form.state} ${form.zip}`,
         items: items,
@@ -81,49 +88,83 @@ export default function CheckoutPage() {
     )
   }
 
+  const inputClass = "w-full h-11 px-4 rounded-xl bg-card border border-border text-text text-sm placeholder:text-text-muted focus:outline-none focus:border-pink/50 focus:ring-1 focus:ring-pink/20 transition-colors"
+
   return (
     <div className="min-h-screen flex flex-col">
       <ShopHeader />
       <main className="flex-1 pt-20 px-4 pb-12">
         <div className="max-w-5xl mx-auto">
-          <Link href="/cart" className="inline-flex items-center gap-1.5 text-sm text-text-muted hover:text-text transition-colors mb-6">
-            <ArrowLeft className="w-4 h-4" /> Back to Cart
-          </Link>
-          <h1 className="text-2xl font-bold mb-8">Checkout</h1>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+            <Link href="/cart" className="inline-flex items-center gap-1.5 text-sm text-text-muted hover:text-text transition-colors mb-6">
+              <ArrowLeft className="w-4 h-4" /> Back to Cart
+            </Link>
+          </motion.div>
+          <motion.h1
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-2xl font-bold mb-8"
+          >
+            Checkout
+          </motion.h1>
 
           <form onSubmit={handleSubmit} className="grid lg:grid-cols-3 gap-8">
             {/* Shipping form */}
-            <div className="lg:col-span-2 space-y-6">
-              <div className="rounded-xl bg-card border border-border p-6">
-                <h2 className="text-lg font-semibold mb-4">Shipping Address</h2>
-                <div className="grid grid-cols-2 gap-4">
-                  <Input placeholder="First name *" value={form.firstName} onChange={(e) => update('firstName', e.target.value)} />
-                  <Input placeholder="Last name *" value={form.lastName} onChange={(e) => update('lastName', e.target.value)} />
-                  <div className="col-span-2"><Input placeholder="Email *" type="email" value={form.email} onChange={(e) => update('email', e.target.value)} /></div>
-                  <div className="col-span-2"><Input placeholder="Phone" type="tel" value={form.phone} onChange={(e) => update('phone', e.target.value)} /></div>
-                  <div className="col-span-2"><Input placeholder="Address *" value={form.address} onChange={(e) => update('address', e.target.value)} /></div>
-                  <Input placeholder="City *" value={form.city} onChange={(e) => update('city', e.target.value)} />
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.05 }}
+              className="lg:col-span-2 space-y-6"
+            >
+              <div className="rounded-2xl bg-card border border-border p-6">
+                <h2 className="text-lg font-semibold mb-5">Shipping Address</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="sm:col-span-2">
+                    <input placeholder="Full name *" value={form.fullName} onChange={(e) => update('fullName', e.target.value)} className={inputClass} />
+                  </div>
+                  <input placeholder="Email *" type="email" value={form.email} onChange={(e) => update('email', e.target.value)} className={inputClass} />
+                  <input placeholder="Phone" type="tel" value={form.phone} onChange={(e) => update('phone', e.target.value)} className={inputClass} />
+                  <div className="sm:col-span-2">
+                    <input placeholder="Street address *" value={form.address} onChange={(e) => update('address', e.target.value)} className={inputClass} />
+                  </div>
+                  <input placeholder="City *" value={form.city} onChange={(e) => update('city', e.target.value)} className={inputClass} />
                   <div className="grid grid-cols-2 gap-4">
-                    <Input placeholder="State *" value={form.state} onChange={(e) => update('state', e.target.value)} />
-                    <Input placeholder="ZIP *" value={form.zip} onChange={(e) => update('zip', e.target.value)} />
+                    <select value={form.state} onChange={(e) => update('state', e.target.value)} className={`${inputClass} cursor-pointer`}>
+                      <option value="">State *</option>
+                      {US_STATES.map((s) => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                    <input placeholder="ZIP *" value={form.zip} onChange={(e) => update('zip', e.target.value)} className={inputClass} />
                   </div>
                 </div>
               </div>
 
-              <div className="rounded-xl bg-card border border-border p-6">
-                <h2 className="text-lg font-semibold mb-2">Payment</h2>
-                <div className="flex items-center gap-3 p-4 rounded-lg bg-elevated text-sm text-text-muted">
+              <div className="rounded-2xl bg-card border border-border p-6">
+                <h2 className="text-lg font-semibold mb-3">Payment</h2>
+                <div className="flex items-center gap-3 p-4 rounded-xl bg-elevated text-sm text-text-muted">
                   <Lock className="w-5 h-5 text-cyan shrink-0" />
                   Stripe payment integration coming soon. Orders will be confirmed via email.
                 </div>
               </div>
-            </div>
+            </motion.div>
 
             {/* Summary */}
-            <div className="lg:col-span-1">
-              <div className="rounded-xl bg-card border border-border p-6 sticky top-20 space-y-4">
-                <h3 className="font-semibold">Order Summary</h3>
-                <div className="space-y-3 max-h-60 overflow-y-auto">
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="lg:col-span-1"
+            >
+              <div className="rounded-2xl bg-card border border-border p-6 sticky top-20 space-y-4">
+                <button
+                  type="button"
+                  onClick={() => setSummaryOpen(!summaryOpen)}
+                  className="lg:cursor-default w-full flex items-center justify-between font-semibold cursor-pointer"
+                >
+                  <span>Order Summary ({items.length})</span>
+                  <ChevronDown className={`w-4 h-4 lg:hidden transition-transform ${summaryOpen ? 'rotate-180' : ''}`} />
+                </button>
+
+                <div className={`space-y-3 max-h-60 overflow-y-auto ${summaryOpen ? '' : 'hidden lg:block'}`}>
                   {items.map((item) => (
                     <div key={item.id} className="flex gap-3">
                       <div className="w-14 h-14 rounded-lg bg-elevated relative shrink-0 overflow-hidden">
@@ -131,28 +172,32 @@ export default function CheckoutPage() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-xs font-medium truncate">{item.name}</p>
-                        <p className="text-xs text-text-muted">Size {item.size} x {item.quantity}</p>
+                        <p className="text-xs text-text-muted">Size {item.size} × {item.quantity}</p>
                       </div>
                       <span className="text-sm font-semibold shrink-0">{formatPrice(item.price * item.quantity)}</span>
                     </div>
                   ))}
                 </div>
+
                 <div className="space-y-2 pt-3 border-t border-border text-sm">
                   <div className="flex justify-between"><span className="text-text-secondary">Subtotal</span><span>{formatPrice(subtotal)}</span></div>
                   <div className="flex justify-between"><span className="text-text-secondary">Shipping</span><span>{shipping === 0 ? 'Free' : formatPrice(shipping)}</span></div>
                 </div>
-                <div className="flex justify-between text-lg font-bold pt-2 border-t border-border">
+
+                <div className="flex justify-between text-lg font-bold pt-3 border-t border-border">
                   <span>Total</span><span>{formatPrice(total)}</span>
                 </div>
-                <div className="flex items-start gap-2 p-3 rounded-lg bg-elevated text-xs text-text-muted">
+
+                <div className="flex items-start gap-2 p-3 rounded-xl bg-elevated text-xs text-text-muted">
                   <AlertTriangle className="w-4 h-4 shrink-0 text-pink mt-0.5" />
                   All sales are final. Please review your order carefully.
                 </div>
+
                 <Button type="submit" className="w-full" size="lg" disabled={loading}>
                   {loading ? 'Placing Order...' : 'Place Order'}
                 </Button>
               </div>
-            </div>
+            </motion.div>
           </form>
         </div>
       </main>
