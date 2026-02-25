@@ -1,4 +1,4 @@
-export const SITE_NAME = 'MixzoKickz'
+export const SITE_NAME = 'Mixzo Kickz'
 export const SITE_URL = 'https://mixzokickz.com'
 export const SITE_DESCRIPTION = 'New & Preowned Sneakers — Denver, CO'
 export const BUSINESS_PHONE = '720-720-5015'
