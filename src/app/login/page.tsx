@@ -109,12 +109,8 @@ export default function LoginPage() {
           )}
 
           <button
-            type="button"
+            type="submit"
             disabled={loading}
-            onClick={() => {
-              if (!email || !password) return
-              handleLogin({ preventDefault: () => {} } as React.FormEvent)
-            }}
             className="w-full bg-pink hover:bg-pink/90 py-3.5 rounded-xl text-white font-semibold flex items-center justify-center gap-2 disabled:opacity-50 transition-all duration-200 active:scale-[0.98] text-sm cursor-pointer shadow-lg shadow-pink/20"
           >
             {loading ? (
