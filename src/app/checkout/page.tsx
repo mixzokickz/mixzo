@@ -44,23 +44,31 @@ export default function CheckoutPage() {
 
     setLoading(true)
     try {
-      const orderId = generateOrderId()
-      await supabase.from('orders').insert({
-        order_id: orderId,
-        customer_email: form.email,
-        customer_name: `${form.firstName} ${form.lastName}`,
-        customer_phone: form.phone,
-        shipping_address: `${form.address}, ${form.city}, ${form.state} ${form.zip}`,
-        items: items,
-        subtotal,
-        shipping,
-        total,
-        status: 'pending',
+      const res = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          items: items.map(i => ({ product_id: i.id, size: i.size, quantity: i.quantity })),
+          customer: {
+            email: form.email,
+            name: `${form.firstName} ${form.lastName}`,
+            phone: form.phone,
+          },
+          shipping_address: {
+            line1: form.address,
+            city: form.city,
+            state: form.state,
+            postal_code: form.zip,
+            country: 'US',
+          },
+        }),
       })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Checkout failed')
       clear()
-      router.push(`/checkout/confirmation?order=${orderId}`)
-    } catch {
-      toast.error('Something went wrong. Please try again.')
+      router.push(`/checkout/confirmation?order=${data.order_number}`)
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Something went wrong. Please try again.')
     } finally {
       setLoading(false)
     }

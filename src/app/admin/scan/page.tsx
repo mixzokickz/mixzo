@@ -263,15 +263,16 @@ export default function ScanPage() {
           style_id: result.styleId,
           size: selectedSize,
           condition,
-          has_box: hasBox,
           price: parseFloat(price),
           cost: cost ? parseFloat(cost) : null,
           quantity: parseInt(quantity) || 1,
+          image_url: result.imageUrl || null,
           images: condition === 'preowned' && photos.length > 0
             ? photos
             : result.imageUrls.length > 0 ? result.imageUrls : [],
           status: 'active',
           colorway: result.colorway,
+          tags: hasBox ? ['has_box'] : [],
         }),
       })
       if (!res.ok) throw new Error('Failed')
