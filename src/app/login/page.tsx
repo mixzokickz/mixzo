@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -14,11 +14,14 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
-
+  const [hydrated, setHydrated] = useState(false)
   const [error, setError] = useState('')
+
+  useEffect(() => { setHydrated(true) }, [])
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
+    console.log('handleLogin fired')
     setError('')
     setLoading(true)
     try {
@@ -128,6 +131,8 @@ export default function LoginPage() {
             Don&apos;t have an account?{' '}
             <Link href="/signup" className="text-pink hover:underline font-medium">Sign up</Link>
           </p>
+          {!hydrated && <p className="text-center text-xs text-red-400 mt-2">⚠️ Page not interactive yet</p>}
+          {hydrated && <p className="text-center text-xs text-green-400 mt-2">✅ Ready</p>}
         </form>
       </div>
     </div>
