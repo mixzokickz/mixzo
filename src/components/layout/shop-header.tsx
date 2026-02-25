@@ -4,100 +4,90 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Search, ShoppingBag, User, Menu, X } from 'lucide-react'
 import { useCartStore } from '@/stores/cart'
-import { CartDrawer } from '@/components/shop/cart-drawer'
+import { cn } from '@/lib/utils'
+import { SearchOverlay } from '@/components/shop/search-overlay'
 
-interface ShopHeaderProps {
-  onSearch?: (query: string) => void
-}
+export function ShopHeader() {
+  const [scrolled, setScrolled] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false)
+  const [searchOpen, setSearchOpen] = useState(false)
+  const count = useCartStore((s) => s.getCount())
 
-export function ShopHeader({ onSearch }: ShopHeaderProps) {
-  const [cartOpen, setCartOpen] = useState(false)
-  const [menuOpen, setMenuOpen] = useState(false)
-  const [search, setSearch] = useState('')
-  const [mounted, setMounted] = useState(false)
-  const getCount = useCartStore((s) => s.getCount)
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 20)
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
 
-  useEffect(() => { setMounted(true) }, [])
-
-  const count = mounted ? getCount() : 0
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault()
-    onSearch?.(search)
-  }
+  useEffect(() => {
+    document.body.style.overflow = mobileOpen ? 'hidden' : ''
+    return () => { document.body.style.overflow = '' }
+  }, [mobileOpen])
 
   return (
     <>
-      <header className="sticky top-0 z-40 bg-[var(--bg-primary)]/95 backdrop-blur-sm border-b border-[var(--border)]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="flex items-center justify-between h-16">
-            <Link href="/" className="text-2xl font-bold gradient-text tracking-tight shrink-0">
-              MIXZO
+      <header className={cn(
+        'fixed top-0 left-0 right-0 z-40 transition-all duration-300',
+        scrolled ? 'glass border-b border-border shadow-lg shadow-black/20' : 'bg-transparent'
+      )}>
+        <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+          <Link href="/" className="gradient-text text-2xl font-black tracking-tight">
+            MIXZO
+          </Link>
+
+          <nav className="hidden md:flex items-center gap-8">
+            <Link href="/shop" className="text-sm font-medium text-text-secondary hover:text-text transition-colors">Shop</Link>
+            <Link href="/drops" className="text-sm font-medium text-text-secondary hover:text-text transition-colors">Drops</Link>
+            <Link href="/faq" className="text-sm font-medium text-text-secondary hover:text-text transition-colors">About</Link>
+          </nav>
+
+          <div className="flex items-center gap-2">
+            <button onClick={() => setSearchOpen(true)} className="h-10 w-10 flex items-center justify-center rounded-xl text-text-secondary hover:text-text hover:bg-elevated transition-colors cursor-pointer">
+              <Search className="w-5 h-5" />
+            </button>
+            <Link href="/cart" className="relative h-10 w-10 flex items-center justify-center rounded-xl text-text-secondary hover:text-text hover:bg-elevated transition-colors">
+              <ShoppingBag className="w-5 h-5" />
+              {count > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 h-5 min-w-[1.25rem] flex items-center justify-center rounded-full bg-pink text-[10px] font-bold text-white px-1">
+                  {count}
+                </span>
+              )}
             </Link>
-
-            <form onSubmit={handleSearch} className="hidden md:flex items-center flex-1 max-w-md mx-8">
-              <div className="relative w-full">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
-                <input
-                  type="text"
-                  placeholder="Search sneakers..."
-                  value={search}
-                  onChange={(e) => {
-                    setSearch(e.target.value)
-                    onSearch?.(e.target.value)
-                  }}
-                  className="w-full pl-10 pr-4 py-2 text-sm rounded-lg"
-                />
-              </div>
-            </form>
-
-            <div className="flex items-center gap-3">
-              <Link href="/shop" className="hidden sm:block text-sm text-[var(--text-secondary)] hover:text-white transition-colors">
-                Shop
-              </Link>
-              <Link href="/login" className="hidden sm:flex p-2 text-[var(--text-secondary)] hover:text-white transition-colors">
-                <User className="w-5 h-5" />
-              </Link>
-              <button onClick={() => setCartOpen(true)} className="relative p-2 text-[var(--text-secondary)] hover:text-white transition-colors">
-                <ShoppingBag className="w-5 h-5" />
-                {count > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 w-4.5 h-4.5 bg-[var(--pink)] text-white text-[10px] font-bold rounded-full flex items-center justify-center">
-                    {count}
-                  </span>
-                )}
-              </button>
-              <button onClick={() => setMenuOpen(!menuOpen)} className="sm:hidden p-2 text-[var(--text-secondary)] hover:text-white">
-                {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-              </button>
-            </div>
+            <Link href="/login" className="hidden md:flex h-10 w-10 items-center justify-center rounded-xl text-text-secondary hover:text-text hover:bg-elevated transition-colors">
+              <User className="w-5 h-5" />
+            </Link>
+            <button onClick={() => setMobileOpen(!mobileOpen)} className="md:hidden h-10 w-10 flex items-center justify-center rounded-xl text-text-secondary hover:text-text cursor-pointer">
+              {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
           </div>
-
-          {menuOpen && (
-            <div className="sm:hidden pb-4 space-y-3">
-              <form onSubmit={handleSearch}>
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
-                  <input
-                    type="text"
-                    placeholder="Search sneakers..."
-                    value={search}
-                    onChange={(e) => {
-                      setSearch(e.target.value)
-                      onSearch?.(e.target.value)
-                    }}
-                    className="w-full pl-10 pr-4 py-2 text-sm rounded-lg"
-                  />
-                </div>
-              </form>
-              <div className="flex flex-col gap-2">
-                <Link href="/shop" onClick={() => setMenuOpen(false)} className="text-sm text-[var(--text-secondary)] hover:text-white py-1">Shop</Link>
-                <Link href="/login" onClick={() => setMenuOpen(false)} className="text-sm text-[var(--text-secondary)] hover:text-white py-1">Account</Link>
-              </div>
-            </div>
-          )}
         </div>
       </header>
-      <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />
+
+      {/* Mobile menu */}
+      {mobileOpen && (
+        <div className="fixed inset-0 z-30 pt-16 bg-bg/95 backdrop-blur-lg md:hidden">
+          <nav className="flex flex-col p-6 gap-2">
+            {[
+              { href: '/shop', label: 'Shop' },
+              { href: '/drops', label: 'Drops' },
+              { href: '/faq', label: 'About' },
+              { href: '/contact', label: 'Contact' },
+              { href: '/login', label: 'Account' },
+            ].map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                onClick={() => setMobileOpen(false)}
+                className="py-3 px-4 text-lg font-medium text-text-secondary hover:text-text hover:bg-elevated rounded-xl transition-colors"
+              >
+                {link.label}
+              </Link>
+            ))}
+          </nav>
+        </div>
+      )}
+
+      <SearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} />
     </>
   )
 }

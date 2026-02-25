@@ -2,33 +2,35 @@
 
 import { cn } from '@/lib/utils'
 
-interface FilterTabsProps {
+interface FilterTab {
+  value: string
   label: string
-  options: { value: string; label: string }[]
-  selected: string
-  onChange: (value: string) => void
 }
 
-export function FilterTabs({ label, options, selected, onChange }: FilterTabsProps) {
+interface FilterTabsProps {
+  tabs: FilterTab[]
+  value: string
+  onChange: (value: string) => void
+  className?: string
+}
+
+export function FilterTabs({ tabs, value, onChange, className }: FilterTabsProps) {
   return (
-    <div>
-      <p className="text-xs text-[var(--text-muted)] uppercase tracking-wide mb-2">{label}</p>
-      <div className="flex flex-wrap gap-2">
-        {options.map((opt) => (
-          <button
-            key={opt.value}
-            onClick={() => onChange(opt.value)}
-            className={cn(
-              'px-3 py-1.5 rounded-lg text-sm font-medium transition-all',
-              selected === opt.value
-                ? 'btn-gradient text-white'
-                : 'bg-[var(--bg-card)] border border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--border-light)]'
-            )}
-          >
-            {opt.label}
-          </button>
-        ))}
-      </div>
+    <div className={cn('flex gap-2 overflow-x-auto no-scrollbar', className)}>
+      {tabs.map((tab) => (
+        <button
+          key={tab.value}
+          onClick={() => onChange(tab.value)}
+          className={cn(
+            'px-5 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all duration-200 cursor-pointer border',
+            value === tab.value
+              ? 'bg-gradient-to-r from-pink to-cyan text-white border-transparent shadow-lg shadow-pink/15'
+              : 'bg-card text-text-muted border-border hover:border-text-muted hover:text-text'
+          )}
+        >
+          {tab.label}
+        </button>
+      ))}
     </div>
   )
 }

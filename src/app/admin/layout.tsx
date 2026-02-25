@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import AdminSidebar from '@/components/admin/sidebar'
-import { Loader2 } from 'lucide-react'
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter()
@@ -36,8 +35,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 size={32} className="animate-spin text-[var(--pink)]" />
+      <div className="min-h-screen bg-[var(--bg)] flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-[var(--pink)]/30 border-t-[var(--pink)] rounded-full animate-spin" />
       </div>
     )
   }
@@ -45,9 +44,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   if (!authorized) return null
 
   return (
-    <div className="min-h-screen bg-[var(--bg-primary)]">
+    <div className="min-h-screen bg-[var(--bg)]">
       <AdminSidebar />
-      <main className="lg:ml-60 pt-16 lg:pt-0 min-h-screen">
+      <main className="lg:ml-60 pt-14 lg:pt-0 min-h-screen">
         <div className="p-4 lg:p-6 max-w-7xl mx-auto">
           {children}
         </div>

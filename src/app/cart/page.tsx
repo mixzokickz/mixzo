@@ -1,148 +1,133 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Minus, Plus, Trash2, ShoppingBag, Tag, ArrowLeft } from 'lucide-react'
+import { Minus, Plus, X, ShoppingBag, ArrowLeft, AlertTriangle } from 'lucide-react'
 import { useCartStore } from '@/stores/cart'
-import { formatPrice } from '@/lib/utils'
-import { FREE_SHIPPING_THRESHOLD } from '@/lib/constants'
 import { ShopHeader } from '@/components/layout/shop-header'
 import { Footer } from '@/components/layout/footer'
+import { MobileBottomNav } from '@/components/layout/mobile-bottom-nav'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { formatPrice } from '@/lib/utils'
+import { FREE_SHIPPING_THRESHOLD } from '@/lib/constants'
 
 export default function CartPage() {
-  const { items, removeItem, updateQuantity, getTotal, clear } = useCartStore()
+  const { items, removeItem, updateQuantity, getTotal } = useCartStore()
   const [discountCode, setDiscountCode] = useState('')
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => { setMounted(true) }, [])
-
-  if (!mounted) {
-    return (
-      <div className="min-h-screen flex flex-col bg-[var(--bg-primary)]">
-        <ShopHeader />
-        <div className="flex-1 flex items-center justify-center text-[var(--text-muted)]">Loading...</div>
-        <Footer />
-      </div>
-    )
-  }
-
   const subtotal = getTotal()
-  const shipping = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : 15
+  const shipping = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : 14.99
   const total = subtotal + shipping
 
   return (
-    <div className="min-h-screen flex flex-col bg-[var(--bg-primary)]">
+    <div className="min-h-screen flex flex-col">
       <ShopHeader />
-      <div className="flex-1 max-w-5xl mx-auto px-4 sm:px-6 py-6 w-full">
-        <Link href="/shop" className="flex items-center gap-1 text-sm text-[var(--text-muted)] hover:text-white mb-6 transition-colors">
-          <ArrowLeft className="w-4 h-4" /> Continue Shopping
-        </Link>
+      <main className="flex-1 pt-20 px-4 pb-mobile-nav">
+        <div className="max-w-4xl mx-auto">
+          <Link href="/shop" className="inline-flex items-center gap-1.5 text-sm text-text-muted hover:text-text transition-colors mb-6">
+            <ArrowLeft className="w-4 h-4" /> Continue Shopping
+          </Link>
 
-        <h1 className="text-2xl font-bold text-white mb-6">Shopping Cart</h1>
+          <h1 className="text-2xl font-bold mb-8">Your Cart</h1>
 
-        {items.length === 0 ? (
-          <div className="text-center py-20">
-            <ShoppingBag className="w-12 h-12 text-[var(--text-muted)] mx-auto mb-4" />
-            <p className="text-lg text-[var(--text-muted)] mb-4">Your cart is empty</p>
-            <Link href="/shop" className="btn-gradient px-6 py-2.5 rounded-xl text-white font-semibold inline-block">Shop Now</Link>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Items */}
-            <div className="lg:col-span-2 space-y-4">
-              {items.map((item) => (
-                <div key={item.id} className="flex gap-4 bg-[var(--bg-card)] border border-[var(--border)] rounded-xl p-4 card-hover">
-                  <div className="relative w-24 h-24 bg-[var(--bg-elevated)] rounded-lg shrink-0">
-                    {item.image_url ? (
-                      <Image src={item.image_url} alt={item.name} fill className="object-contain p-2 rounded-lg" sizes="96px" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-[var(--text-muted)] text-xs">No Image</div>
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <Link href={`/product/${item.id}`} className="text-sm font-semibold text-white hover:text-[var(--pink)] transition-colors truncate block">
-                      {item.name}
-                    </Link>
-                    <p className="text-xs text-[var(--text-muted)] mt-0.5">{item.brand} / Size {item.size}</p>
-                    <p className="text-base font-bold text-white mt-2">{formatPrice(item.price)}</p>
-                    <div className="flex items-center gap-3 mt-3">
-                      <div className="flex items-center gap-1.5">
-                        <button onClick={() => updateQuantity(item.id, item.quantity - 1)} className="p-1.5 rounded-lg bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:text-white">
-                          <Minus className="w-3.5 h-3.5" />
-                        </button>
-                        <span className="text-sm text-white w-8 text-center">{item.quantity}</span>
-                        <button onClick={() => updateQuantity(item.id, item.quantity + 1)} className="p-1.5 rounded-lg bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:text-white">
-                          <Plus className="w-3.5 h-3.5" />
+          {items.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-20 text-center">
+              <ShoppingBag className="w-16 h-16 text-text-muted mb-4" />
+              <h2 className="text-xl font-semibold mb-2">Your cart is empty</h2>
+              <p className="text-text-muted mb-6">Browse our collection and find your next pair.</p>
+              <Link href="/shop"><Button>Shop Now</Button></Link>
+            </div>
+          ) : (
+            <div className="grid lg:grid-cols-3 gap-8">
+              {/* Items */}
+              <div className="lg:col-span-2 space-y-4">
+                {items.map((item) => (
+                  <div key={item.id} className="flex gap-4 p-4 rounded-xl bg-card border border-border">
+                    <div className="w-24 h-24 rounded-lg bg-elevated relative shrink-0 overflow-hidden">
+                      {item.image_url && (
+                        <Image src={item.image_url} alt={item.name} fill className="object-contain p-2" sizes="96px" />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <p className="text-xs text-text-muted uppercase">{item.brand}</p>
+                          <p className="font-semibold text-sm">{item.name}</p>
+                          <p className="text-xs text-text-muted mt-0.5">Size {item.size}</p>
+                        </div>
+                        <button onClick={() => removeItem(item.id)} className="text-text-muted hover:text-red-400 transition-colors cursor-pointer shrink-0">
+                          <X className="w-4 h-4" />
                         </button>
                       </div>
-                      <button onClick={() => removeItem(item.id)} className="p-1.5 text-[var(--text-muted)] hover:text-[var(--pink)] ml-auto">
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                      <div className="flex items-center justify-between mt-3">
+                        <div className="flex items-center gap-2">
+                          <button onClick={() => updateQuantity(item.id, item.quantity - 1)} className="w-7 h-7 rounded-lg bg-elevated border border-border flex items-center justify-center text-text-muted hover:text-text cursor-pointer">
+                            <Minus className="w-3 h-3" />
+                          </button>
+                          <span className="text-sm w-6 text-center">{item.quantity}</span>
+                          <button onClick={() => updateQuantity(item.id, item.quantity + 1)} className="w-7 h-7 rounded-lg bg-elevated border border-border flex items-center justify-center text-text-muted hover:text-text cursor-pointer">
+                            <Plus className="w-3 h-3" />
+                          </button>
+                        </div>
+                        <span className="font-bold">{formatPrice(item.price * item.quantity)}</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
 
-            {/* Summary */}
-            <div className="space-y-4">
-              <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl p-5 space-y-4">
-                <h2 className="text-lg font-bold text-white">Order Summary</h2>
+              {/* Summary */}
+              <div className="lg:col-span-1">
+                <div className="rounded-xl bg-card border border-border p-6 sticky top-20 space-y-4">
+                  <h3 className="font-semibold text-lg">Order Summary</h3>
 
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-[var(--text-secondary)]">Subtotal</span>
-                    <span className="text-white">{formatPrice(subtotal)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-[var(--text-secondary)]">Shipping</span>
-                    <span className={shipping === 0 ? 'text-green-400' : 'text-white'}>
-                      {shipping === 0 ? 'Free' : formatPrice(shipping)}
-                    </span>
-                  </div>
-                  {shipping > 0 && (
-                    <p className="text-xs text-[var(--text-muted)]">
-                      Add {formatPrice(FREE_SHIPPING_THRESHOLD - subtotal)} more for free shipping
-                    </p>
-                  )}
-                </div>
-
-                <div className="border-t border-[var(--border)] pt-3 flex justify-between text-base font-bold">
-                  <span className="text-white">Total</span>
-                  <span className="gradient-text">{formatPrice(total)}</span>
-                </div>
-
-                {/* Discount code */}
-                <div className="flex gap-2">
-                  <div className="relative flex-1">
-                    <Tag className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[var(--text-muted)]" />
-                    <input
-                      type="text"
+                  <div className="flex gap-2">
+                    <Input
                       placeholder="Discount code"
                       value={discountCode}
                       onChange={(e) => setDiscountCode(e.target.value)}
-                      className="w-full pl-9 pr-3 py-2 text-sm rounded-lg"
                     />
+                    <Button variant="secondary" size="sm" className="shrink-0">Apply</Button>
                   </div>
-                  <button className="px-4 py-2 rounded-lg border border-[var(--border)] text-sm text-[var(--text-secondary)] hover:text-white hover:border-[var(--border-light)] transition-colors">
-                    Apply
-                  </button>
+
+                  <div className="space-y-2 pt-2 border-t border-border">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-text-secondary">Subtotal</span>
+                      <span>{formatPrice(subtotal)}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-text-secondary">Shipping</span>
+                      <span>{shipping === 0 ? 'Free' : formatPrice(shipping)}</span>
+                    </div>
+                    {subtotal < FREE_SHIPPING_THRESHOLD && subtotal > 0 && (
+                      <p className="text-xs text-cyan">
+                        Add {formatPrice(FREE_SHIPPING_THRESHOLD - subtotal)} more for free shipping
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="flex justify-between text-lg font-bold pt-2 border-t border-border">
+                    <span>Total</span>
+                    <span>{formatPrice(total)}</span>
+                  </div>
+
+                  <div className="flex items-start gap-2 p-3 rounded-lg bg-elevated text-xs text-text-muted">
+                    <AlertTriangle className="w-4 h-4 shrink-0 text-pink mt-0.5" />
+                    All sales are final. Please review your order carefully before checkout.
+                  </div>
+
+                  <Link href="/checkout" className="block">
+                    <Button className="w-full" size="lg">Checkout</Button>
+                  </Link>
                 </div>
-
-                <Link href="/checkout" className="block w-full text-center btn-gradient py-3 rounded-xl text-white font-semibold">
-                  Checkout
-                </Link>
               </div>
-
-              <button onClick={clear} className="w-full text-center text-sm text-[var(--text-muted)] hover:text-[var(--pink)] transition-colors py-2">
-                Clear Cart
-              </button>
             </div>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
+      </main>
       <Footer />
+      <MobileBottomNav />
     </div>
   )
 }

@@ -1,34 +1,23 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Users, Loader2, Mail, Phone } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import Link from 'next/link'
+import { Search, Users, User } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
 
-interface Profile {
-  id: string
-  full_name: string
-  email: string
-  phone: string
-  role: string
-  created_at: string
+interface Customer {
+  id: string; full_name: string; email: string; phone?: string; created_at: string; role: string;
 }
 
 export default function CustomersPage() {
-  const [customers, setCustomers] = useState<Profile[]>([])
+  const [customers, setCustomers] = useState<Customer[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
 
   useEffect(() => {
-    const load = async () => {
-      const { data } = await supabase
-        .from('profiles')
-        .select('*')
-        .order('created_at', { ascending: false })
-      setCustomers(data || [])
-      setLoading(false)
-    }
-    load()
+    supabase.from('profiles').select('*').eq('role', 'customer').order('created_at', { ascending: false })
+      .then(({ data }) => { setCustomers(data || []); setLoading(false) })
   }, [])
 
   const filtered = customers.filter(c => {
@@ -37,43 +26,39 @@ export default function CustomersPage() {
     return c.full_name?.toLowerCase().includes(q) || c.email?.toLowerCase().includes(q)
   })
 
+  if (loading) return <div className="space-y-4"><div className="skeleton h-8 w-40" /><div className="space-y-2">{[1,2,3,4].map(i => <div key={i} className="skeleton h-16 rounded-xl" />)}</div></div>
+
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">Customers</h1>
-        <span className="text-sm text-[var(--text-muted)]">{filtered.length} total</span>
+    <div className="space-y-6 page-enter">
+      <div>
+        <h1 className="text-2xl font-bold text-white">Customers</h1>
+        <p className="text-sm text-[var(--text-muted)]">{customers.length} total customers</p>
       </div>
 
-      <input
-        value={search}
-        onChange={e => setSearch(e.target.value)}
-        placeholder="Search customers..."
-        className="w-full mb-6"
-      />
+      <div className="relative">
+        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />
+        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search customers..." className="w-full bg-[var(--bg-card)] border border-[var(--border)] rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder:text-[var(--text-muted)] focus:border-[var(--pink)] focus:outline-none" />
+      </div>
 
-      {loading ? (
-        <div className="flex justify-center py-12"><Loader2 size={24} className="animate-spin text-[var(--pink)]" /></div>
-      ) : filtered.length === 0 ? (
-        <div className="text-center py-12">
-          <Users size={40} className="mx-auto mb-3 text-[var(--text-muted)]" />
-          <p className="text-[var(--text-muted)]">No customers found</p>
+      {filtered.length === 0 ? (
+        <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl p-12 text-center">
+          <Users size={40} className="text-[var(--text-muted)] mx-auto mb-3" />
+          <h2 className="text-lg font-semibold text-white mb-1">No customers yet</h2>
+          <p className="text-sm text-[var(--text-secondary)]">Customers will appear here after they sign up</p>
         </div>
       ) : (
         <div className="space-y-2">
           {filtered.map(c => (
-            <div key={c.id} className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl p-4 card-hover flex items-center justify-between">
-              <div>
-                <p className="font-medium">{c.full_name || 'Unnamed'}</p>
-                <div className="flex items-center gap-4 mt-1 text-xs text-[var(--text-muted)]">
-                  {c.email && <span className="flex items-center gap-1"><Mail size={12} /> {c.email}</span>}
-                  {c.phone && <span className="flex items-center gap-1"><Phone size={12} /> {c.phone}</span>}
-                </div>
+            <Link key={c.id} href={`/admin/customers/${c.id}`} className="flex items-center gap-4 bg-[var(--bg-card)] border border-[var(--border)] rounded-xl p-4 hover:border-[var(--pink)]/30 transition-colors">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[var(--pink)] to-[var(--cyan)] flex items-center justify-center flex-shrink-0">
+                <User size={18} className="text-white" />
               </div>
-              <div className="text-right text-xs text-[var(--text-muted)]">
-                <span className="capitalize px-2 py-0.5 rounded-full bg-[var(--bg-elevated)]">{c.role || 'customer'}</span>
-                <p className="mt-1">{formatDate(c.created_at)}</p>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-white truncate">{c.full_name || 'No name'}</p>
+                <p className="text-xs text-[var(--text-muted)] truncate">{c.email}</p>
               </div>
-            </div>
+              <p className="text-xs text-[var(--text-muted)]">{formatDate(c.created_at)}</p>
+            </Link>
           ))}
         </div>
       )}

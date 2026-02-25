@@ -1,59 +1,83 @@
 import Link from 'next/link'
-import { Instagram, Phone, Mail, MapPin } from 'lucide-react'
-import { SITE_NAME, BUSINESS_PHONE, BUSINESS_EMAIL, BUSINESS_INSTAGRAM, BUSINESS_LOCATION } from '@/lib/constants'
+import { Phone, Mail, MapPin } from 'lucide-react'
+import { BUSINESS_PHONE, BUSINESS_EMAIL, BUSINESS_INSTAGRAM, BUSINESS_LOCATION } from '@/lib/constants'
 
 export function Footer() {
-  const igHandle = BUSINESS_INSTAGRAM.replace('@', '')
-
   return (
-    <footer className="border-t border-[var(--border)] bg-[var(--bg-primary)]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          <div>
-            <h3 className="text-xl font-bold gradient-text mb-3">{SITE_NAME}</h3>
-            <p className="text-sm text-[var(--text-muted)] leading-relaxed">
-              New and preowned sneakers. Authenticated and shipped from Denver, CO.
+    <footer className="border-t border-border mt-auto">
+      <div className="h-px bg-gradient-to-r from-pink via-cyan to-pink" />
+      <div className="max-w-7xl mx-auto px-4 py-12">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+          {/* Brand */}
+          <div className="col-span-2 md:col-span-1">
+            <span className="gradient-text text-2xl font-black tracking-tight">MIXZO</span>
+            <p className="mt-3 text-sm text-text-muted leading-relaxed">
+              New and preowned sneakers, authenticated and shipped from Denver, Colorado.
             </p>
           </div>
 
+          {/* Shop */}
           <div>
-            <h4 className="text-sm font-semibold text-white uppercase tracking-wide mb-3">Shop</h4>
-            <div className="flex flex-col gap-2">
-              <Link href="/shop" className="text-sm text-[var(--text-muted)] hover:text-white transition-colors">All Sneakers</Link>
-              <Link href="/shop?condition=new" className="text-sm text-[var(--text-muted)] hover:text-white transition-colors">New Arrivals</Link>
-              <Link href="/shop?condition=used" className="text-sm text-[var(--text-muted)] hover:text-white transition-colors">Preowned</Link>
-            </div>
+            <h4 className="text-sm font-semibold text-text mb-4">Shop</h4>
+            <ul className="space-y-2.5">
+              {[
+                { href: '/shop?condition=new', label: 'New Arrivals' },
+                { href: '/shop?condition=used', label: 'Preowned' },
+                { href: '/drops', label: 'Drops' },
+              ].map((link) => (
+                <li key={link.href}>
+                  <Link href={link.href} className="text-sm text-text-muted hover:text-text transition-colors">{link.label}</Link>
+                </li>
+              ))}
+            </ul>
           </div>
 
+          {/* Info */}
           <div>
-            <h4 className="text-sm font-semibold text-white uppercase tracking-wide mb-3">Info</h4>
-            <div className="flex flex-col gap-2">
-              <Link href="/returns" className="text-sm text-[var(--text-muted)] hover:text-white transition-colors">Return Policy</Link>
-              <Link href="/login" className="text-sm text-[var(--text-muted)] hover:text-white transition-colors">Account</Link>
-            </div>
+            <h4 className="text-sm font-semibold text-text mb-4">Info</h4>
+            <ul className="space-y-2.5">
+              {[
+                { href: '/faq', label: 'FAQ' },
+                { href: '/shipping', label: 'Shipping' },
+                { href: '/returns', label: 'Returns' },
+                { href: '/terms', label: 'Terms' },
+                { href: '/privacy', label: 'Privacy' },
+              ].map((link) => (
+                <li key={link.href}>
+                  <Link href={link.href} className="text-sm text-text-muted hover:text-text transition-colors">{link.label}</Link>
+                </li>
+              ))}
+            </ul>
           </div>
 
+          {/* Contact */}
           <div>
-            <h4 className="text-sm font-semibold text-white uppercase tracking-wide mb-3">Contact</h4>
-            <div className="flex flex-col gap-2">
-              <a href={`tel:${BUSINESS_PHONE}`} className="flex items-center gap-2 text-sm text-[var(--text-muted)] hover:text-white transition-colors">
-                <Phone className="w-4 h-4" /> {BUSINESS_PHONE}
-              </a>
-              <a href={`mailto:${BUSINESS_EMAIL}`} className="flex items-center gap-2 text-sm text-[var(--text-muted)] hover:text-white transition-colors">
-                <Mail className="w-4 h-4" /> {BUSINESS_EMAIL}
-              </a>
-              <a href={`https://instagram.com/${igHandle}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-[var(--text-muted)] hover:text-white transition-colors">
-                <Instagram className="w-4 h-4" /> {BUSINESS_INSTAGRAM}
-              </a>
-              <span className="flex items-center gap-2 text-sm text-[var(--text-muted)]">
-                <MapPin className="w-4 h-4" /> {BUSINESS_LOCATION}
-              </span>
-            </div>
+            <h4 className="text-sm font-semibold text-text mb-4">Contact</h4>
+            <ul className="space-y-3">
+              <li className="flex items-center gap-2 text-sm text-text-muted">
+                <Phone className="w-4 h-4 shrink-0" />
+                <a href={`tel:${BUSINESS_PHONE}`} className="hover:text-text transition-colors">{BUSINESS_PHONE}</a>
+              </li>
+              <li className="flex items-center gap-2 text-sm text-text-muted">
+                <Mail className="w-4 h-4 shrink-0" />
+                <a href={`mailto:${BUSINESS_EMAIL}`} className="hover:text-text transition-colors">{BUSINESS_EMAIL}</a>
+              </li>
+              <li className="flex items-center gap-2 text-sm text-text-muted">
+                <MapPin className="w-4 h-4 shrink-0" />
+                <span>{BUSINESS_LOCATION}</span>
+              </li>
+              <li className="text-sm text-text-muted">
+                <a href={`https://instagram.com/${BUSINESS_INSTAGRAM.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="hover:text-pink transition-colors">
+                  {BUSINESS_INSTAGRAM}
+                </a>
+              </li>
+            </ul>
           </div>
         </div>
 
-        <div className="mt-10 pt-6 border-t border-[var(--border)] text-center text-xs text-[var(--text-muted)]">
-          &copy; {new Date().getFullYear()} {SITE_NAME}. All rights reserved.
+        <div className="mt-10 pt-6 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="text-xs text-text-muted">&copy; {new Date().getFullYear()} Mixzo Kickz. All rights reserved.</p>
+          <p className="text-xs text-text-muted">Denver, Colorado</p>
         </div>
       </div>
     </footer>

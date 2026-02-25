@@ -1,142 +1,203 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
-import { Camera, Keyboard, Search } from 'lucide-react'
+import { useState, useRef, useEffect } from 'react'
+import { Camera, Keyboard, Search, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import ScanForm from '@/components/admin/scan-form'
 import StockXSearchModal from '@/components/admin/stockx-search-modal'
+import { toast } from 'sonner'
 
-const TABS = [
-  { id: 'camera', label: 'Camera Scan', icon: Camera },
-  { id: 'type', label: 'Type / Scan Gun', icon: Keyboard },
-  { id: 'manual', label: 'Manual Lookup', icon: Search },
-] as const
-
-type Tab = typeof TABS[number]['id']
+type Tab = 'camera' | 'type' | 'lookup'
 
 export default function ScanPage() {
   const [tab, setTab] = useState<Tab>('type')
   const [barcode, setBarcode] = useState('')
-  const [prefill, setPrefill] = useState<any>(null)
-  const [stockxOpen, setStockxOpen] = useState(false)
-  const scannerRef = useRef<HTMLDivElement>(null)
-  const html5QrRef = useRef<any>(null)
+  const [scanning, setScanning] = useState(false)
+  const [showModal, setShowModal] = useState(false)
+  const [prefill, setPrefill] = useState<{
+    name?: string; brand?: string; styleId?: string; image?: string; retailPrice?: number
+  } | null>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
+  const videoRef = useRef<HTMLVideoElement>(null)
+  const streamRef = useRef<MediaStream | null>(null)
 
-  // Camera scanner
   useEffect(() => {
-    if (tab !== 'camera' || !scannerRef.current) return
-    let scanner: any = null
-    const init = async () => {
-      const { Html5Qrcode } = await import('html5-qrcode')
-      scanner = new Html5Qrcode('scanner-region')
-      html5QrRef.current = scanner
-      try {
-        await scanner.start(
-          { facingMode: 'environment' },
-          { fps: 10, qrbox: { width: 250, height: 250 } },
-          (text: string) => {
-            setBarcode(text)
-            setPrefill({ styleId: text })
-            scanner.stop().catch(() => {})
-            setTab('type')
-          },
-          () => {}
-        )
-      } catch {}
+    if (tab === 'type') {
+      setTimeout(() => inputRef.current?.focus(), 100)
     }
-    init()
-    return () => { scanner?.stop().catch(() => {}) }
+    if (tab === 'camera') {
+      startCamera()
+    } else {
+      stopCamera()
+    }
+    return () => stopCamera()
   }, [tab])
 
-  const handleBarcodeSubmit = () => {
-    if (!barcode.trim()) return
-    setPrefill({ name: '', styleId: barcode.trim() })
+  async function startCamera() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+      streamRef.current = stream
+      if (videoRef.current) videoRef.current.srcObject = stream
+      setScanning(true)
+    } catch {
+      toast.error('Camera access denied')
+      setTab('type')
+    }
   }
 
-  const handleStockXSelect = (p: any) => {
-    setPrefill({
-      name: p.name,
-      brand: p.brand,
-      styleId: p.styleId,
-      image: p.image,
-      retailPrice: p.retailPrice,
-    })
+  function stopCamera() {
+    streamRef.current?.getTracks().forEach(t => t.stop())
+    streamRef.current = null
+    setScanning(false)
   }
+
+  async function lookupBarcode(code: string) {
+    if (!code.trim()) return
+    try {
+      const res = await fetch(`/api/upc-lookup?upc=${encodeURIComponent(code)}`)
+      const data = await res.json()
+      if (data.product) {
+        setPrefill({
+          name: data.product.name,
+          brand: data.product.brand,
+          styleId: data.product.styleId,
+          image: data.product.image,
+          retailPrice: data.product.retailPrice,
+        })
+        toast.success('Product found')
+      } else {
+        toast.error('Product not found. Try StockX lookup.')
+      }
+    } catch {
+      toast.error('Lookup failed')
+    }
+  }
+
+  function handleBarcodeSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    lookupBarcode(barcode)
+  }
+
+  const tabs = [
+    { id: 'camera' as Tab, label: 'Camera', icon: Camera },
+    { id: 'type' as Tab, label: 'Type / Scan Gun', icon: Keyboard },
+    { id: 'lookup' as Tab, label: 'StockX Lookup', icon: Search },
+  ]
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-6">Scan / Add Product</h1>
+    <div className="space-y-6 page-enter">
+      <div>
+        <h1 className="text-2xl font-bold text-white">Scan Product</h1>
+        <p className="text-sm text-[var(--text-muted)]">Add products by scanning, typing, or searching StockX</p>
+      </div>
 
       {/* Tabs */}
-      <div className="flex gap-2 mb-6 overflow-x-auto">
-        {TABS.map(t => (
+      <div className="grid grid-cols-3 gap-2">
+        {tabs.map(({ id, label, icon: Icon }) => (
           <button
-            key={t.id}
-            onClick={() => setTab(t.id)}
+            key={id}
+            onClick={() => { setTab(id); setPrefill(null) }}
             className={cn(
-              'flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-medium whitespace-nowrap transition-all',
-              tab === t.id
-                ? 'btn-gradient text-white glow-gradient'
-                : 'bg-[var(--bg-card)] border border-[var(--border)] text-[var(--text-secondary)] hover:text-white'
+              'flex flex-col items-center gap-2 py-4 px-3 rounded-xl border text-sm font-medium transition-all',
+              tab === id
+                ? 'bg-gradient-to-r from-[var(--pink)] to-[var(--cyan)] text-white border-transparent'
+                : 'bg-[var(--bg-card)] border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--pink)]/30'
             )}
           >
-            <t.icon size={18} />
-            {t.label}
+            <Icon size={24} />
+            <span className="text-xs">{label}</span>
           </button>
         ))}
       </div>
 
       {/* Camera tab */}
       {tab === 'camera' && (
-        <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl p-4">
-          <p className="text-sm text-[var(--text-secondary)] mb-3">Point camera at barcode</p>
-          <div id="scanner-region" ref={scannerRef} className="w-full max-w-sm mx-auto rounded-lg overflow-hidden" />
-        </div>
-      )}
-
-      {/* Type / Scan Gun tab */}
-      {tab === 'type' && (
-        <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl p-4 mb-6">
-          <label className="text-sm text-[var(--text-secondary)] mb-2 block">Barcode / Style ID</label>
-          <div className="flex gap-2">
-            <input
-              value={barcode}
-              onChange={e => setBarcode(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && handleBarcodeSubmit()}
-              placeholder="Scan or type barcode..."
-              className="flex-1 text-lg py-3"
-              autoFocus
-            />
-            <button onClick={handleBarcodeSubmit} className="btn-gradient text-white px-6 rounded-xl text-lg font-semibold">
-              Go
-            </button>
+        <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl overflow-hidden">
+          <div className="relative aspect-[4/3] bg-black">
+            <video ref={videoRef} autoPlay playsInline className="w-full h-full object-cover" />
+            {scanning && (
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <div className="w-64 h-64 border-2 border-[var(--pink)] rounded-2xl opacity-50" />
+              </div>
+            )}
+          </div>
+          <div className="p-4">
+            <p className="text-sm text-[var(--text-secondary)] text-center">
+              Point camera at barcode. For best results, use the Type/Scan Gun tab.
+            </p>
           </div>
         </div>
       )}
 
-      {/* Manual Lookup tab */}
-      {tab === 'manual' && (
-        <div className="mb-6">
+      {/* Type / Scan Gun tab */}
+      {tab === 'type' && !prefill && (
+        <form onSubmit={handleBarcodeSubmit} className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl p-5">
+          <label className="block text-sm text-[var(--text-secondary)] mb-2 font-medium">UPC / Barcode / Style ID</label>
+          <div className="flex gap-3">
+            <input
+              ref={inputRef}
+              value={barcode}
+              onChange={e => setBarcode(e.target.value)}
+              placeholder="Scan or type barcode..."
+              className="flex-1 bg-[var(--bg-elevated)] border border-[var(--border)] rounded-xl px-4 py-4 text-lg text-white placeholder:text-[var(--text-muted)] focus:border-[var(--pink)] focus:outline-none transition-colors font-mono"
+              autoFocus
+            />
+            <button
+              type="submit"
+              className="bg-gradient-to-r from-[var(--pink)] to-[var(--cyan)] text-white px-6 rounded-xl font-semibold text-sm"
+            >
+              Look Up
+            </button>
+          </div>
+          <p className="text-xs text-[var(--text-muted)] mt-3">
+            Use a scan gun or type the barcode manually. Press Enter to search.
+          </p>
+        </form>
+      )}
+
+      {/* StockX Lookup tab */}
+      {tab === 'lookup' && !prefill && (
+        <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl p-5">
           <button
-            onClick={() => setStockxOpen(true)}
-            className="w-full bg-[var(--bg-card)] border border-[var(--border)] rounded-xl p-6 text-center card-hover"
+            onClick={() => setShowModal(true)}
+            className="w-full bg-gradient-to-r from-[var(--pink)] to-[var(--cyan)] text-white py-5 rounded-xl font-semibold text-lg flex items-center justify-center gap-3"
           >
-            <Search size={32} className="mx-auto mb-2 text-[var(--blue)]" />
-            <p className="font-semibold">Search StockX</p>
-            <p className="text-sm text-[var(--text-muted)] mt-1">Find sneaker by name, style, or brand</p>
+            <Search size={22} />
+            Search StockX
           </button>
+          <p className="text-xs text-[var(--text-muted)] mt-3 text-center">
+            Search by name, style ID, or colorway
+          </p>
         </div>
       )}
 
-      {/* Product form */}
+      {/* Product form after finding */}
       {prefill && (
-        <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl p-4 mt-4">
-          <h2 className="font-semibold mb-4">Product Details</h2>
-          <ScanForm prefill={prefill} onSuccess={() => setPrefill(null)} />
+        <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-sm font-semibold text-white">Add Product</h2>
+            <button onClick={() => setPrefill(null)} className="text-[var(--text-muted)] hover:text-white">
+              <X size={18} />
+            </button>
+          </div>
+          <ScanForm prefill={prefill} onSuccess={() => { setPrefill(null); setBarcode('') }} />
         </div>
       )}
 
-      <StockXSearchModal open={stockxOpen} onClose={() => setStockxOpen(false)} onSelect={handleStockXSelect} />
+      <StockXSearchModal
+        open={showModal}
+        onClose={() => setShowModal(false)}
+        onSelect={(product) => {
+          setPrefill({
+            name: product.name,
+            brand: product.brand,
+            styleId: product.styleId,
+            image: product.image,
+            retailPrice: product.retailPrice,
+          })
+          setShowModal(false)
+        }}
+      />
     </div>
   )
 }

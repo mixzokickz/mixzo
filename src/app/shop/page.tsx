@@ -1,175 +1,202 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
-import { Search, SlidersHorizontal, X } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
+import { Search, SlidersHorizontal, Package, X } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
-import { FREE_SHIPPING_THRESHOLD } from '@/lib/constants'
-import { formatPrice } from '@/lib/utils'
 import { ProductCard } from '@/components/shop/product-card'
+import { ProductGridSkeleton } from '@/components/ui/skeleton'
+import { Button } from '@/components/ui/button'
 import { FilterTabs } from '@/components/shop/filter-tabs'
+import { SIZES, SNEAKER_BRANDS } from '@/lib/constants'
 
 interface Product {
   id: string
   name: string
   brand: string
-  size: string
   price: number
+  size: string
   condition: string
   image_url: string | null
-  status: string
 }
 
-const CONDITION_OPTIONS = [
-  { value: 'all', label: 'All' },
-  { value: 'new', label: 'New' },
-  { value: 'used', label: 'Preowned' },
-]
-
-const PRICE_OPTIONS = [
-  { value: 'all', label: 'All Prices' },
-  { value: '0-100', label: 'Under $100' },
-  { value: '100-200', label: '$100 - $200' },
-  { value: '200-300', label: '$200 - $300' },
-  { value: '300+', label: '$300+' },
+const SORT_OPTIONS = [
+  { value: 'newest', label: 'Newest' },
+  { value: 'price-asc', label: 'Price: Low to High' },
+  { value: 'price-desc', label: 'Price: High to Low' },
+  { value: 'name', label: 'Name A-Z' },
 ]
 
 export default function ShopPage() {
+  const searchParams = useSearchParams()
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
-  const [search, setSearch] = useState('')
-  const [condition, setCondition] = useState('all')
-  const [brand, setBrand] = useState('all')
-  const [size, setSize] = useState('all')
-  const [priceRange, setPriceRange] = useState('all')
-  const [showFilters, setShowFilters] = useState(false)
+  const [search, setSearch] = useState(searchParams.get('q') || '')
+  const [condition, setCondition] = useState(searchParams.get('condition') || 'all')
+  const [sort, setSort] = useState('newest')
+  const [selectedBrand, setSelectedBrand] = useState('')
+  const [selectedSize, setSelectedSize] = useState('')
+  const [filtersOpen, setFiltersOpen] = useState(false)
 
   useEffect(() => {
     async function load() {
-      const { data } = await supabase
+      setLoading(true)
+      let query = supabase
         .from('products')
-        .select('id, name, brand, size, price, condition, image_url, status')
+        .select('id, name, brand, price, size, condition, image_url')
         .eq('status', 'active')
-        .order('created_at', { ascending: false })
+
+      if (condition !== 'all') {
+        if (condition === 'used') {
+          query = query.in('condition', ['used', 'used_like_new'])
+        } else {
+          query = query.eq('condition', condition)
+        }
+      }
+      if (selectedBrand) query = query.ilike('brand', `%${selectedBrand}%`)
+      if (selectedSize) query = query.eq('size', selectedSize)
+      if (search) query = query.or(`name.ilike.%${search}%,brand.ilike.%${search}%`)
+
+      if (sort === 'price-asc') query = query.order('price', { ascending: true })
+      else if (sort === 'price-desc') query = query.order('price', { ascending: false })
+      else if (sort === 'name') query = query.order('name', { ascending: true })
+      else query = query.order('created_at', { ascending: false })
+
+      const { data } = await query.limit(48)
       setProducts(data || [])
       setLoading(false)
     }
     load()
-  }, [])
+  }, [condition, sort, selectedBrand, selectedSize, search])
 
-  const brands = useMemo(() => {
-    const set = new Set(products.map((p) => p.brand?.toLowerCase()).filter(Boolean))
-    return [{ value: 'all', label: 'All Brands' }, ...Array.from(set).sort().map((b) => ({ value: b, label: b.charAt(0).toUpperCase() + b.slice(1) }))]
-  }, [products])
+  const clearFilters = () => {
+    setCondition('all')
+    setSelectedBrand('')
+    setSelectedSize('')
+    setSearch('')
+    setSort('newest')
+  }
 
-  const sizes = useMemo(() => {
-    const set = new Set(products.map((p) => p.size).filter(Boolean))
-    return [{ value: 'all', label: 'All Sizes' }, ...Array.from(set).sort((a, b) => parseFloat(a) - parseFloat(b)).map((s) => ({ value: s, label: s }))]
-  }, [products])
-
-  const filtered = useMemo(() => {
-    return products.filter((p) => {
-      if (search && !p.name.toLowerCase().includes(search.toLowerCase()) && !p.brand?.toLowerCase().includes(search.toLowerCase())) return false
-      if (condition !== 'all') {
-        if (condition === 'used' && p.condition !== 'used' && p.condition !== 'used_like_new') return false
-        if (condition === 'new' && p.condition !== 'new') return false
-      }
-      if (brand !== 'all' && p.brand?.toLowerCase() !== brand) return false
-      if (size !== 'all' && p.size !== size) return false
-      if (priceRange !== 'all') {
-        if (priceRange === '300+' && p.price < 300) return false
-        else if (priceRange !== '300+') {
-          const [min, max] = priceRange.split('-').map(Number)
-          if (p.price < min || p.price >= max) return false
-        }
-      }
-      return true
-    })
-  }, [products, search, condition, brand, size, priceRange])
-
-  const activeFilterCount = [condition, brand, size, priceRange].filter((v) => v !== 'all').length
+  const hasFilters = condition !== 'all' || selectedBrand || selectedSize || search
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
-      {/* Shipping banner */}
-      <div className="mb-6 text-center py-2.5 rounded-lg bg-[var(--bg-card)] border border-[var(--border)] text-sm text-[var(--text-secondary)]">
-        Free shipping on orders over {formatPrice(FREE_SHIPPING_THRESHOLD)}
-      </div>
-
-      {/* Search + filter toggle */}
-      <div className="flex gap-3 mb-6">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
-          <input
-            type="text"
-            placeholder="Search sneakers..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 text-sm rounded-lg"
-          />
-        </div>
-        <button
-          onClick={() => setShowFilters(!showFilters)}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border text-sm font-medium transition-colors ${
-            showFilters || activeFilterCount > 0
-              ? 'border-[var(--pink)] text-[var(--pink)]'
-              : 'border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--border-light)]'
-          }`}
-        >
-          <SlidersHorizontal className="w-4 h-4" />
-          Filters{activeFilterCount > 0 ? ` (${activeFilterCount})` : ''}
-        </button>
-      </div>
-
-      {/* Filters */}
-      {showFilters && (
-        <div className="mb-6 p-4 rounded-xl bg-[var(--bg-card)] border border-[var(--border)] space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-semibold text-white">Filters</h3>
-            <button
-              onClick={() => { setCondition('all'); setBrand('all'); setSize('all'); setPriceRange('all') }}
-              className="text-xs text-[var(--text-muted)] hover:text-[var(--pink)]"
-            >
-              Clear All
-            </button>
+    <div className="px-4 py-6 pb-mobile-nav">
+      <div className="max-w-7xl mx-auto">
+        {/* Search + Filter bar */}
+        <div className="flex gap-3 mb-6">
+          <div className="flex-1 relative">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search sneakers..."
+              className="w-full h-11 pl-10 pr-4 rounded-xl bg-card border border-border text-sm text-text placeholder:text-text-muted focus:outline-none focus:border-pink transition-colors"
+            />
           </div>
-          <FilterTabs label="Condition" options={CONDITION_OPTIONS} selected={condition} onChange={setCondition} />
-          <FilterTabs label="Brand" options={brands} selected={brand} onChange={setBrand} />
-          <FilterTabs label="Size" options={sizes} selected={size} onChange={setSize} />
-          <FilterTabs label="Price" options={PRICE_OPTIONS} selected={priceRange} onChange={setPriceRange} />
+          <button
+            onClick={() => setFiltersOpen(!filtersOpen)}
+            className="h-11 px-4 rounded-xl bg-card border border-border flex items-center gap-2 text-sm text-text-secondary hover:border-pink transition-colors cursor-pointer"
+          >
+            <SlidersHorizontal className="w-4 h-4" />
+            <span className="hidden sm:inline">Filters</span>
+          </button>
         </div>
-      )}
 
-      {/* Results count */}
-      <p className="text-sm text-[var(--text-muted)] mb-4">
-        {loading ? 'Loading...' : `${filtered.length} sneaker${filtered.length !== 1 ? 's' : ''}`}
-      </p>
+        {/* Condition tabs */}
+        <FilterTabs
+          tabs={[
+            { value: 'all', label: 'All' },
+            { value: 'new', label: 'New' },
+            { value: 'used', label: 'Preowned' },
+          ]}
+          value={condition}
+          onChange={setCondition}
+          className="mb-6"
+        />
 
-      {/* Grid */}
-      {loading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl overflow-hidden animate-pulse">
-              <div className="aspect-square bg-[var(--bg-elevated)]" />
-              <div className="p-4 space-y-2">
-                <div className="h-3 bg-[var(--bg-elevated)] rounded w-1/3" />
-                <div className="h-4 bg-[var(--bg-elevated)] rounded w-2/3" />
-                <div className="h-4 bg-[var(--bg-elevated)] rounded w-1/4" />
+        {/* Expanded filters */}
+        {filtersOpen && (
+          <div className="mb-6 p-4 rounded-xl bg-card border border-border space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div>
+                <label className="text-xs font-medium text-text-muted mb-1.5 block">Brand</label>
+                <select
+                  value={selectedBrand}
+                  onChange={(e) => setSelectedBrand(e.target.value)}
+                  className="w-full h-10 px-3 rounded-lg bg-elevated border border-border text-sm text-text focus:outline-none focus:border-pink"
+                >
+                  <option value="">All Brands</option>
+                  {SNEAKER_BRANDS.slice(0, 20).map((b) => (
+                    <option key={b} value={b}>{b.charAt(0).toUpperCase() + b.slice(1)}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="text-xs font-medium text-text-muted mb-1.5 block">Size</label>
+                <select
+                  value={selectedSize}
+                  onChange={(e) => setSelectedSize(e.target.value)}
+                  className="w-full h-10 px-3 rounded-lg bg-elevated border border-border text-sm text-text focus:outline-none focus:border-pink"
+                >
+                  <option value="">All Sizes</option>
+                  {SIZES.map((s) => (
+                    <option key={s} value={s}>{s}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="text-xs font-medium text-text-muted mb-1.5 block">Sort</label>
+                <select
+                  value={sort}
+                  onChange={(e) => setSort(e.target.value)}
+                  className="w-full h-10 px-3 rounded-lg bg-elevated border border-border text-sm text-text focus:outline-none focus:border-pink"
+                >
+                  {SORT_OPTIONS.map((o) => (
+                    <option key={o.value} value={o.value}>{o.label}</option>
+                  ))}
+                </select>
               </div>
             </div>
-          ))}
-        </div>
-      ) : filtered.length === 0 ? (
-        <div className="text-center py-20 text-[var(--text-muted)]">
-          <p className="text-lg mb-2">No sneakers found</p>
-          <p className="text-sm">Try adjusting your filters or search</p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {filtered.map((p) => (
-            <ProductCard key={p.id} {...p} />
-          ))}
-        </div>
-      )}
+            {hasFilters && (
+              <button onClick={clearFilters} className="text-xs text-pink hover:underline cursor-pointer flex items-center gap-1">
+                <X className="w-3 h-3" /> Clear all filters
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* Product count */}
+        {!loading && (
+          <p className="text-sm text-text-muted mb-4">
+            {products.length} {products.length === 1 ? 'product' : 'products'}
+          </p>
+        )}
+
+        {/* Grid */}
+        {loading ? (
+          <ProductGridSkeleton count={8} />
+        ) : products.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-20 text-center">
+            <Package className="w-16 h-16 text-text-muted mb-4" />
+            <h3 className="text-xl font-semibold text-text mb-2">No products found</h3>
+            <p className="text-text-muted max-w-sm mb-6">
+              {hasFilters
+                ? 'Try adjusting your filters or search to find what you are looking for.'
+                : 'We are restocking. Check back soon for fresh inventory.'}
+            </p>
+            {hasFilters && (
+              <Button variant="secondary" onClick={clearFilters}>Clear Filters</Button>
+            )}
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {products.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   )
 }

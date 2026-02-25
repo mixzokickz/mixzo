@@ -1,61 +1,87 @@
 import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-server'
-
-async function requireAdmin(request: Request) {
-  const authHeader = request.headers.get('authorization')
-  if (!authHeader?.startsWith('Bearer ')) return null
-  
-  const token = authHeader.split(' ')[1]
-  const { data: { user } } = await supabaseAdmin.auth.getUser(token)
-  if (!user) return null
-  
-  const { data: profile } = await supabaseAdmin
-    .from('profiles')
-    .select('role')
-    .eq('id', user.id)
-    .single()
-  
-  if (!profile || !['owner', 'manager', 'staff'].includes(profile.role)) return null
-  return user
-}
+import { requireAdmin } from '@/lib/admin-auth'
 
 export async function GET(request: Request) {
-  const user = await requireAdmin(request)
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  try {
+    const user = await requireAdmin(request)
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { searchParams } = new URL(request.url)
-  const status = searchParams.get('status') || 'active'
-  
-  const { data, error } = await supabaseAdmin
-    .from('products')
-    .select('*')
-    .eq('status', status)
-    .order('created_at', { ascending: false })
+    const { searchParams } = new URL(request.url)
+    const status = searchParams.get('status') || 'active'
+    const search = searchParams.get('search')
+    const category = searchParams.get('category')
+    const page = parseInt(searchParams.get('page') || '1')
+    const limit = parseInt(searchParams.get('limit') || '50')
+    const offset = (page - 1) * limit
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json({ products: data })
+    let query = supabaseAdmin
+      .from('products')
+      .select('*', { count: 'exact' })
+      .eq('status', status)
+      .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1)
+
+    if (search) query = query.ilike('name', `%${search}%`)
+    if (category) query = query.eq('category', category)
+
+    const { data, error, count } = await query
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ products: data, total: count, page, limit })
+  } catch (error) {
+    console.error('Admin products GET error:', error)
+    return NextResponse.json({ error: 'Server error' }, { status: 500 })
+  }
 }
 
 export async function POST(request: Request) {
-  const user = await requireAdmin(request)
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  try {
+    const user = await requireAdmin(request)
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const body = await request.json()
-  const { data, error } = await supabaseAdmin.from('products').insert(body).select().single()
-
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json({ product: data })
+    const body = await request.json()
+    body.added_by = user.id
+    const { data, error } = await supabaseAdmin.from('products').insert(body).select().single()
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ product: data }, { status: 201 })
+  } catch (error) {
+    console.error('Admin products POST error:', error)
+    return NextResponse.json({ error: 'Server error' }, { status: 500 })
+  }
 }
 
 export async function DELETE(request: Request) {
-  const user = await requireAdmin(request)
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  try {
+    const user = await requireAdmin(request)
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { searchParams } = new URL(request.url)
-  const id = searchParams.get('id')
-  if (!id) return NextResponse.json({ error: 'Product ID required' }, { status: 400 })
+    const { searchParams } = new URL(request.url)
+    const id = searchParams.get('id')
+    if (!id) return NextResponse.json({ error: 'Product ID required' }, { status: 400 })
 
-  const { error } = await supabaseAdmin.from('products').delete().eq('id', id)
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json({ success: true })
+    const { error } = await supabaseAdmin.from('products').delete().eq('id', id)
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ success: true })
+  } catch (error) {
+    console.error('Admin products DELETE error:', error)
+    return NextResponse.json({ error: 'Server error' }, { status: 500 })
+  }
+}
+
+export async function PATCH(request: Request) {
+  try {
+    const user = await requireAdmin(request)
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+    const body = await request.json()
+    const { id, ...updates } = body
+    if (!id) return NextResponse.json({ error: 'Product ID required' }, { status: 400 })
+
+    const { data, error } = await supabaseAdmin.from('products').update(updates).eq('id', id).select().single()
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ product: data })
+  } catch (error) {
+    console.error('Admin products PATCH error:', error)
+    return NextResponse.json({ error: 'Server error' }, { status: 500 })
+  }
 }

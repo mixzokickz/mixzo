@@ -2,56 +2,47 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { CONDITION_LABELS } from '@/lib/constants'
+import { ConditionBadge } from '@/components/ui/badge'
 import { formatPrice } from '@/lib/utils'
 
 interface ProductCardProps {
-  id: string
-  name: string
-  brand: string
-  size: string
-  price: number
-  condition: string
-  image_url: string | null
+  product: {
+    id: string
+    name: string
+    brand: string
+    price: number
+    size: string
+    condition: string
+    image_url: string | null
+  }
 }
 
-export function ProductCard({ id, name, brand, size, price, condition, image_url }: ProductCardProps) {
-  const isNew = condition === 'new'
-  const conditionLabel = CONDITION_LABELS[condition] || condition
-
+export function ProductCard({ product }: ProductCardProps) {
   return (
-    <Link href={`/product/${id}`} className="block group">
-      <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl overflow-hidden card-hover">
-        <div className="relative aspect-square bg-[var(--bg-elevated)]">
-          {image_url ? (
+    <Link href={`/product/${product.id}`}>
+      <div className="group rounded-xl bg-card border border-border overflow-hidden card-hover">
+        <div className="aspect-square relative bg-elevated">
+          {product.image_url ? (
             <Image
-              src={image_url}
-              alt={name}
+              src={product.image_url}
+              alt={product.name}
               fill
-              className="object-contain p-4 group-hover:scale-105 transition-transform duration-300"
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+              className="object-contain p-4 transition-transform duration-300 group-hover:scale-105"
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-[var(--text-muted)] text-sm">
-              No Image
+            <div className="w-full h-full flex items-center justify-center">
+              <span className="text-text-muted text-sm">No Image</span>
             </div>
           )}
-          <span
-            className={`absolute top-3 left-3 px-2.5 py-1 rounded-full text-xs font-semibold text-white ${
-              isNew ? 'bg-[var(--blue)]' : 'bg-[var(--pink)]'
-            }`}
-          >
-            {conditionLabel}
-          </span>
         </div>
-        <div className="p-4">
-          <p className="text-xs text-[var(--text-muted)] uppercase tracking-wide mb-1">{brand}</p>
-          <h3 className="text-sm font-semibold text-white truncate mb-1 group-hover:text-[var(--pink)] transition-colors">
-            {name}
-          </h3>
-          <div className="flex items-center justify-between">
-            <span className="text-base font-bold text-white">{formatPrice(price)}</span>
-            <span className="text-xs text-[var(--text-muted)]">Size {size}</span>
+        <div className="p-3.5">
+          <p className="text-[11px] font-medium text-text-muted uppercase tracking-wider">{product.brand}</p>
+          <h3 className="text-sm font-semibold text-text mt-0.5 line-clamp-2 leading-snug">{product.name}</h3>
+          <p className="text-xs text-text-muted mt-1">Size {product.size}</p>
+          <div className="flex items-center justify-between mt-2.5">
+            <span className="text-base font-bold text-text">{formatPrice(product.price)}</span>
+            <ConditionBadge condition={product.condition} />
           </div>
         </div>
       </div>

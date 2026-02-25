@@ -1,41 +1,41 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useState, useEffect, use } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ArrowLeft, ShoppingBag, Check, Truck } from 'lucide-react'
+import { ArrowLeft, ShoppingBag, Truck, Shield, Package } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
-import { CONDITION_LABELS, FREE_SHIPPING_THRESHOLD } from '@/lib/constants'
-import { formatPrice } from '@/lib/utils'
 import { useCartStore } from '@/stores/cart'
-import { ProductCard } from '@/components/shop/product-card'
 import { ShopHeader } from '@/components/layout/shop-header'
 import { Footer } from '@/components/layout/footer'
+import { MobileBottomNav } from '@/components/layout/mobile-bottom-nav'
+import { ProductCard } from '@/components/shop/product-card'
+import { ConditionBadge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Skeleton } from '@/components/ui/skeleton'
+import { formatPrice } from '@/lib/utils'
+import { FREE_SHIPPING_THRESHOLD } from '@/lib/constants'
 import { toast } from 'sonner'
 
 interface Product {
   id: string
   name: string
   brand: string
-  size: string
   price: number
-  market_price: number | null
+  size: string
   condition: string
-  description: string | null
   image_url: string | null
-  images: string[] | null
+  description: string | null
+  colorway: string | null
+  stockx_price: number | null
   status: string
 }
 
-export default function ProductPage() {
-  const { id } = useParams<{ id: string }>()
-  const router = useRouter()
+export default function ProductPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params)
   const [product, setProduct] = useState<Product | null>(null)
-  const [related, setRelated] = useState<any[]>([])
+  const [related, setRelated] = useState<Pick<Product, 'id' | 'name' | 'brand' | 'price' | 'size' | 'condition' | 'image_url'>[]>([])
   const [loading, setLoading] = useState(true)
-  const [selectedImage, setSelectedImage] = useState(0)
-  const [added, setAdded] = useState(false)
   const addItem = useCartStore((s) => s.addItem)
 
   useEffect(() => {
@@ -46,17 +46,17 @@ export default function ProductPage() {
         .eq('id', id)
         .single()
 
-      if (!data) { setLoading(false); return }
-      setProduct(data)
-
-      const { data: rel } = await supabase
-        .from('products')
-        .select('id, name, brand, size, price, condition, image_url, status')
-        .eq('status', 'active')
-        .neq('id', id)
-        .limit(4)
-
-      setRelated((rel || []) as Product[])
+      if (data) {
+        setProduct(data)
+        const { data: rel } = await supabase
+          .from('products')
+          .select('*')
+          .eq('status', 'active')
+          .neq('id', id)
+          .ilike('brand', `%${data.brand}%`)
+          .limit(4)
+        setRelated(rel || [])
+      }
       setLoading(false)
     }
     load()
@@ -73,143 +73,127 @@ export default function ProductPage() {
       condition: product.condition,
       image_url: product.image_url,
     })
-    setAdded(true)
     toast.success('Added to cart')
-    setTimeout(() => setAdded(false), 2000)
   }
-
-  const allImages = product
-    ? [product.image_url, ...(product.images || [])].filter(Boolean) as string[]
-    : []
 
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col bg-[var(--bg-primary)]">
+      <div className="min-h-screen flex flex-col">
         <ShopHeader />
-        <div className="flex-1 flex items-center justify-center text-[var(--text-muted)]">Loading...</div>
+        <main className="flex-1 pt-20 px-4">
+          <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-10">
+            <Skeleton className="aspect-square w-full rounded-2xl" />
+            <div className="space-y-4 py-4">
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-8 w-3/4" />
+              <Skeleton className="h-6 w-20" />
+              <Skeleton className="h-10 w-28" />
+              <Skeleton className="h-12 w-full rounded-xl" />
+            </div>
+          </div>
+        </main>
         <Footer />
+        <MobileBottomNav />
       </div>
     )
   }
 
   if (!product) {
     return (
-      <div className="min-h-screen flex flex-col bg-[var(--bg-primary)]">
+      <div className="min-h-screen flex flex-col">
         <ShopHeader />
-        <div className="flex-1 flex flex-col items-center justify-center gap-4 text-[var(--text-muted)]">
-          <p className="text-lg">Product not found</p>
-          <Link href="/shop" className="btn-gradient px-6 py-2 rounded-lg text-white text-sm font-semibold">Back to Shop</Link>
-        </div>
+        <main className="flex-1 pt-20 flex flex-col items-center justify-center text-center px-4">
+          <Package className="w-16 h-16 text-text-muted mb-4" />
+          <h1 className="text-2xl font-bold mb-2">Product not found</h1>
+          <p className="text-text-muted mb-6">This product may have been removed or sold.</p>
+          <Link href="/shop"><Button variant="secondary">Back to Shop</Button></Link>
+        </main>
         <Footer />
+        <MobileBottomNav />
       </div>
     )
   }
 
-  const isNew = product.condition === 'new'
-  const conditionLabel = CONDITION_LABELS[product.condition] || product.condition
-  const savings = product.market_price ? product.market_price - product.price : null
-
   return (
-    <div className="min-h-screen flex flex-col bg-[var(--bg-primary)]">
+    <div className="min-h-screen flex flex-col">
       <ShopHeader />
-      <div className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 py-6">
-        <button onClick={() => router.back()} className="flex items-center gap-1 text-sm text-[var(--text-muted)] hover:text-white mb-6 transition-colors">
-          <ArrowLeft className="w-4 h-4" /> Back
-        </button>
+      <main className="flex-1 pt-20 px-4 pb-mobile-nav">
+        <div className="max-w-6xl mx-auto">
+          <Link href="/shop" className="inline-flex items-center gap-1.5 text-sm text-text-muted hover:text-text transition-colors mb-6">
+            <ArrowLeft className="w-4 h-4" /> Back to Shop
+          </Link>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Images */}
-          <div>
-            <div className="relative aspect-square bg-[var(--bg-card)] border border-[var(--border)] rounded-xl overflow-hidden">
-              {allImages.length > 0 ? (
-                <Image src={allImages[selectedImage]} alt={product.name} fill className="object-contain p-6" sizes="(max-width: 1024px) 100vw, 50vw" />
+          <div className="grid md:grid-cols-2 gap-10">
+            {/* Image */}
+            <div className="aspect-square relative rounded-2xl bg-card border border-border overflow-hidden">
+              {product.image_url ? (
+                <Image src={product.image_url} alt={product.name} fill className="object-contain p-8" sizes="(max-width: 768px) 100vw, 50vw" priority />
               ) : (
-                <div className="w-full h-full flex items-center justify-center text-[var(--text-muted)]">No Image</div>
-              )}
-              <span className={`absolute top-4 left-4 px-3 py-1 rounded-full text-xs font-semibold text-white ${isNew ? 'bg-[var(--blue)]' : 'bg-[var(--pink)]'}`}>
-                {conditionLabel}
-              </span>
-            </div>
-            {allImages.length > 1 && (
-              <div className="flex gap-2 mt-3 overflow-x-auto">
-                {allImages.map((img, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setSelectedImage(i)}
-                    className={`relative w-16 h-16 rounded-lg border shrink-0 overflow-hidden ${
-                      i === selectedImage ? 'border-[var(--pink)]' : 'border-[var(--border)]'
-                    }`}
-                  >
-                    <Image src={img} alt="" fill className="object-contain p-1" sizes="64px" />
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Details */}
-          <div>
-            <p className="text-sm text-[var(--text-muted)] uppercase tracking-wide mb-1">{product.brand}</p>
-            <h1 className="text-2xl sm:text-3xl font-bold text-white mb-4">{product.name}</h1>
-
-            <div className="flex items-baseline gap-3 mb-4">
-              <span className="text-3xl font-bold gradient-text">{formatPrice(product.price)}</span>
-              {product.market_price && product.market_price > product.price && (
-                <span className="text-lg text-[var(--text-muted)] line-through">{formatPrice(product.market_price)}</span>
+                <div className="w-full h-full flex items-center justify-center text-text-muted">No Image</div>
               )}
             </div>
 
-            {savings && savings > 0 && (
-              <p className="text-sm text-green-400 mb-4">
-                You save {formatPrice(savings)} vs market price
-              </p>
-            )}
+            {/* Details */}
+            <div className="py-2">
+              <p className="text-sm font-medium text-text-muted uppercase tracking-wider">{product.brand}</p>
+              <h1 className="text-2xl md:text-3xl font-bold mt-1">{product.name}</h1>
+              {product.colorway && <p className="text-sm text-text-secondary mt-1">{product.colorway}</p>}
 
-            <div className="flex flex-wrap gap-3 mb-6">
-              <div className="px-4 py-2 rounded-lg bg-[var(--bg-card)] border border-[var(--border)]">
-                <p className="text-xs text-[var(--text-muted)]">Size</p>
-                <p className="text-sm font-semibold text-white">{product.size}</p>
+              <div className="flex items-center gap-3 mt-4">
+                <ConditionBadge condition={product.condition} />
+                <span className="text-sm text-text-muted">Size {product.size}</span>
               </div>
-              <div className="px-4 py-2 rounded-lg bg-[var(--bg-card)] border border-[var(--border)]">
-                <p className="text-xs text-[var(--text-muted)]">Condition</p>
-                <p className="text-sm font-semibold text-white">{conditionLabel}</p>
+
+              <div className="mt-6">
+                <span className="text-3xl font-black">{formatPrice(product.price)}</span>
+                {product.stockx_price && product.stockx_price > product.price && (
+                  <div className="mt-1.5">
+                    <span className="text-sm text-text-muted line-through mr-2">{formatPrice(product.stockx_price)}</span>
+                    <span className="text-sm text-cyan font-semibold">
+                      Save {Math.round((1 - product.price / product.stockx_price) * 100)}%
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              <Button onClick={handleAddToCart} size="lg" className="w-full mt-8">
+                <ShoppingBag className="w-5 h-5" />
+                Add to Cart
+              </Button>
+
+              {product.description && (
+                <div className="mt-8">
+                  <h3 className="text-sm font-semibold mb-2">Description</h3>
+                  <p className="text-sm text-text-secondary leading-relaxed">{product.description}</p>
+                </div>
+              )}
+
+              <div className="mt-8 space-y-3">
+                <div className="flex items-center gap-3 text-sm text-text-secondary">
+                  <Truck className="w-4 h-4 text-pink shrink-0" />
+                  {product.price >= FREE_SHIPPING_THRESHOLD ? 'Free shipping' : `Free shipping on orders over ${formatPrice(FREE_SHIPPING_THRESHOLD)}`}
+                </div>
+                <div className="flex items-center gap-3 text-sm text-text-secondary">
+                  <Shield className="w-4 h-4 text-pink shrink-0" />
+                  Authenticity guaranteed
+                </div>
               </div>
             </div>
-
-            <button
-              onClick={handleAddToCart}
-              className="w-full btn-gradient py-3.5 rounded-xl text-white font-semibold flex items-center justify-center gap-2 mb-4"
-            >
-              {added ? <><Check className="w-5 h-5" /> Added to Cart</> : <><ShoppingBag className="w-5 h-5" /> Add to Cart</>}
-            </button>
-
-            <div className="flex items-center gap-2 text-sm text-[var(--text-secondary)] mb-6">
-              <Truck className="w-4 h-4" />
-              {product.price >= FREE_SHIPPING_THRESHOLD ? 'Free Shipping' : `Free shipping on orders over ${formatPrice(FREE_SHIPPING_THRESHOLD)}`}
-            </div>
-
-            {product.description && (
-              <div className="border-t border-[var(--border)] pt-6">
-                <h3 className="text-sm font-semibold text-white uppercase tracking-wide mb-2">Description</h3>
-                <p className="text-sm text-[var(--text-secondary)] leading-relaxed whitespace-pre-line">{product.description}</p>
-              </div>
-            )}
           </div>
+
+          {/* Related */}
+          {related.length > 0 && (
+            <section className="mt-16">
+              <h2 className="text-xl font-bold mb-6">You Might Also Like</h2>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {related.map((p) => <ProductCard key={p.id} product={p} />)}
+              </div>
+            </section>
+          )}
         </div>
-
-        {/* Related */}
-        {related.length > 0 && (
-          <div className="mt-16">
-            <h2 className="text-xl font-bold text-white mb-6">More Sneakers</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {related.map((p) => (
-                <ProductCard key={p.id} {...p} />
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
+      </main>
       <Footer />
+      <MobileBottomNav />
     </div>
   )
 }
