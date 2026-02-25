@@ -23,10 +23,11 @@ export default function SettingsPage() {
         setRole(data.role || 'unknown')
       }
 
-      // Check StockX
+      // Check StockX OAuth status (not just search which uses GOAT fallback)
       try {
-        const res = await fetch('/api/stockx/search?q=test')
-        setStockxStatus(res.ok ? 'ok' : 'error')
+        const res = await fetch('/api/stockx/status')
+        const data = await res.json()
+        setStockxStatus(data.connected ? 'ok' : 'error')
       } catch {
         setStockxStatus('error')
       }
