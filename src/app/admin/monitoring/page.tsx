@@ -55,7 +55,7 @@ export default function MonitoringPage() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {checks.map(c => (
-          <div key={c.name} className="bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl p-5">
+          <div key={c.name} className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl p-5">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-3">
                 <c.icon size={18} className="text-[var(--text-muted)]" />
@@ -70,7 +70,7 @@ export default function MonitoringPage() {
       </div>
 
       {/* Uptime */}
-      <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl p-5">
+      <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl p-5">
         <h3 className="text-sm font-semibold text-white mb-3">Uptime (30 days)</h3>
         <div className="flex gap-0.5">
           {Array.from({ length: 30 }, (_, i) => (

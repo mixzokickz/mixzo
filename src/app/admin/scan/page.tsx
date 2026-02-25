@@ -100,7 +100,7 @@ export default function ScanPage() {
             className={cn(
               'flex flex-col items-center gap-2 py-4 px-3 rounded-xl border text-sm font-medium transition-all',
               tab === id
-                ? 'bg-gradient-to-r from-[var(--pink)] to-[var(--cyan)] text-white border-transparent'
+                ? 'bg-[#FF2E88] hover:opacity-90 text-white border-transparent'
                 : 'bg-[var(--bg-card)] border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--pink)]/30'
             )}
           >
@@ -117,7 +117,7 @@ export default function ScanPage() {
             <video ref={videoRef} autoPlay playsInline className="w-full h-full object-cover" />
             {scanning && (
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div className="w-64 h-64 border-2 border-[var(--pink)] rounded-2xl opacity-50" />
+                <div className="w-64 h-64 border-2 border-[var(--pink)] rounded-xl opacity-50" />
               </div>
             )}
           </div>
@@ -144,7 +144,7 @@ export default function ScanPage() {
             />
             <button
               type="submit"
-              className="bg-gradient-to-r from-[var(--pink)] to-[var(--cyan)] text-white px-6 rounded-xl font-semibold text-sm"
+              className="bg-[#FF2E88] hover:opacity-90 text-white px-6 rounded-xl font-semibold text-sm"
             >
               Look Up
             </button>
@@ -160,7 +160,7 @@ export default function ScanPage() {
         <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl p-5">
           <button
             onClick={() => setShowModal(true)}
-            className="w-full bg-gradient-to-r from-[var(--pink)] to-[var(--cyan)] text-white py-5 rounded-xl font-semibold text-lg flex items-center justify-center gap-3"
+            className="w-full bg-[#FF2E88] hover:opacity-90 text-white py-5 rounded-xl font-semibold text-lg flex items-center justify-center gap-3"
           >
             <Search size={22} />
             Search StockX

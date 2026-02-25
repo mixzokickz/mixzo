@@ -49,6 +49,16 @@ export const THEME = {
   gradient: 'linear-gradient(135deg, #FF2E88, #00C2D6)',
 }
 
+export const CLEANING_TIERS = [
+  { value: 'basic', label: 'Basic Clean', price: 25, description: 'Exterior wipe, lace cleaning, deodorize' },
+  { value: 'deep', label: 'Deep Clean', price: 45, description: 'Full disassembly, sole cleaning, deep scrub, lace replacement' },
+  { value: 'restoration', label: 'Full Restoration', price: 75, description: 'Color touch-up, sole restoration, complete rehab, premium treatment' },
+] as const
+
+export const CLEANING_STATUSES = [
+  'pending', 'quoted', 'approved', 'shipped_to_us', 'in_progress', 'completed', 'shipped_back', 'cancelled'
+] as const
+
 export const SNEAKER_BRANDS = [
   'nike', 'jordan', 'air jordan', 'adidas', 'yeezy', 'new balance',
   'puma', 'reebok', 'asics', 'converse', 'vans', 'saucony',

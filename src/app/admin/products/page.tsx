@@ -71,7 +71,7 @@ export default function ProductsPage() {
           <h1 className="text-2xl font-bold text-white">Products</h1>
           <p className="text-sm text-[var(--text-muted)]">{products.length} total products</p>
         </div>
-        <Link href="/admin/products/new" className="bg-gradient-to-r from-[var(--pink)] to-[var(--cyan)] text-white text-sm font-semibold px-4 py-2.5 rounded-xl flex items-center gap-2">
+        <Link href="/admin/products/new" className="bg-[#FF2E88] hover:opacity-90 text-white text-sm font-semibold px-4 py-2.5 rounded-xl flex items-center gap-2">
           <Plus size={16} /> Add Product
         </Link>
       </div>
@@ -82,11 +82,11 @@ export default function ProductsPage() {
       </div>
 
       {filtered.length === 0 ? (
-        <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl p-12 text-center">
+        <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl p-12 text-center">
           <Package size={40} className="text-[var(--text-muted)] mx-auto mb-3" />
           <h2 className="text-lg font-semibold text-white mb-1">No products found</h2>
           <p className="text-sm text-[var(--text-secondary)] mb-4">Add your first product to get started</p>
-          <Link href="/admin/products/new" className="inline-flex items-center gap-2 bg-gradient-to-r from-[var(--pink)] to-[var(--cyan)] text-white text-sm font-semibold px-5 py-2.5 rounded-xl">
+          <Link href="/admin/products/new" className="inline-flex items-center gap-2 bg-[#FF2E88] hover:opacity-90 text-white text-sm font-semibold px-5 py-2.5 rounded-xl">
             <Plus size={16} /> Add Product
           </Link>
         </div>

@@ -34,7 +34,7 @@ export default function StaffPage() {
       </div>
 
       {staff.length === 0 ? (
-        <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl p-12 text-center">
+        <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl p-12 text-center">
           <Users size={40} className="text-[var(--text-muted)] mx-auto mb-3" />
           <h2 className="text-lg font-semibold text-white mb-1">No team members</h2>
           <p className="text-sm text-[var(--text-secondary)]">Add staff members to manage your store</p>

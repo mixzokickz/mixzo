@@ -8,7 +8,7 @@ import {
   Users, Flame, BarChart3, Settings, Menu, X, LogOut,
   Tag, FileText, Scale, Boxes, Truck, Gift, RefreshCw,
   ClipboardCheck, Activity, HelpCircle, Star, Link2,
-  Receipt, Bell, UserCog
+  Receipt, Bell, UserCog, Sparkles
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { SITE_NAME } from '@/lib/constants'
@@ -69,6 +69,12 @@ const NAV_SECTIONS = [
     items: [
       { href: '/admin/staff', label: 'Staff', icon: UserCog },
       { href: '/admin/notifications', label: 'Notifications', icon: Bell },
+    ],
+  },
+  {
+    label: 'Cleaning',
+    items: [
+      { href: '/admin/cleaning', label: 'Cleaning Requests', icon: Sparkles },
     ],
   },
   {

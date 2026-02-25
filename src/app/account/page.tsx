@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Package, Settings, ShoppingBag, User, ChevronRight, LogOut } from 'lucide-react'
+import { Package, Settings, ShoppingBag, User, ChevronRight, LogOut, Sparkles, Heart, DollarSign } from 'lucide-react'
 import { formatPrice, formatDate } from '@/lib/utils'
 import { CONDITION_LABELS } from '@/lib/constants'
 
@@ -70,8 +70,12 @@ export default function AccountPage() {
     )
   }
 
+  const totalSpent = orders.reduce((sum, o) => sum + (o.total || 0), 0)
+
   const menuItems = [
     { href: '/account/orders', label: 'Order History', desc: `${orders.length} recent orders`, icon: ShoppingBag },
+    { href: '/account/cleaning', label: 'Cleaning Requests', desc: 'Track your sneaker cleanings', icon: Sparkles },
+    { href: '/wishlist', label: 'Wishlist', desc: 'Saved items', icon: Heart },
     { href: '/account/settings', label: 'Account Settings', desc: 'Profile, address, password', icon: Settings },
   ]
 
@@ -89,6 +93,20 @@ export default function AccountPage() {
             <p className="font-semibold text-white text-lg truncate">{profile?.full_name || 'Customer'}</p>
             <p className="text-sm text-[var(--text-secondary)] truncate">{profile?.email}</p>
           </div>
+        </div>
+      </div>
+
+      {/* Quick Stats */}
+      <div className="grid grid-cols-2 gap-3 mb-6">
+        <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl p-4 text-center">
+          <ShoppingBag size={18} className="text-[var(--pink)] mx-auto mb-1" />
+          <p className="text-lg font-bold text-white">{orders.length}</p>
+          <p className="text-xs text-[var(--text-muted)]">Orders</p>
+        </div>
+        <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl p-4 text-center">
+          <DollarSign size={18} className="text-[var(--cyan)] mx-auto mb-1" />
+          <p className="text-lg font-bold text-white">{formatPrice(totalSpent)}</p>
+          <p className="text-xs text-[var(--text-muted)]">Total Spent</p>
         </div>
       </div>
 

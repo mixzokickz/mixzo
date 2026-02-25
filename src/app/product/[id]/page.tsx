@@ -119,9 +119,14 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
       <ShopHeader />
       <main className="flex-1 pt-20 px-4 pb-mobile-nav">
         <div className="max-w-6xl mx-auto">
-          <Link href="/shop" className="inline-flex items-center gap-1.5 text-sm text-text-muted hover:text-text transition-colors mb-6">
-            <ArrowLeft className="w-4 h-4" /> Back to Shop
-          </Link>
+          {/* Breadcrumb */}
+          <nav className="flex items-center gap-2 text-sm text-text-muted mb-6">
+            <Link href="/" className="hover:text-text transition-colors">Home</Link>
+            <span>/</span>
+            <Link href="/shop" className="hover:text-text transition-colors">Shop</Link>
+            <span>/</span>
+            <span className="text-text truncate max-w-[200px]">{product?.name || 'Product'}</span>
+          </nav>
 
           <div className="grid md:grid-cols-2 gap-10">
             {/* Image */}

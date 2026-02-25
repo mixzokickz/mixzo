@@ -67,7 +67,7 @@ export default function DiscountsPage() {
           <h1 className="text-2xl font-bold text-white">Discount Codes</h1>
           <p className="text-sm text-[var(--text-muted)]">{discounts.length} codes</p>
         </div>
-        <button onClick={() => setShowForm(!showForm)} className="bg-gradient-to-r from-[var(--pink)] to-[var(--cyan)] text-white text-sm font-semibold px-4 py-2.5 rounded-xl flex items-center gap-2">
+        <button onClick={() => setShowForm(!showForm)} className="bg-[#FF2E88] hover:opacity-90 text-white text-sm font-semibold px-4 py-2.5 rounded-xl flex items-center gap-2">
           <Plus size={16} /> New Code
         </button>
       </div>
@@ -89,12 +89,12 @@ export default function DiscountsPage() {
             <div><label className="block text-xs text-[var(--text-secondary)] mb-1.5">Max Uses</label><input type="number" value={form.max_uses} onChange={e => setForm({...form, max_uses: e.target.value})} placeholder="Unlimited" className={ic} /></div>
           </div>
           <div><label className="block text-xs text-[var(--text-secondary)] mb-1.5">Expires</label><input type="datetime-local" value={form.expires_at} onChange={e => setForm({...form, expires_at: e.target.value})} className={ic} /></div>
-          <button type="submit" disabled={saving} className="bg-gradient-to-r from-[var(--pink)] to-[var(--cyan)] text-white text-sm font-semibold px-6 py-3 rounded-xl disabled:opacity-50">{saving ? 'Creating...' : 'Create'}</button>
+          <button type="submit" disabled={saving} className="bg-[#FF2E88] hover:opacity-90 text-white text-sm font-semibold px-6 py-3 rounded-xl disabled:opacity-50">{saving ? 'Creating...' : 'Create'}</button>
         </form>
       )}
 
       {discounts.length === 0 ? (
-        <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl p-12 text-center">
+        <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl p-12 text-center">
           <Tag size={40} className="text-[var(--text-muted)] mx-auto mb-3" />
           <h2 className="text-lg font-semibold text-white mb-1">No discount codes</h2>
           <p className="text-sm text-[var(--text-secondary)]">Create codes to offer discounts to customers</p>

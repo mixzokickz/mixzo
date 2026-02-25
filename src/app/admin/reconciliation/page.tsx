@@ -40,13 +40,13 @@ export default function ReconciliationPage() {
       </div>
 
       {items.length === 0 ? (
-        <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl p-12 text-center">
+        <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl p-12 text-center">
           <ClipboardCheck size={40} className="text-[var(--text-muted)] mx-auto mb-3" />
           <h2 className="text-lg font-semibold text-white mb-1">No products to reconcile</h2>
           <p className="text-sm text-[var(--text-secondary)]">Add products first</p>
         </div>
       ) : (
-        <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl overflow-hidden">
+        <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl overflow-hidden">
           <table className="w-full text-sm">
             <thead><tr className="border-b border-[var(--border)] text-left text-xs text-[var(--text-muted)]">
               <th className="px-4 py-3 font-medium">Product</th><th className="px-4 py-3 font-medium text-center">Expected</th><th className="px-4 py-3 font-medium text-center">Actual</th><th className="px-4 py-3 font-medium text-center">Diff</th><th className="px-4 py-3 font-medium text-center">Status</th>

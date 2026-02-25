@@ -141,7 +141,7 @@ export default function EditProductPage() {
         </div>
 
         <div className="flex gap-3">
-          <button type="submit" disabled={saving} className="flex-1 bg-gradient-to-r from-[var(--pink)] to-[var(--cyan)] py-3.5 rounded-xl text-white font-semibold flex items-center justify-center gap-2 disabled:opacity-50 text-sm">
+          <button type="submit" disabled={saving} className="flex-1 bg-[#FF2E88] hover:opacity-90 py-3.5 rounded-xl text-white font-semibold flex items-center justify-center gap-2 disabled:opacity-50 text-sm">
             {saving ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Save size={16} />}
             {saving ? 'Saving...' : 'Save Changes'}
           </button>

@@ -31,7 +31,7 @@ export default function ReportsPage() {
           { label: 'Total Orders', value: '84', icon: FileText, change: '+12%' },
           { label: 'Avg Order Value', value: '$148', icon: Calendar, change: '+5%' },
         ].map(s => (
-          <div key={s.label} className="bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl p-5">
+          <div key={s.label} className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl p-5">
             <div className="flex items-center justify-between mb-2">
               <s.icon size={18} className="text-[var(--text-muted)]" />
               <span className="text-xs font-medium text-green-400">{s.change}</span>
@@ -45,7 +45,7 @@ export default function ReportsPage() {
       {/* Report Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {REPORTS.map(r => (
-          <div key={r.id} className="bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl p-5 space-y-4">
+          <div key={r.id} className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl p-5 space-y-4">
             <div className="flex items-center gap-3">
               <div className="p-2.5 rounded-xl" style={{ background: `${r.color}20` }}>
                 <r.icon size={20} style={{ color: r.color }} />

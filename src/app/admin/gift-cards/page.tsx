@@ -56,7 +56,7 @@ export default function GiftCardsPage() {
 
       {/* Create Modal */}
       {showCreate && (
-        <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl p-5 space-y-4">
+        <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl p-5 space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-semibold text-white">New Gift Card</h3>
             <button onClick={() => setShowCreate(false)}><X size={16} className="text-[var(--text-muted)]" /></button>
@@ -76,7 +76,7 @@ export default function GiftCardsPage() {
       </div>
 
       {filtered.length === 0 ? (
-        <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl p-12 text-center">
+        <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl p-12 text-center">
           <Gift size={40} className="text-[var(--text-muted)] mx-auto mb-3" />
           <h2 className="text-lg font-semibold text-white mb-1">No gift cards yet</h2>
           <p className="text-sm text-[var(--text-secondary)]">Create your first gift card above</p>

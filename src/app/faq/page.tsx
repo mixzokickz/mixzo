@@ -15,7 +15,7 @@ const FAQS = [
   { q: 'Do you ship internationally?', a: 'Currently we only ship within the United States. International shipping may be available in the future.' },
   { q: 'How do I track my order?', a: 'Once your order ships, you will receive a tracking number via email. You can also check your order status on our Order Lookup page.' },
   { q: 'Can I cancel my order?', a: 'Orders can be cancelled within 1 hour of placement if they have not been processed. Contact us immediately if you need to cancel.' },
-  { q: 'Do you offer payment plans?', a: 'Stripe payment integration with installment options is coming soon. Currently we accept standard payment methods.' },
+  { q: 'Do you offer payment plans?', a: 'We accept all major credit cards, debit cards, and digital wallets through our secure payment system.' },
 ]
 
 export default function FAQPage() {

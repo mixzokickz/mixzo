@@ -18,7 +18,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           'inline-flex items-center justify-center font-semibold rounded-xl transition-all duration-200 cursor-pointer whitespace-nowrap',
           'disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none',
           {
-            'bg-gradient-to-r from-pink to-cyan text-white hover:opacity-90 active:scale-[0.98] shadow-lg shadow-pink/20': variant === 'primary',
+            'bg-pink text-white hover:bg-pink/90 active:scale-[0.98] shadow-lg shadow-pink/20': variant === 'primary',
             'bg-elevated text-text border border-border hover:bg-card hover:border-text-muted': variant === 'secondary',
             'bg-red-600 text-white hover:bg-red-700': variant === 'destructive',
             'bg-transparent text-text-secondary hover:text-text hover:bg-elevated': variant === 'ghost',

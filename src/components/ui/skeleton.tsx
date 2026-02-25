@@ -1,12 +1,12 @@
 import { cn } from '@/lib/utils'
 
 export function Skeleton({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn('skeleton', className)} {...props} />
+  return <div className={cn('shimmer rounded-xl', className)} {...props} />
 }
 
 export function ProductCardSkeleton() {
   return (
-    <div className="rounded-xl bg-card border border-border overflow-hidden">
+    <div className="rounded-2xl bg-[#141418] border border-[#1E1E26] overflow-hidden">
       <Skeleton className="aspect-square w-full rounded-none" />
       <div className="p-4 space-y-2.5">
         <Skeleton className="h-3 w-16" />

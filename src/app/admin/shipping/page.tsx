@@ -33,7 +33,7 @@ export default function ShippingPage() {
       </div>
 
       {/* Connect Provider Card */}
-      <div className="bg-gradient-to-br from-[var(--pink)]/10 to-[var(--cyan)]/10 border border-[var(--border)] rounded-2xl p-6">
+      <div className="bg-gradient-to-br from-[var(--pink)]/10 to-[var(--cyan)]/10 border border-[var(--border)] rounded-xl p-6">
         <div className="flex items-start gap-4">
           <div className="p-3 rounded-xl bg-[var(--pink)]/20"><Plug size={24} className="text-[var(--pink)]" /></div>
           <div className="flex-1">
@@ -45,7 +45,7 @@ export default function ShippingPage() {
       </div>
 
       {/* Tracking Lookup */}
-      <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl p-5">
+      <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl p-5">
         <h3 className="text-sm font-semibold text-white mb-3">Tracking Lookup</h3>
         <div className="flex gap-2">
           <input value={tracking} onChange={e => setTracking(e.target.value)} placeholder="Enter tracking number..." className="flex-1 bg-[var(--bg)] border border-[var(--border)] rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-[var(--text-muted)] focus:border-[var(--pink)] focus:outline-none" />
@@ -66,7 +66,7 @@ export default function ShippingPage() {
         </div>
 
         {filtered.length === 0 ? (
-          <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl p-12 text-center">
+          <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl p-12 text-center">
             <Truck size={40} className="text-[var(--text-muted)] mx-auto mb-3" />
             <h2 className="text-lg font-semibold text-white mb-1">No shipments yet</h2>
             <p className="text-sm text-[var(--text-secondary)]">Shipments will appear here when orders are fulfilled</p>

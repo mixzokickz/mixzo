@@ -41,7 +41,7 @@ export default function PaymentLinksPage() {
       </div>
 
       {showCreate && (
-        <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl p-5 space-y-3">
+        <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl p-5 space-y-3">
           <h3 className="text-sm font-semibold text-white">New Payment Link</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <input type="number" placeholder="Amount ($)" className="bg-[var(--bg)] border border-[var(--border)] rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-[var(--text-muted)] focus:border-[var(--pink)] focus:outline-none" />
@@ -52,7 +52,7 @@ export default function PaymentLinksPage() {
       )}
 
       {links.length === 0 ? (
-        <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl p-12 text-center">
+        <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl p-12 text-center">
           <Link2 size={40} className="text-[var(--text-muted)] mx-auto mb-3" />
           <h2 className="text-lg font-semibold text-white mb-1">No payment links</h2>
           <p className="text-sm text-[var(--text-secondary)]">Create links for custom payments</p>

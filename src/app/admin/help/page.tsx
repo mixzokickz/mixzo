@@ -42,7 +42,7 @@ export default function HelpPage() {
         ))}
       </div>
 
-      <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl p-6 text-center">
+      <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl p-6 text-center">
         <HelpCircle size={32} className="text-[var(--cyan)] mx-auto mb-3" />
         <h3 className="text-lg font-semibold text-white mb-1">Need more help?</h3>
         <p className="text-sm text-[var(--text-secondary)] mb-4">Contact us for personalized support</p>

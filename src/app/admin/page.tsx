@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
-import { DollarSign, Package, ShoppingCart, Users, TrendingUp, TrendingDown, ArrowUpRight } from 'lucide-react'
+import { DollarSign, Package, ShoppingCart, Users, TrendingUp, TrendingDown, ArrowUpRight, Plus, FileText, BarChart3 } from 'lucide-react'
 import { formatPrice } from '@/lib/utils'
 import Link from 'next/link'
 import dynamic from 'next/dynamic'
@@ -91,10 +91,10 @@ export default function AdminDashboard() {
   }, [])
 
   const statCards = [
-    { label: 'Total Revenue', value: formatPrice(stats.revenue), change: stats.revenueChange, icon: DollarSign, href: '/admin/analytics' },
-    { label: 'Total Orders', value: stats.orders.toString(), change: stats.ordersChange, icon: ShoppingCart, href: '/admin/orders' },
-    { label: 'Products', value: stats.products.toString(), change: null, icon: Package, href: '/admin/products' },
-    { label: 'Customers', value: stats.customers.toString(), change: null, icon: Users, href: '/admin/customers' },
+    { label: 'Total Revenue', value: formatPrice(stats.revenue), change: stats.revenueChange, icon: DollarSign, href: '/admin/analytics', color: 'bg-[#FF2E88]/10 text-[#FF2E88]' },
+    { label: 'Total Orders', value: stats.orders.toString(), change: stats.ordersChange, icon: ShoppingCart, href: '/admin/orders', color: 'bg-[#00C2D6]/10 text-[#00C2D6]' },
+    { label: 'Products', value: stats.products.toString(), change: null, icon: Package, href: '/admin/products', color: 'bg-purple-500/10 text-purple-400' },
+    { label: 'Customers', value: stats.customers.toString(), change: null, icon: Users, href: '/admin/customers', color: 'bg-green-500/10 text-green-400' },
   ]
 
   if (loading) {
@@ -111,18 +111,31 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-6 page-enter">
-      <div>
-        <h1 className="text-2xl font-bold text-white">Dashboard</h1>
-        <p className="text-sm text-[var(--text-muted)]">Overview of your store performance</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-white">Welcome back 👋</h1>
+          <p className="text-sm text-[var(--text-muted)]">Here&apos;s what&apos;s happening with your store</p>
+        </div>
+        <div className="hidden sm:flex items-center gap-2">
+          <Link href="/admin/products/new" className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[#FF2E88] text-white text-xs font-medium hover:opacity-90 transition">
+            <Plus size={14} /> Add Product
+          </Link>
+          <Link href="/admin/orders/new" className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[#141418] border border-[#1E1E26] text-white text-xs font-medium hover:bg-[#1A1A22] transition">
+            <FileText size={14} /> Create Order
+          </Link>
+          <Link href="/admin/reports" className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[#141418] border border-[#1E1E26] text-white text-xs font-medium hover:bg-[#1A1A22] transition">
+            <BarChart3 size={14} /> Reports
+          </Link>
+        </div>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        {statCards.map(({ label, value, change, icon: Icon, href }) => (
-          <Link key={label} href={href} className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl p-4 hover:border-[var(--pink)]/30 transition-colors">
+        {statCards.map(({ label, value, change, icon: Icon, href, color }) => (
+          <Link key={label} href={href} className="bg-[#141418] border border-[#1E1E26] rounded-xl p-4 hover:border-[#FF2E88]/30 transition-colors min-w-0">
             <div className="flex items-center justify-between mb-3">
-              <div className="w-9 h-9 rounded-lg bg-[var(--bg-elevated)] flex items-center justify-center">
-                <Icon size={18} className="text-[var(--text-secondary)]" />
+              <div className={`w-9 h-9 rounded-full flex items-center justify-center ${color}`}>
+                <Icon size={18} />
               </div>
               {change !== null && (
                 <span className={`text-xs font-medium flex items-center gap-0.5 ${change >= 0 ? 'text-green-400' : 'text-red-400'}`}>

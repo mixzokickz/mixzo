@@ -67,7 +67,7 @@ export default function DailyDealsPage() {
           <h1 className="text-2xl font-bold text-white">Daily Deals</h1>
           <p className="text-sm text-[var(--text-muted)]">Manage drops and special pricing</p>
         </div>
-        <button onClick={() => setShowForm(!showForm)} className="bg-gradient-to-r from-[var(--pink)] to-[var(--cyan)] text-white text-sm font-semibold px-4 py-2.5 rounded-xl flex items-center gap-2">
+        <button onClick={() => setShowForm(!showForm)} className="bg-[#FF2E88] hover:opacity-90 text-white text-sm font-semibold px-4 py-2.5 rounded-xl flex items-center gap-2">
           <Plus size={16} /> New Deal
         </button>
       </div>
@@ -87,14 +87,14 @@ export default function DailyDealsPage() {
             <div><label className="block text-xs text-[var(--text-secondary)] mb-1.5">Start</label><input type="datetime-local" value={form.starts_at} onChange={e => setForm({...form, starts_at: e.target.value})} className={ic} /></div>
             <div><label className="block text-xs text-[var(--text-secondary)] mb-1.5">End</label><input type="datetime-local" value={form.ends_at} onChange={e => setForm({...form, ends_at: e.target.value})} className={ic} /></div>
           </div>
-          <button type="submit" disabled={saving} className="bg-gradient-to-r from-[var(--pink)] to-[var(--cyan)] text-white text-sm font-semibold px-6 py-3 rounded-xl disabled:opacity-50">
+          <button type="submit" disabled={saving} className="bg-[#FF2E88] hover:opacity-90 text-white text-sm font-semibold px-6 py-3 rounded-xl disabled:opacity-50">
             {saving ? 'Creating...' : 'Create Deal'}
           </button>
         </form>
       )}
 
       {deals.length === 0 ? (
-        <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl p-12 text-center">
+        <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl p-12 text-center">
           <Flame size={40} className="text-[var(--text-muted)] mx-auto mb-3" />
           <h2 className="text-lg font-semibold text-white mb-1">No deals yet</h2>
           <p className="text-sm text-[var(--text-secondary)]">Create a deal to offer special pricing on products</p>

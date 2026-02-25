@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { ArrowRight, Shield, Truck, RefreshCw, Package } from 'lucide-react'
+import { ArrowRight, Shield, Truck, RefreshCw, Package, Sparkles } from 'lucide-react'
+import { motion } from 'framer-motion'
 import { supabase } from '@/lib/supabase'
 import { ShopHeader } from '@/components/layout/shop-header'
 import { Footer } from '@/components/layout/footer'
@@ -28,6 +29,15 @@ const TRUST_SIGNALS = [
   { icon: Truck, label: 'Fast Shipping', desc: 'Free over $200' },
   { icon: RefreshCw, label: 'Easy Returns', desc: 'Hassle-free process' },
 ]
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 30 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: { delay: i * 0.1, duration: 0.6, ease: [0.22, 1, 0.36, 1] },
+  }),
+}
 
 export default function HomePage() {
   const [products, setProducts] = useState<Product[]>([])
@@ -57,72 +67,105 @@ export default function HomePage() {
       <ShopHeader />
 
       {/* Hero */}
-      <section className="relative pt-24 pb-16 md:pt-32 md:pb-24 px-4 overflow-hidden">
-        {/* Background effects */}
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-pink/8 rounded-full blur-[120px] pointer-events-none" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-cyan/8 rounded-full blur-[120px] pointer-events-none" />
+      <section className="relative pt-28 pb-20 md:pt-40 md:pb-32 px-4 overflow-hidden">
+        {/* Subtle background mesh */}
+        <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-pink/5 rounded-full blur-[150px] pointer-events-none" />
+        <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-cyan/5 rounded-full blur-[150px] pointer-events-none" />
 
         <div className="max-w-7xl mx-auto relative">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-card border border-border text-xs text-text-muted mb-6">
-                <Package className="w-3.5 h-3.5" />
-                Based in Denver, CO
-              </div>
-              <h1 className="text-4xl sm:text-5xl lg:text-7xl font-black leading-[1.05] tracking-tight">
-                Premium Kicks,{' '}
-                <span className="gradient-text">Fair Prices</span>
-              </h1>
-              <p className="mt-5 text-lg text-text-secondary max-w-md leading-relaxed">
-                Shop authenticated new and preowned sneakers. Every pair verified, every purchase backed by our guarantee.
-              </p>
-              <div className="flex flex-wrap gap-3 mt-8">
-                <Link href="/shop">
-                  <Button size="lg">
-                    Shop Now
-                    <ArrowRight className="w-4 h-4" />
-                  </Button>
-                </Link>
-                <Link href="/shop?condition=used">
-                  <Button variant="secondary" size="lg">Shop Preowned</Button>
-                </Link>
-              </div>
-              <div className="flex flex-wrap gap-6 mt-10">
-                {TRUST_SIGNALS.map(({ icon: Icon, label, desc }) => (
-                  <div key={label} className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-card border border-border flex items-center justify-center">
-                      <Icon className="w-5 h-5 text-pink" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold text-text">{label}</p>
-                      <p className="text-xs text-text-muted">{desc}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+          <div className="max-w-3xl">
+            <motion.div
+              initial="hidden"
+              animate="visible"
+              custom={0}
+              variants={fadeUp}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-card border border-border text-xs text-text-muted mb-8"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-pink" />
+              Authenticated Sneakers — Denver, CO
+            </motion.div>
 
-            {/* Right side — animated gradient orb */}
-            <div className="hidden md:flex items-center justify-center">
-              <div className="relative w-full aspect-square max-w-md">
-                <div className="absolute inset-8 rounded-full bg-gradient-to-br from-pink/25 via-transparent to-cyan/25 animate-[spin_20s_linear_infinite]" />
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 rounded-full bg-gradient-to-r from-pink to-cyan opacity-15 blur-3xl animate-pulse" />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-[120px] font-black gradient-text opacity-20 select-none">MX</span>
-                </div>
-                <div className="absolute inset-0 rounded-3xl border border-border/50" />
-              </div>
-            </div>
+            <motion.h1
+              initial="hidden"
+              animate="visible"
+              custom={1}
+              variants={fadeUp}
+              className="text-5xl sm:text-6xl lg:text-8xl font-black leading-[0.95] tracking-tight"
+            >
+              Premium Kicks,
+              <br />
+              <span className="text-pink">Fair Prices</span>
+            </motion.h1>
+
+            <motion.p
+              initial="hidden"
+              animate="visible"
+              custom={2}
+              variants={fadeUp}
+              className="mt-6 text-lg md:text-xl text-text-secondary max-w-lg leading-relaxed"
+            >
+              Shop authenticated new and preowned sneakers from Denver. Every pair verified, every purchase backed by our guarantee.
+            </motion.p>
+
+            <motion.div
+              initial="hidden"
+              animate="visible"
+              custom={3}
+              variants={fadeUp}
+              className="flex flex-wrap gap-4 mt-10"
+            >
+              <Link href="/shop">
+                <Button size="lg">
+                  Shop Now
+                  <ArrowRight className="w-4 h-4" />
+                </Button>
+              </Link>
+              <Link href="/cleaning">
+                <Button variant="outline" size="lg">
+                  Cleaning Service
+                </Button>
+              </Link>
+            </motion.div>
           </div>
+
+          {/* Trust signals */}
+          <motion.div
+            initial="hidden"
+            animate="visible"
+            custom={4}
+            variants={fadeUp}
+            className="flex flex-wrap gap-8 mt-16"
+          >
+            {TRUST_SIGNALS.map(({ icon: Icon, label, desc }) => (
+              <div
+                key={label}
+                className="flex items-center gap-4 group"
+              >
+                <div className="w-12 h-12 rounded-2xl bg-card border border-border flex items-center justify-center transition-all duration-300 group-hover:border-pink/40 group-hover:shadow-lg group-hover:shadow-pink/10">
+                  <Icon className="w-5 h-5 text-pink" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-text">{label}</p>
+                  <p className="text-xs text-text-muted">{desc}</p>
+                </div>
+              </div>
+            ))}
+          </motion.div>
         </div>
       </section>
 
       {/* Products Section */}
       <section className="px-4 pb-24 pb-mobile-nav">
         <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-50px' }}
+            transition={{ duration: 0.5 }}
+            className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8"
+          >
             <div>
-              <h2 className="text-2xl font-bold">Latest Drops</h2>
+              <h2 className="text-2xl md:text-3xl font-bold">Latest Drops</h2>
               <p className="text-sm text-text-muted mt-1">Fresh inventory, updated daily</p>
             </div>
             <FilterTabs
@@ -134,7 +177,7 @@ export default function HomePage() {
               value={filter}
               onChange={setFilter}
             />
-          </div>
+          </motion.div>
 
           {loading ? (
             <ProductGridSkeleton count={8} />
@@ -149,12 +192,20 @@ export default function HomePage() {
           ) : (
             <>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {filtered.map((product) => (
-                  <ProductCard key={product.id} product={product} />
+                {filtered.map((product, i) => (
+                  <motion.div
+                    key={product.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: '-30px' }}
+                    transition={{ delay: i * 0.05, duration: 0.4 }}
+                  >
+                    <ProductCard product={product} />
+                  </motion.div>
                 ))}
               </div>
               {products.length >= 12 && (
-                <div className="flex justify-center mt-10">
+                <div className="flex justify-center mt-12">
                   <Link href="/shop">
                     <Button variant="secondary" size="lg">
                       View All Products

@@ -33,7 +33,7 @@ export default function PurchasesPage() {
       </div>
 
       {showAdd && (
-        <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl p-5 space-y-3">
+        <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl p-5 space-y-3">
           <h3 className="text-sm font-semibold text-white">New Purchase</h3>
           <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
             {['Product Name', 'Cost ($)', 'Quantity', 'Date', 'Supplier'].map(p => (
@@ -50,13 +50,13 @@ export default function PurchasesPage() {
       </div>
 
       {filtered.length === 0 ? (
-        <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl p-12 text-center">
+        <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl p-12 text-center">
           <Receipt size={40} className="text-[var(--text-muted)] mx-auto mb-3" />
           <h2 className="text-lg font-semibold text-white mb-1">No purchases recorded</h2>
           <p className="text-sm text-[var(--text-secondary)]">Track your inventory costs here</p>
         </div>
       ) : (
-        <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl overflow-hidden">
+        <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl overflow-hidden">
           <table className="w-full text-sm">
             <thead><tr className="border-b border-[var(--border)] text-left text-xs text-[var(--text-muted)]">
               <th className="px-4 py-3 font-medium">Product</th><th className="px-4 py-3 font-medium">Cost</th><th className="px-4 py-3 font-medium">Qty</th><th className="px-4 py-3 font-medium hidden sm:table-cell">Supplier</th><th className="px-4 py-3 font-medium hidden sm:table-cell">Date</th><th className="px-4 py-3 font-medium text-right">Total</th>

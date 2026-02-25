@@ -9,6 +9,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ['/admin/', '/api/', '/auth/'],
       },
     ],
-    sitemap: 'https://mixzo.store/sitemap.xml',
+    sitemap: 'https://mixzokickz.com/sitemap.xml',
   }
 }

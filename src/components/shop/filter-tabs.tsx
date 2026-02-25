@@ -24,7 +24,7 @@ export function FilterTabs({ tabs, value, onChange, className }: FilterTabsProps
           className={cn(
             'px-5 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all duration-200 cursor-pointer border',
             value === tab.value
-              ? 'bg-gradient-to-r from-pink to-cyan text-white border-transparent shadow-lg shadow-pink/15'
+              ? 'bg-pink text-white border-transparent shadow-lg shadow-pink/15'
               : 'bg-card text-text-muted border-border hover:border-text-muted hover:text-text'
           )}
         >

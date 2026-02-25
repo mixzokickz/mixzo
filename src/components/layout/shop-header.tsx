@@ -7,6 +7,13 @@ import { useCartStore } from '@/stores/cart'
 import { cn } from '@/lib/utils'
 import { SearchOverlay } from '@/components/shop/search-overlay'
 
+const NAV_LINKS = [
+  { href: '/shop', label: 'Shop' },
+  { href: '/drops', label: 'Drops' },
+  { href: '/cleaning', label: 'Cleaning' },
+  { href: '/about', label: 'About' },
+]
+
 export function ShopHeader() {
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -31,14 +38,20 @@ export function ShopHeader() {
         scrolled ? 'glass border-b border-border shadow-lg shadow-black/20' : 'bg-transparent'
       )}>
         <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-          <Link href="/" className="gradient-text text-2xl font-black tracking-tight">
+          <Link href="/" className="text-2xl font-black tracking-tight text-text hover:text-pink transition-colors">
             MIXZO
           </Link>
 
           <nav className="hidden md:flex items-center gap-8">
-            <Link href="/shop" className="text-sm font-medium text-text-secondary hover:text-text transition-colors">Shop</Link>
-            <Link href="/drops" className="text-sm font-medium text-text-secondary hover:text-text transition-colors">Drops</Link>
-            <Link href="/faq" className="text-sm font-medium text-text-secondary hover:text-text transition-colors">About</Link>
+            {NAV_LINKS.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="text-sm font-medium text-text-secondary hover:text-text transition-colors"
+              >
+                {link.label}
+              </Link>
+            ))}
           </nav>
 
           <div className="flex items-center gap-2">
@@ -67,13 +80,7 @@ export function ShopHeader() {
       {mobileOpen && (
         <div className="fixed inset-0 z-30 pt-16 bg-bg/95 backdrop-blur-lg md:hidden">
           <nav className="flex flex-col p-6 gap-2">
-            {[
-              { href: '/shop', label: 'Shop' },
-              { href: '/drops', label: 'Drops' },
-              { href: '/faq', label: 'About' },
-              { href: '/contact', label: 'Contact' },
-              { href: '/login', label: 'Account' },
-            ].map((link) => (
+            {[...NAV_LINKS, { href: '/contact', label: 'Contact' }, { href: '/account', label: 'Account' }].map((link) => (
               <Link
                 key={link.href}
                 href={link.href}

@@ -105,7 +105,7 @@ export default function InventoryPage() {
           <h1 className="text-2xl font-bold text-white">Inventory</h1>
           <p className="text-sm text-[var(--text-muted)]">{products.length} products</p>
         </div>
-        <Link href="/admin/scan" className="bg-gradient-to-r from-[var(--pink)] to-[var(--cyan)] text-white text-sm font-semibold px-4 py-2.5 rounded-xl">
+        <Link href="/admin/scan" className="bg-[#FF2E88] hover:opacity-90 text-white text-sm font-semibold px-4 py-2.5 rounded-xl">
           Add Product
         </Link>
       </div>
@@ -158,7 +158,7 @@ export default function InventoryPage() {
 
       {/* Products Grid */}
       {filtered.length === 0 ? (
-        <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl p-12 text-center">
+        <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl p-12 text-center">
           <Package size={40} className="text-[var(--text-muted)] mx-auto mb-3" />
           <h2 className="text-lg font-semibold text-white mb-1">No products found</h2>
           <p className="text-sm text-[var(--text-secondary)]">Try adjusting your search or filters</p>

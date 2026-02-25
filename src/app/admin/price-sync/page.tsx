@@ -41,7 +41,7 @@ export default function PriceSyncPage() {
       </div>
 
       {products.length === 0 ? (
-        <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl p-12 text-center">
+        <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl p-12 text-center">
           <RefreshCw size={40} className="text-[var(--text-muted)] mx-auto mb-3" />
           <h2 className="text-lg font-semibold text-white mb-1">No synced products</h2>
           <p className="text-sm text-[var(--text-secondary)]">Add StockX IDs to products to enable price syncing</p>

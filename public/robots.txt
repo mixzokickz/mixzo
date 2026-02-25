@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://mixzokickz.com/sitemap.xml

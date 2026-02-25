@@ -89,7 +89,20 @@ export default function CheckoutPage() {
           <Link href="/cart" className="inline-flex items-center gap-1.5 text-sm text-text-muted hover:text-text transition-colors mb-6">
             <ArrowLeft className="w-4 h-4" /> Back to Cart
           </Link>
-          <h1 className="text-2xl font-bold mb-8">Checkout</h1>
+          <h1 className="text-2xl font-bold mb-6">Checkout</h1>
+
+          {/* Step progress */}
+          <div className="flex items-center gap-3 mb-8">
+            {['Shipping', 'Review', 'Payment'].map((step, i) => (
+              <div key={step} className="flex items-center gap-3">
+                <div className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium ${i === 0 ? 'bg-pink text-white' : 'bg-card border border-border text-text-muted'}`}>
+                  <span className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-xs">{i + 1}</span>
+                  {step}
+                </div>
+                {i < 2 && <div className="w-8 h-px bg-border hidden sm:block" />}
+              </div>
+            ))}
+          </div>
 
           <form onSubmit={handleSubmit} className="grid lg:grid-cols-3 gap-8">
             {/* Shipping form */}
@@ -114,7 +127,7 @@ export default function CheckoutPage() {
                 <h2 className="text-lg font-semibold mb-2">Payment</h2>
                 <div className="flex items-center gap-3 p-4 rounded-lg bg-elevated text-sm text-text-muted">
                   <Lock className="w-5 h-5 text-cyan shrink-0" />
-                  Stripe payment integration coming soon. Orders will be confirmed via email.
+                  Secure payment processing. Orders will be confirmed via email.
                 </div>
               </div>
             </div>

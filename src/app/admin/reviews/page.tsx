@@ -18,7 +18,7 @@ export default function ReviewsPage() {
         <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search reviews..." className="w-full bg-[var(--bg-card)] border border-[var(--border)] rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder:text-[var(--text-muted)] focus:border-[var(--pink)] focus:outline-none" />
       </div>
 
-      <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl p-12 text-center">
+      <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl p-12 text-center">
         <MessageSquare size={40} className="text-[var(--text-muted)] mx-auto mb-3" />
         <h2 className="text-lg font-semibold text-white mb-1">No reviews yet</h2>
         <p className="text-sm text-[var(--text-secondary)] mb-4">Product reviews will appear here for moderation</p>
