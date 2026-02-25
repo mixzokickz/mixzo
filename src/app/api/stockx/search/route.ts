@@ -42,13 +42,20 @@ async function searchGOAT(query: string, limit: number) {
       'x-algolia-application-id': GOAT_ALGOLIA_APP,
       'x-algolia-api-key': GOAT_ALGOLIA_KEY,
     },
-    body: JSON.stringify({ query, hitsPerPage: limit }),
+    body: JSON.stringify({ query, hitsPerPage: Math.min(limit * 5, 100), distinct: true, attributesToRetrieve: ['product_template_id', 'name', 'product_title', 'brand_name', 'color', 'retail_price_cents', 'sku', 'main_picture_url', 'picture_url', 'slug'] }),
   })
   if (!res.ok) return null
   const data = await res.json()
   const seen = new Set<string>()
   return (data.hits || [])
-    .filter((h: any) => { const k = h.sku || h.name; if (seen.has(k)) return false; seen.add(k); return true })
+    .filter((h: any) => {
+      // Dedup by product_template_id (groups all sizes of same shoe)
+      const k = h.product_template_id || h.sku || h.name
+      if (seen.has(k)) return false
+      seen.add(k)
+      return true
+    })
+    .slice(0, limit)
     .map((h: any) => ({
       id: h.product_template_id || h.id || '',
       name: h.name || h.product_title || '',
