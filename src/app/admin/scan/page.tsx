@@ -278,8 +278,8 @@ export default function ScanPage() {
       toast.success('Added to inventory!')
       setScanState('added')
       setTimeout(resetScan, 2000)
-    } catch {
-      toast.error('Failed to add product')
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to add product')
       setScanState('found')
     }
   }
