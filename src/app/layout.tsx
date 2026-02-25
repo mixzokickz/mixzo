@@ -15,10 +15,16 @@ export const metadata: Metadata = {
   authors: [{ name: 'Mixzo Kickz' }],
   openGraph: {
     title: 'Mixzo Kickz — New & Preowned Sneakers',
-    description: 'Shop authenticated new and preowned sneakers. Premium kicks, fair prices.',
+    description: 'Shop authenticated new and preowned sneakers. Live heat, trusted pairs.',
     type: 'website',
     locale: 'en_US',
     siteName: 'Mixzo Kickz',
+    url: 'https://mixzokickz.com',
+    images: [{ url: 'https://mixzokickz.com/og-image.png', width: 1200, height: 630, alt: 'Mixzo Kickz' }],
+  },
+  icons: {
+    icon: '/favicon.png',
+    apple: '/logo.png',
   },
   robots: { index: true, follow: true },
 }
