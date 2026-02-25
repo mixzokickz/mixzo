@@ -25,11 +25,17 @@ export const metadata: Metadata = {
     url: 'https://mixzokickz.com',
     locale: 'en_US',
     siteName: 'Mixzo Kickz',
+    images: [{ url: '/og-image.jpg', width: 1200, height: 630, alt: 'Mixzo Kickz' }],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Mixzo Kickz — New & Preowned Sneakers',
     description: 'Shop authenticated new and preowned sneakers. Premium kicks, fair prices.',
+    images: ['/og-image.jpg'],
+  },
+  icons: {
+    icon: '/favicon.ico',
+    apple: '/logo.webp',
   },
   robots: { index: true, follow: true },
   metadataBase: new URL('https://mixzokickz.com'),
