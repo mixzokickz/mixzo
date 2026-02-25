@@ -15,27 +15,30 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
 
+  const [error, setError] = useState('')
+
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
+    setError('')
     setLoading(true)
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password })
-      if (error) throw error
+      const { error: signInError } = await supabase.auth.signInWithPassword({ email, password })
+      if (signInError) throw signInError
       const { data: { user } } = await supabase.auth.getUser()
-      if (user) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', user.id)
-          .single()
-        if (['owner', 'manager', 'staff'].includes(profile?.role)) {
-          router.push('/admin')
-        } else {
-          router.push('/shop')
-        }
+      if (!user) throw new Error('No user returned after sign in')
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single()
+      if (['owner', 'manager', 'staff'].includes(profile?.role)) {
+        router.push('/admin')
+      } else {
+        router.push('/shop')
       }
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : 'Login failed'
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Login failed'
+      setError(message)
       toast.error(message)
     } finally {
       setLoading(false)
@@ -99,6 +102,12 @@ export default function LoginPage() {
               </button>
             </div>
           </div>
+
+          {error && (
+            <div className="bg-red-500/10 border border-red-500/30 rounded-xl px-4 py-3 text-sm text-red-400">
+              {error}
+            </div>
+          )}
 
           <button
             type="submit"
