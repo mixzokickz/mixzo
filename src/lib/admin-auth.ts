@@ -12,6 +12,6 @@ export async function requireAdmin(request: Request): Promise<User | null> {
     .select('role')
     .eq('id', user.id)
     .single()
-  if (!profile || !['owner', 'manager', 'staff'].includes(profile.role)) return null
+  if (!profile || !['owner', 'manager'].includes(profile.role)) return null
   return user
 }

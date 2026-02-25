@@ -9,11 +9,11 @@ import {
   BarChart, Bar, PieChart, Pie, Cell
 } from 'recharts'
 
-const COLORS = ['#FF2D78', '#00C2FF', '#FF5C9A', '#33D1FF', '#CC1F5F', '#009BD6']
+const COLORS = ['#FF2E88', '#00C2D6', '#FF5C9A', '#33D1E0', '#CC2570', '#009BAB']
 
 const ttStyle = {
-  contentStyle: { background: '#12121A', border: '1px solid #1E1E2E', borderRadius: 8, color: '#fff', fontSize: 12 },
-  itemStyle: { color: '#A0A0B0' },
+  contentStyle: { background: '#141418', border: '1px solid #1E1E26', borderRadius: 8, color: '#F4F4F4', fontSize: 12 },
+  itemStyle: { color: '#A0A0B8' },
 }
 
 function fmtVal(v: any) { return formatPrice(Number(v || 0)) }
@@ -73,14 +73,14 @@ export default function AnalyticsPage() {
               <AreaChart data={revenueData}>
                 <defs>
                   <linearGradient id="grad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#FF2D78" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="#FF2D78" stopOpacity={0} />
+                    <stop offset="5%" stopColor="#FF2E88" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="#FF2E88" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <XAxis dataKey="date" tick={{ fill: '#6A6A7A', fontSize: 11 }} axisLine={false} tickLine={false} />
                 <YAxis tick={{ fill: '#6A6A7A', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={fmtTick} />
                 <Tooltip {...ttStyle} formatter={fmtVal} />
-                <Area type="monotone" dataKey="revenue" stroke="#FF2D78" fill="url(#grad)" strokeWidth={2} />
+                <Area type="monotone" dataKey="revenue" stroke="#FF2E88" fill="url(#grad)" strokeWidth={2} />
               </AreaChart>
             </ResponsiveContainer>
           )}
@@ -96,7 +96,7 @@ export default function AnalyticsPage() {
                 <XAxis type="number" tick={{ fill: '#6A6A7A', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={fmtTick} />
                 <YAxis type="category" dataKey="name" tick={{ fill: '#A0A0B0', fontSize: 11 }} axisLine={false} tickLine={false} width={120} />
                 <Tooltip {...ttStyle} formatter={fmtVal} />
-                <Bar dataKey="price" fill="#00C2FF" radius={[0, 4, 4, 0]} />
+                <Bar dataKey="price" fill="#00C2D6" radius={[0, 4, 4, 0]} />
               </BarChart>
             </ResponsiveContainer>
           )}

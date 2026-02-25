@@ -19,7 +19,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           headers: { Authorization: `Bearer ${session.access_token}` },
         })
         const data = await res.json()
-        if (!['owner', 'manager', 'staff'].includes(data.role)) {
+        if (!['owner', 'manager'].includes(data.role)) {
           router.push('/')
           return
         }

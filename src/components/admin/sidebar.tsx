@@ -6,9 +6,7 @@ import { usePathname } from 'next/navigation'
 import {
   LayoutDashboard, ScanBarcode, Package, ShoppingCart,
   Users, Flame, BarChart3, Settings, Menu, X, LogOut,
-  Tag, FileText, Truck, Bell, Star, DollarSign,
-  RefreshCw, Gift, CreditCard, UserCog, Scale,
-  Activity, HelpCircle, Boxes, TrendingUp, Link as LinkIcon
+  Tag, FileText, Scale, Boxes
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { SITE_NAME } from '@/lib/constants'
@@ -20,7 +18,6 @@ const NAV_SECTIONS = [
     items: [
       { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
       { href: '/admin/scan', label: 'Scan Product', icon: ScanBarcode },
-      { href: '/admin/notifications', label: 'Notifications', icon: Bell },
     ],
   },
   {
@@ -29,7 +26,6 @@ const NAV_SECTIONS = [
       { href: '/admin/products', label: 'All Products', icon: Package },
       { href: '/admin/products/new', label: 'Add Product', icon: Boxes },
       { href: '/admin/inventory', label: 'Inventory', icon: Scale },
-      { href: '/admin/price-sync', label: 'Price Sync', icon: RefreshCw },
     ],
   },
   {
@@ -37,14 +33,12 @@ const NAV_SECTIONS = [
     items: [
       { href: '/admin/orders', label: 'All Orders', icon: ShoppingCart },
       { href: '/admin/orders/new', label: 'Create Order', icon: FileText },
-      { href: '/admin/shipping', label: 'Shipping', icon: Truck },
     ],
   },
   {
     label: 'Customers',
     items: [
       { href: '/admin/customers', label: 'All Customers', icon: Users },
-      { href: '/admin/reviews', label: 'Reviews', icon: Star },
     ],
   },
   {
@@ -52,26 +46,18 @@ const NAV_SECTIONS = [
     items: [
       { href: '/admin/daily-deals', label: 'Daily Deals', icon: Flame },
       { href: '/admin/discounts', label: 'Discounts', icon: Tag },
-      { href: '/admin/gift-cards', label: 'Gift Cards', icon: Gift },
-      { href: '/admin/payment-links', label: 'Payment Links', icon: LinkIcon },
     ],
   },
   {
     label: 'Finance',
     items: [
       { href: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
-      { href: '/admin/reports', label: 'Reports', icon: TrendingUp },
-      { href: '/admin/purchases', label: 'Purchases', icon: DollarSign },
-      { href: '/admin/reconciliation', label: 'Reconciliation', icon: CreditCard },
     ],
   },
   {
     label: 'Settings',
     items: [
       { href: '/admin/settings', label: 'Store Settings', icon: Settings },
-      { href: '/admin/staff', label: 'Staff', icon: UserCog },
-      { href: '/admin/monitoring', label: 'Monitoring', icon: Activity },
-      { href: '/admin/help', label: 'Help', icon: HelpCircle },
     ],
   },
 ]

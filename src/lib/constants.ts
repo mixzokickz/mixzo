@@ -30,23 +30,23 @@ export const ORDER_STATUSES = [
   'pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'
 ] as const
 
-// Miami Vice Theme Colors
+// Brand Colors
 export const THEME = {
-  pink: '#FF2D78',
+  pink: '#FF2E88',
   pinkLight: '#FF5C9A',
-  pinkDark: '#CC1F5F',
-  blue: '#00C2FF',
-  blueLight: '#33D1FF',
-  blueDark: '#009BD6',
-  bgPrimary: '#0A0A0F',
-  bgCard: '#12121A',
-  bgElevated: '#1A1A28',
-  border: '#1E1E2E',
-  borderLight: '#2A2A3E',
-  textPrimary: '#FFFFFF',
-  textSecondary: '#A0A0B0',
-  textMuted: '#6A6A7A',
-  gradient: 'linear-gradient(135deg, #FF2D78, #00C2FF)',
+  pinkDark: '#CC2570',
+  cyan: '#00C2D6',
+  cyanLight: '#33D1E0',
+  cyanDark: '#009BAB',
+  bgPrimary: '#0C0C0C',
+  bgCard: '#141418',
+  bgElevated: '#1A1A22',
+  border: '#1E1E26',
+  borderLight: '#2A2A36',
+  textPrimary: '#F4F4F4',
+  textSecondary: '#A0A0B8',
+  textMuted: '#6A6A80',
+  gradient: 'linear-gradient(135deg, #FF2E88, #00C2D6)',
 }
 
 export const SNEAKER_BRANDS = [

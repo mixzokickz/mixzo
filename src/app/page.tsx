@@ -57,15 +57,19 @@ export default function HomePage() {
       <ShopHeader />
 
       {/* Hero */}
-      <section className="pt-24 pb-16 md:pt-32 md:pb-24 px-4">
-        <div className="max-w-7xl mx-auto">
+      <section className="relative pt-24 pb-16 md:pt-32 md:pb-24 px-4 overflow-hidden">
+        {/* Background effects */}
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-pink/8 rounded-full blur-[120px] pointer-events-none" />
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-cyan/8 rounded-full blur-[120px] pointer-events-none" />
+
+        <div className="max-w-7xl mx-auto relative">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div>
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-card border border-border text-xs text-text-muted mb-6">
                 <Package className="w-3.5 h-3.5" />
                 Based in Denver, CO
               </div>
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black leading-[1.1] tracking-tight">
+              <h1 className="text-4xl sm:text-5xl lg:text-7xl font-black leading-[1.05] tracking-tight">
                 Premium Kicks,{' '}
                 <span className="gradient-text">Fair Prices</span>
               </h1>
@@ -98,15 +102,15 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Right side gradient art */}
+            {/* Right side — animated gradient orb */}
             <div className="hidden md:flex items-center justify-center">
               <div className="relative w-full aspect-square max-w-md">
-                <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-pink/20 via-transparent to-cyan/20" />
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full bg-gradient-to-r from-pink to-cyan opacity-20 blur-3xl" />
+                <div className="absolute inset-8 rounded-full bg-gradient-to-br from-pink/25 via-transparent to-cyan/25 animate-[spin_20s_linear_infinite]" />
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 rounded-full bg-gradient-to-r from-pink to-cyan opacity-15 blur-3xl animate-pulse" />
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-8xl font-black gradient-text opacity-30">MX</span>
+                  <span className="text-[120px] font-black gradient-text opacity-20 select-none">MX</span>
                 </div>
-                <div className="absolute inset-0 rounded-3xl border border-border" />
+                <div className="absolute inset-0 rounded-3xl border border-border/50" />
               </div>
             </div>
           </div>
