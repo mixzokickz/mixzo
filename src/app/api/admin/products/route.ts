@@ -40,7 +40,6 @@ export async function POST(request: Request) {
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
     const body = await request.json()
-    body.added_by = user.id
     const { data, error } = await supabaseAdmin.from('products').insert(body).select().single()
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
     return NextResponse.json({ product: data }, { status: 201 })
