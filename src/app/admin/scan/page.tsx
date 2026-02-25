@@ -492,7 +492,7 @@ export default function ScanPage() {
 
             <button
               onClick={handleAdd}
-              disabled={scanState === 'adding' || !selectedSize || !price}
+              disabled={(scanState as string) === 'adding' || !selectedSize || !price}
               className="w-full bg-[#FF2E88] text-white font-bold py-4 rounded-xl text-base flex items-center justify-center gap-2 hover:opacity-90 transition disabled:opacity-40"
             >
               {scanState === 'adding' ? <Loader2 size={20} className="animate-spin" /> : <Check size={20} />}
