@@ -68,9 +68,9 @@ export default function HomePage() {
 
       {/* Hero */}
       <section className="relative pt-28 pb-20 md:pt-40 md:pb-32 px-4 overflow-hidden">
-        {/* Subtle background mesh */}
-        <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-pink/5 rounded-full blur-[150px] pointer-events-none" />
-        <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-cyan/5 rounded-full blur-[150px] pointer-events-none" />
+        {/* Concrete texture background */}
+        <div className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-30" style={{ backgroundImage: 'url(/hero-bg.webp)' }} />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0C0C0C]/60 via-transparent to-[#0C0C0C]" />
 
         <div className="max-w-7xl mx-auto relative">
           <div className="max-w-3xl">
@@ -82,7 +82,7 @@ export default function HomePage() {
               className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-card border border-border text-xs text-text-muted mb-8"
             >
               <Sparkles className="w-3.5 h-3.5 text-pink" />
-              Authenticated Sneakers — Denver, CO
+              LIVE HEAT. TRUSTED PAIRS. — Denver, CO
             </motion.div>
 
             <motion.h1
