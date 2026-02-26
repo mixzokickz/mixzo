@@ -51,7 +51,7 @@ export const THEME = {
 
 export const CLEANING_TIERS = [
   { value: 'cleaning', label: 'Sneaker Cleaning', price: 20, description: 'Full exterior clean, lace cleaning, deodorize, quick turnaround' },
-  { value: 'cleaning_icing', label: 'Cleaning + Icing', price: 30, description: 'Full clean plus sole icing/whitening, deep scrub all surfaces' },
+  { value: 'cleaning_icing', label: 'Cleaning + Icing', price: 30, description: 'Full clean plus sole icing/whitening, deep scrub all surfaces, 3-7 day turnaround' },
 ] as const
 
 export const CLEANING_STATUSES = [

@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
-import { ArrowLeft, AlertTriangle, Lock, CreditCard } from 'lucide-react'
+import { ArrowLeft, AlertTriangle, Lock, CreditCard, Sparkles, Droplets } from 'lucide-react'
 import { useCartStore } from '@/stores/cart'
 import { ShopHeader } from '@/components/layout/shop-header'
 import { Footer } from '@/components/layout/footer'
@@ -17,7 +17,7 @@ import { toast } from 'sonner'
 
 export default function CheckoutPage() {
   const router = useRouter()
-  const { items, getTotal, clear } = useCartStore()
+  const { items, getTotal, getCleaningTotal, setCleaning, clear } = useCartStore()
   const [loading, setLoading] = useState(false)
   const [form, setForm] = useState({
     firstName: '', lastName: '', email: '', phone: '',
@@ -131,6 +131,53 @@ export default function CheckoutPage() {
                 </div>
               </div>
 
+              {/* Cleaning Add-on for preowned items */}
+              {items.some(i => i.condition === 'used' || i.condition === 'used_like_new') && (
+                <div className="rounded-xl bg-card border border-[#00C2D6]/20 p-6">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Sparkles className="w-5 h-5 text-[#00C2D6]" />
+                    <h2 className="text-lg font-semibold">Add Sneaker Cleaning?</h2>
+                  </div>
+                  <p className="text-sm text-text-muted mb-4">Get your preowned kicks looking fresh on arrival.</p>
+                  <div className="space-y-3">
+                    {items.filter(i => i.condition === 'used' || i.condition === 'used_like_new').map(item => (
+                      <div key={item.id} className="rounded-lg bg-elevated border border-border p-4">
+                        <p className="text-sm font-medium mb-3 truncate">{item.name} <span className="text-text-muted">— Size {item.size}</span></p>
+                        <div className="flex flex-col sm:flex-row gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setCleaning(item.id, item.cleaning === 'cleaning' ? null : 'cleaning')}
+                            className={`flex-1 flex items-center gap-2 px-3 py-2.5 rounded-lg border text-sm font-medium transition-all ${
+                              item.cleaning === 'cleaning'
+                                ? 'border-[#00C2D6] bg-[#00C2D6]/10 text-[#00C2D6]'
+                                : 'border-border text-text-muted hover:border-[#00C2D6]/40'
+                            }`}
+                          >
+                            <Droplets className="w-4 h-4" />
+                            Cleaning — $20
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setCleaning(item.id, item.cleaning === 'cleaning_icing' ? null : 'cleaning_icing')}
+                            className={`flex-1 flex items-center gap-2 px-3 py-2.5 rounded-lg border text-sm font-medium transition-all ${
+                              item.cleaning === 'cleaning_icing'
+                                ? 'border-[#FF2E88] bg-[#FF2E88]/10 text-[#FF2E88]'
+                                : 'border-border text-text-muted hover:border-[#FF2E88]/40'
+                            }`}
+                          >
+                            <Sparkles className="w-4 h-4" />
+                            Cleaning + Icing — $30
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-xs text-text-muted mt-3 leading-relaxed">
+                    ⚠️ Results from icing vary by pair. Some soles bounce back to DS, others only lighten. The more yellowed the sole, the less likely a full restore. We&apos;ll always be upfront about expected results.
+                  </p>
+                </div>
+              )}
+
               <div className="rounded-xl bg-card border border-border p-6">
                 <h2 className="text-lg font-semibold mb-2">Payment</h2>
                 <div className="flex items-center gap-3 p-4 rounded-lg bg-elevated text-sm text-text-muted">
@@ -160,6 +207,9 @@ export default function CheckoutPage() {
                 </div>
                 <div className="space-y-2 pt-3 border-t border-border text-sm">
                   <div className="flex justify-between"><span className="text-text-secondary">Subtotal</span><span>{formatPrice(subtotal)}</span></div>
+                  {getCleaningTotal() > 0 && (
+                    <div className="flex justify-between"><span className="text-text-secondary">Cleaning Services</span><span className="text-[#00C2D6]">{formatPrice(getCleaningTotal())}</span></div>
+                  )}
                   <div className="flex justify-between"><span className="text-text-secondary">Shipping</span><span>{shipping === 0 ? 'Free' : formatPrice(shipping)}</span></div>
                 </div>
                 <div className="flex justify-between text-lg font-bold pt-2 border-t border-border">

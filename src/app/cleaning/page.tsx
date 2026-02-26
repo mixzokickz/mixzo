@@ -40,7 +40,7 @@ const TIERS = [
     value: 'cleaning_icing',
     name: 'Cleaning + Icing',
     price: '$30',
-    features: ['Everything in Cleaning', 'Sole icing & whitening', 'Deep scrub all surfaces', 'Deodorize & sanitize', '3-5 day turnaround'],
+    features: ['Everything in Cleaning', 'Sole icing & whitening', 'Deep scrub all surfaces', 'Deodorize & sanitize', '3-7 day turnaround'],
     popular: true,
     accent: '#FF2E88',
     icon: Sparkles,
@@ -49,14 +49,14 @@ const TIERS = [
 
 const TRUST = [
   { icon: Shield, label: 'Safe Process', desc: 'Premium products, tested methods' },
-  { icon: Clock, label: 'Fast Turnaround', desc: '2-5 business days' },
+  { icon: Clock, label: 'Fast Turnaround', desc: '2-7 business days' },
   { icon: Star, label: '5-Star Quality', desc: 'Meticulous attention to detail' },
 ]
 
 const FAQS = [
   {
     q: 'How long does the cleaning process take?',
-    a: 'Basic cleans take 2-3 business days. Deep cleans with icing take 3-5 days. Full restorations can take 1-2 weeks depending on the work needed.',
+    a: 'Basic cleans take 2-3 business days. Deep cleans with icing take 3-7 days. Full restorations can take 1-2 weeks depending on the work needed.',
   },
   {
     q: 'Can I drop off my sneakers in person?',
@@ -286,6 +286,26 @@ export default function CleaningPage() {
               })}
             </div>
           </motion.section>
+
+          {/* Icing Disclaimer */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="max-w-3xl mx-auto mb-24 rounded-2xl bg-[#FF2E88]/5 border border-[#FF2E88]/15 p-6 md:p-8"
+          >
+            <div className="flex items-start gap-3">
+              <div className="w-8 h-8 rounded-lg bg-[#FF2E88]/10 flex items-center justify-center shrink-0 mt-0.5">
+                <Sparkles className="w-4 h-4 text-[#FF2E88]" />
+              </div>
+              <div>
+                <h3 className="font-bold text-sm mb-2">A Note on Sole Icing</h3>
+                <p className="text-sm text-text-secondary leading-relaxed">
+                  Results from sole icing vary from pair to pair. Some shoes bounce back to deadstock condition while others may only lighten the yellowing. Generally, the more yellowed the sole, the less likely it will fully restore to DS. Every pair reacts differently to the icing process — we&apos;ll always give you an honest assessment upfront.
+                </p>
+              </div>
+            </div>
+          </motion.div>
 
           {/* Before/After placeholder */}
           <motion.section
