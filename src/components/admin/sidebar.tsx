@@ -33,7 +33,6 @@ const NAV_SECTIONS = [
     label: 'Orders',
     items: [
       { href: '/admin/orders', label: 'All Orders', icon: ShoppingCart },
-      { href: '/admin/orders/new', label: 'Create Order', icon: FileText },
       { href: '/admin/shipping', label: 'Shipping', icon: Truck },
     ],
   },
