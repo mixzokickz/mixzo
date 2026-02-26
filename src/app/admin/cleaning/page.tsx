@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from 'react'
 import { Sparkles, ChevronDown, ChevronUp, Search, Filter, Camera, Truck } from 'lucide-react'
+import { supabase } from '@/lib/supabase'
 import { formatPrice } from '@/lib/utils'
+import { toast } from 'sonner'
 
 interface CleaningRequest {
   id: string
@@ -19,15 +21,6 @@ interface CleaningRequest {
   after_photos: string[]
   tracking_number: string | null
 }
-
-const PLACEHOLDER_DATA: CleaningRequest[] = [
-  { id: 'cl_1', customer_name: 'Marcus Johnson', customer_email: 'marcus@email.com', service_tier: 'deep', status: 'in_progress', price: 65, created_at: '2026-02-22T10:00:00Z', shoe_brand: 'Nike', shoe_model: 'Air Force 1 White', notes: 'Heavy yellowing on soles', before_photos: [], after_photos: [], tracking_number: null },
-  { id: 'cl_2', customer_name: 'Sarah Kim', customer_email: 'sarah@email.com', service_tier: 'premium', status: 'pending', price: null, created_at: '2026-02-23T14:30:00Z', shoe_brand: 'Jordan', shoe_model: 'Jordan 4 White Oreo', notes: 'Scuff marks on toe box, needs sole reglue', before_photos: [], after_photos: [], tracking_number: null },
-  { id: 'cl_3', customer_name: 'Tyler Brooks', customer_email: 'tyler@email.com', service_tier: 'basic', status: 'completed', price: 35, created_at: '2026-02-18T09:00:00Z', shoe_brand: 'New Balance', shoe_model: '550 White Green', notes: '', before_photos: [], after_photos: [], tracking_number: null },
-  { id: 'cl_4', customer_name: 'Alicia Reyes', customer_email: 'alicia@email.com', service_tier: 'restoration', status: 'quoted', price: 120, created_at: '2026-02-21T16:00:00Z', shoe_brand: 'Nike', shoe_model: 'Dunk Low Panda', notes: 'Full restoration needed, paint cracking', before_photos: [], after_photos: [], tracking_number: null },
-  { id: 'cl_5', customer_name: 'James Park', customer_email: 'james@email.com', service_tier: 'deep', status: 'shipped_back', price: 55, created_at: '2026-02-15T11:00:00Z', shoe_brand: 'Adidas', shoe_model: 'Yeezy 350 Zebra', notes: '', before_photos: [], after_photos: [], tracking_number: 'USPS9405511899223' },
-  { id: 'cl_6', customer_name: 'Destiny Williams', customer_email: 'destiny@email.com', service_tier: 'premium', status: 'approved', price: 85, created_at: '2026-02-20T13:00:00Z', shoe_brand: 'Jordan', shoe_model: 'Jordan 1 Chicago', notes: 'Customer wants sole icing + crease removal', before_photos: [], after_photos: [], tracking_number: null },
-]
 
 const STATUS_STYLES: Record<string, string> = {
   pending: 'bg-yellow-500/10 text-yellow-400',
@@ -62,22 +55,43 @@ export default function CleaningPage() {
   const [statusFilter, setStatusFilter] = useState('all')
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [search, setSearch] = useState('')
+  const [updatingId, setUpdatingId] = useState<string | null>(null)
+  const [trackingInputs, setTrackingInputs] = useState<Record<string, string>>({})
+  const [statusInputs, setStatusInputs] = useState<Record<string, string>>({})
+
+  async function updateStatus(id: string) {
+    const newStatus = statusInputs[id]
+    if (!newStatus) return
+    setUpdatingId(id)
+    const { error } = await supabase.from('cleaning_requests').update({ status: newStatus }).eq('id', id)
+    if (error) toast.error('Failed to update status')
+    else {
+      toast.success('Status updated')
+      setRequests(prev => prev.map(r => r.id === id ? { ...r, status: newStatus as CleaningRequest['status'] } : r))
+    }
+    setUpdatingId(null)
+  }
+
+  async function updateTracking(id: string) {
+    const tracking = trackingInputs[id]
+    if (!tracking?.trim()) return
+    setUpdatingId(id)
+    const { error } = await supabase.from('cleaning_requests').update({ tracking_number: tracking.trim() }).eq('id', id)
+    if (error) toast.error('Failed to save tracking')
+    else {
+      toast.success('Tracking number saved')
+      setRequests(prev => prev.map(r => r.id === id ? { ...r, tracking_number: tracking.trim() } : r))
+    }
+    setUpdatingId(null)
+  }
 
   useEffect(() => {
     async function load() {
-      try {
-        // Try loading from Supabase
-        const { supabase } = await import('@/lib/supabase')
-        const { data, error } = await supabase
-          .from('cleaning_requests')
-          .select('*')
-          .order('created_at', { ascending: false })
-        if (error) throw error
-        setRequests(data || [])
-      } catch {
-        // Fallback to placeholder data
-        setRequests(PLACEHOLDER_DATA)
-      }
+      const { data } = await supabase
+        .from('cleaning_requests')
+        .select('*')
+        .order('created_at', { ascending: false })
+      setRequests(data || [])
       setLoading(false)
     }
     load()
@@ -221,11 +235,34 @@ export default function CleaningPage() {
                               </div>
                             </div>
                             <div className="flex gap-2">
-                              <select className="bg-[#1A1A22] border border-[#1E1E26] rounded-lg px-3 py-2 text-xs text-white focus:outline-none" defaultValue={r.status}>
+                              <select
+                                className="bg-[#1A1A22] border border-[#1E1E26] rounded-lg px-3 py-2 text-xs text-white focus:outline-none"
+                                value={statusInputs[r.id] ?? r.status}
+                                onChange={e => setStatusInputs(prev => ({ ...prev, [r.id]: e.target.value }))}
+                              >
                                 {ALL_STATUSES.map(s => <option key={s} value={s}>{STATUS_LABELS[s]}</option>)}
                               </select>
-                              <button className="px-3 py-2 rounded-lg bg-[#FF2E88] text-white text-xs font-medium hover:opacity-90 transition">Update Status</button>
-                              <input placeholder="Add tracking number..." className="flex-1 bg-[#1A1A22] border border-[#1E1E26] rounded-lg px-3 py-2 text-xs text-white placeholder:text-[var(--text-muted)] focus:border-[#FF2E88] focus:outline-none" />
+                              <button
+                                onClick={() => updateStatus(r.id)}
+                                disabled={updatingId === r.id || (statusInputs[r.id] ?? r.status) === r.status}
+                                className="px-3 py-2 rounded-lg bg-[#FF2E88] text-white text-xs font-medium hover:opacity-90 transition disabled:opacity-50"
+                              >
+                                Update Status
+                              </button>
+                              <input
+                                placeholder="Add tracking number..."
+                                value={trackingInputs[r.id] ?? r.tracking_number ?? ''}
+                                onChange={e => setTrackingInputs(prev => ({ ...prev, [r.id]: e.target.value }))}
+                                onKeyDown={e => e.key === 'Enter' && updateTracking(r.id)}
+                                className="flex-1 bg-[#1A1A22] border border-[#1E1E26] rounded-lg px-3 py-2 text-xs text-white placeholder:text-[var(--text-muted)] focus:border-[#FF2E88] focus:outline-none"
+                              />
+                              <button
+                                onClick={() => updateTracking(r.id)}
+                                disabled={updatingId === r.id || !(trackingInputs[r.id]?.trim())}
+                                className="px-3 py-2 rounded-lg bg-[var(--bg-elevated)] border border-[var(--border)] text-white text-xs font-medium hover:border-[#FF2E88]/30 transition disabled:opacity-50"
+                              >
+                                Save
+                              </button>
                             </div>
                           </div>
                         </td>
@@ -264,10 +301,20 @@ export default function CleaningPage() {
                       </div>
                     )}
                     <div className="flex gap-2">
-                      <select className="bg-[#1A1A22] border border-[#1E1E26] rounded-lg px-2 py-1.5 text-xs text-white focus:outline-none" defaultValue={r.status}>
+                      <select
+                        className="bg-[#1A1A22] border border-[#1E1E26] rounded-lg px-2 py-1.5 text-xs text-white focus:outline-none"
+                        value={statusInputs[r.id] ?? r.status}
+                        onChange={e => setStatusInputs(prev => ({ ...prev, [r.id]: e.target.value }))}
+                      >
                         {ALL_STATUSES.map(s => <option key={s} value={s}>{STATUS_LABELS[s]}</option>)}
                       </select>
-                      <button className="px-3 py-1.5 rounded-lg bg-[#FF2E88] text-white text-xs font-medium">Update</button>
+                      <button
+                        onClick={() => updateStatus(r.id)}
+                        disabled={updatingId === r.id || (statusInputs[r.id] ?? r.status) === r.status}
+                        className="px-3 py-1.5 rounded-lg bg-[#FF2E88] text-white text-xs font-medium disabled:opacity-50"
+                      >
+                        Update
+                      </button>
                     </div>
                   </div>
                 )}

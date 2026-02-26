@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { ArrowRight, Shield, Truck, RefreshCw, Package, Sparkles } from 'lucide-react'
+import { ArrowRight, Shield, Truck, RefreshCw, Package, Sparkles, Droplets, Instagram } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { supabase } from '@/lib/supabase'
 import { ShopHeader } from '@/components/layout/shop-header'
@@ -12,6 +12,7 @@ import { ProductCard } from '@/components/shop/product-card'
 import { FilterTabs } from '@/components/shop/filter-tabs'
 import { ProductGridSkeleton } from '@/components/ui/skeleton'
 import { Button } from '@/components/ui/button'
+import { BUSINESS_INSTAGRAM } from '@/lib/constants'
 
 interface Product {
   id: string
@@ -308,6 +309,99 @@ export default function HomePage() {
               )}
             </>
           )}
+        </div>
+      </section>
+
+      {/* Cleaning Service CTA */}
+      <section className="px-6 md:px-12 lg:px-16 py-20">
+        <div className="max-w-7xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-50px' }}
+            transition={{ duration: 0.6 }}
+            className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-[#141418] to-[#0C0C0C] border border-border"
+          >
+            <div className="absolute top-0 right-0 w-80 h-80 bg-[#00C2D6]/5 rounded-full blur-[100px]" />
+            <div className="absolute bottom-0 left-0 w-60 h-60 bg-pink/5 rounded-full blur-[80px]" />
+            <div className="relative grid md:grid-cols-2 gap-8 p-8 md:p-12 lg:p-16 items-center">
+              <div>
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#00C2D6]/10 text-[#00C2D6] text-xs font-medium mb-6">
+                  <Droplets className="w-3.5 h-3.5" />
+                  Professional Service
+                </div>
+                <h2 className="text-3xl md:text-4xl font-black leading-tight">
+                  Sneaker Cleaning
+                  <br />
+                  <span className="text-[#00C2D6]">& Restoration</span>
+                </h2>
+                <p className="mt-4 text-text-secondary leading-relaxed max-w-md">
+                  Got a pair that needs some love? Our professional cleaning service brings your kicks back to life. From basic cleans to sole icing — starting at just $20.
+                </p>
+                <div className="flex flex-wrap gap-3 mt-8">
+                  <Link href="/cleaning">
+                    <Button size="lg">
+                      Learn More
+                      <ArrowRight className="w-4 h-4" />
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+              <div className="hidden md:flex items-center justify-center">
+                <div className="grid grid-cols-2 gap-4 max-w-xs">
+                  {[
+                    { label: 'Sneaker Cleaning', price: '$20', features: ['Full exterior clean', 'Lace cleaning', 'Deodorize'] },
+                    { label: 'Cleaning + Icing', price: '$30', features: ['Full deep clean', 'Sole icing', 'Sanitize'], popular: true },
+                  ].map((tier) => (
+                    <div key={tier.label} className={`rounded-2xl bg-card/80 border p-5 ${tier.popular ? 'border-[#00C2D6]/40' : 'border-border'}`}>
+                      <p className="text-sm font-semibold mb-1">{tier.label}</p>
+                      <p className="text-2xl font-black text-[#00C2D6]">{tier.price}</p>
+                      <ul className="mt-3 space-y-1.5">
+                        {tier.features.map(f => (
+                          <li key={f} className="text-xs text-text-muted flex items-center gap-1.5">
+                            <Sparkles className="w-3 h-3 text-[#00C2D6] shrink-0" />
+                            {f}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Instagram CTA */}
+      <section className="px-6 md:px-12 lg:px-16 pb-24 pb-mobile-nav">
+        <div className="max-w-7xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-50px' }}
+            transition={{ duration: 0.5 }}
+            className="text-center"
+          >
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-card border border-border text-xs text-text-muted mb-6">
+              <Instagram className="w-3.5 h-3.5 text-pink" />
+              Follow the Heat
+            </div>
+            <h2 className="text-2xl md:text-3xl font-bold mb-3">Stay in the Loop</h2>
+            <p className="text-text-secondary max-w-lg mx-auto mb-8">
+              Follow us on Instagram for first looks at new drops, behind-the-scenes cleaning transformations, and exclusive deals.
+            </p>
+            <a
+              href={`https://instagram.com/${BUSINESS_INSTAGRAM.replace('@', '')}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Button variant="outline" size="lg">
+                <Instagram className="w-4 h-4" />
+                Follow {BUSINESS_INSTAGRAM}
+              </Button>
+            </a>
+          </motion.div>
         </div>
       </section>
 

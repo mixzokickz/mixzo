@@ -145,9 +145,9 @@ export default function AboutPage() {
               restorations and color touch-ups — we do it all.
             </p>
             <ul className="space-y-2 text-sm text-text-secondary mb-6">
-              <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-[#00C2D6] shrink-0" /> Basic Clean — $25</li>
-              <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-[#00C2D6] shrink-0" /> Deep Clean — $45</li>
-              <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-[#00C2D6] shrink-0" /> Full Restoration — $75</li>
+              <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-[#00C2D6] shrink-0" /> Sneaker Cleaning — $20</li>
+              <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-[#00C2D6] shrink-0" /> Cleaning + Icing — $30</li>
+              <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-[#00C2D6] shrink-0" /> Ship-in or local drop-off</li>
               <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-[#00C2D6] shrink-0" /> Satisfaction guaranteed</li>
             </ul>
             <Link href="/cleaning">

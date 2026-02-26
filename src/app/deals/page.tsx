@@ -82,7 +82,7 @@ export default function DealsPage() {
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {products.map(p => (
-                <Link key={p.id} href={`/shop/${p.id}`} className="group">
+                <Link key={p.id} href={`/product/${p.id}`} className="group">
                   <div className="aspect-square bg-card border border-border rounded-xl overflow-hidden relative">
                     {p.images[0] ? (
                       <img src={p.images[0]} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
