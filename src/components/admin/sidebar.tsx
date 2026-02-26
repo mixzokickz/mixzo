@@ -8,7 +8,7 @@ import {
   Users, Flame, BarChart3, Settings, Menu, X, LogOut,
   Tag, FileText, Scale, Boxes, Truck, RefreshCw,
   Activity, Star, Link2,
-  Receipt, Bell, UserCog, Sparkles, ExternalLink
+  Receipt, Bell, UserCog, Sparkles, ExternalLink, MessageSquare
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { SITE_NAME } from '@/lib/constants'
@@ -42,6 +42,7 @@ const NAV_SECTIONS = [
     items: [
       { href: '/admin/customers', label: 'All Customers', icon: Users },
       { href: '/admin/reviews', label: 'Reviews', icon: Star },
+      { href: '/admin/tickets', label: 'Support Tickets', icon: MessageSquare },
     ],
   },
   {
