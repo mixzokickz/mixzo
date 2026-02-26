@@ -459,10 +459,11 @@ export default function HomePage() {
               href={`https://instagram.com/${BUSINESS_INSTAGRAM.replace('@', '')}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2.5 px-6 py-3 rounded-full text-white font-semibold text-sm transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-purple-500/20"
-              style={{ background: 'linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888)' }}
+              className="inline-flex items-center gap-2.5 px-6 py-3 rounded-full text-white font-semibold text-sm transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-purple-500/20 bg-[#141418] border border-[#1E1E26]"
             >
-              <Instagram className="w-5 h-5" />
+              <span className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: 'linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888)' }}>
+                <Instagram className="w-4.5 h-4.5 text-white" />
+              </span>
               Follow {BUSINESS_INSTAGRAM}
             </a>
           </motion.div>
