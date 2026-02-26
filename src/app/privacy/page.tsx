@@ -1,4 +1,10 @@
+import type { Metadata } from 'next'
 import { ShopHeader } from '@/components/layout/shop-header'
+
+export const metadata: Metadata = {
+  title: 'Privacy Policy',
+  description: 'Mixzo Kickz privacy policy — how we collect, use, and protect your personal information.',
+}
 import { Footer } from '@/components/layout/footer'
 import { MobileBottomNav } from '@/components/layout/mobile-bottom-nav'
 import { BUSINESS_EMAIL } from '@/lib/constants'

@@ -1,4 +1,10 @@
+import type { Metadata } from 'next'
 import { ShopHeader } from '@/components/layout/shop-header'
+
+export const metadata: Metadata = {
+  title: 'Terms of Service',
+  description: 'Mixzo Kickz terms of service — our policies on purchases, shipping, returns, and cleaning services.',
+}
 import { Footer } from '@/components/layout/footer'
 import { MobileBottomNav } from '@/components/layout/mobile-bottom-nav'
 import { BUSINESS_EMAIL } from '@/lib/constants'

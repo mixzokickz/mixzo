@@ -37,7 +37,7 @@ const FAQS = [
   },
   {
     q: 'What is your sneaker cleaning service?',
-    a: 'We offer professional sneaker cleaning and restoration services at three tiers: Basic Clean ($25) for exterior wipe and deodorize, Deep Clean ($45) for full disassembly and deep scrub, and Full Restoration ($75) for color touch-ups, sole restoration, and complete rehab. Ship your kicks to us and we\'ll ship them back looking brand new.',
+    a: 'We offer professional sneaker cleaning at two tiers: Sneaker Cleaning ($20) for a full exterior clean, lace cleaning, and deodorize, and Cleaning + Icing ($30) which adds sole icing/whitening and a deep scrub of all surfaces. Ship your kicks to us and we\'ll ship them back looking brand new.',
   },
   {
     q: 'How does the cleaning service shipping work?',

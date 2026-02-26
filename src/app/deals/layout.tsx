@@ -1,9 +1,8 @@
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Deals | Mixzo Kickz',
-  description: 'Discounted sneakers — limited time deals on authenticated kicks from Denver.',
-  openGraph: { title: 'Deals | Mixzo Kickz', description: 'Limited time sneaker deals.' },
+  title: 'Deals & Drops',
+  description: 'Shop limited-time deals and daily drops on authenticated sneakers at Mixzo Kickz.',
 }
 
 export default function DealsLayout({ children }: { children: React.ReactNode }) {
