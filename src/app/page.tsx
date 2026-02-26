@@ -170,50 +170,30 @@ export default function HomePage() {
               </motion.div>
             </div>
 
-            {/* Right: Sneaker Showcase */}
-            <div className="hidden lg:block relative">
-              <div className="relative w-full aspect-square max-w-lg mx-auto">
-                {/* Glow rings */}
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] rounded-full border border-[#FF2E88]/[0.06]" />
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] rounded-full border border-[#FF2E88]/[0.04]" />
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full bg-[#FF2E88]/[0.06] blur-[100px]" />
-                <div className="absolute top-1/3 right-0 w-48 h-48 rounded-full bg-[#00C2D6]/[0.04] blur-[80px]" />
-
-                {/* Main floating sneaker */}
+            {/* Right: Trust Badges */}
+            <div className="hidden lg:flex flex-col items-center justify-center gap-6">
+              {[
+                { icon: Shield, label: '100% Authentic', desc: 'Every pair verified before shipping', color: '#10B981' },
+                { icon: Truck, label: 'Free Shipping', desc: 'On orders over $200', color: '#00C2D6' },
+                { icon: Sparkles, label: 'Premium Quality', desc: 'New & certified preowned kicks', color: '#FF2E88' },
+              ].map((item, i) => (
                 <motion.div
-                  initial={{ opacity: 0, scale: 0.7, y: 60, rotateZ: -5 }}
-                  animate={{ opacity: 1, scale: 1, y: 0, rotateZ: 0 }}
-                  transition={{ duration: 1.2, ease: easeOutExpo, delay: 0.3 }}
-                  className="relative z-10"
+                  key={item.label}
+                  initial={{ opacity: 0, x: 40 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.5 + i * 0.15, duration: 0.8, ease: easeOutExpo }}
+                  whileHover={{ x: -4, scale: 1.02 }}
+                  className="flex items-center gap-5 px-8 py-5 rounded-2xl bg-[#141418]/80 border border-[#1E1E26] backdrop-blur-sm w-full max-w-sm"
                 >
-                  <motion.img
-                    src="/images/library/hero-sneaker.webp"
-                    alt="Premium Sneaker"
-                    className="w-full h-full object-contain drop-shadow-[0_20px_60px_rgba(255,46,136,0.15)]"
-                    animate={{ y: [-10, 10, -10], rotateZ: [-1, 1, -1] }}
-                    transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
-                  />
+                  <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0" style={{ background: `${item.color}15` }}>
+                    <item.icon className="w-6 h-6" style={{ color: item.color }} />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-white">{item.label}</p>
+                    <p className="text-xs text-[#6A6A80] mt-0.5">{item.desc}</p>
+                  </div>
                 </motion.div>
-
-                {/* Verified badge */}
-                <motion.div
-                  className="absolute top-16 -left-4 px-4 py-2.5 rounded-xl bg-[#141418]/95 border border-[#1E1E26] backdrop-blur-md shadow-2xl shadow-black/30"
-                  initial={{ opacity: 0, x: -30, scale: 0.9 }}
-                  animate={{ opacity: 1, x: 0, scale: 1 }}
-                  transition={{ delay: 1.5, duration: 0.6, ease: easeOutExpo }}
-                >
-                  <motion.div
-                    animate={{ y: [-3, 3, -3] }}
-                    transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }}
-                  >
-                    <div className="flex items-center gap-1.5 mb-0.5">
-                      <Shield className="w-3 h-3 text-[#10B981]" />
-                      <p className="text-[10px] text-[#10B981] font-medium">Verified</p>
-                    </div>
-                    <p className="text-xs font-bold text-white">100% Authentic</p>
-                  </motion.div>
-                </motion.div>
-              </div>
+              ))}
             </div>
           </div>
 
