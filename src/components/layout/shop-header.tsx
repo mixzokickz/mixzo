@@ -40,16 +40,16 @@ export function ShopHeader() {
           ? 'bg-[#0C0C0C]/90 backdrop-blur-xl border-b border-[#1E1E26]/60 shadow-xl shadow-black/20'
           : 'bg-transparent'
       )}>
-        <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16 h-16 md:h-20 flex items-center justify-between">
-          {/* Logo */}
-          <Link href="/" className="group flex items-center gap-2">
+        <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16 h-16 md:h-20 grid grid-cols-[auto_1fr_auto] items-center">
+          {/* Logo — hard left */}
+          <Link href="/" className="group flex items-center gap-2 justify-self-start">
             <span className="text-2xl font-black tracking-[-0.04em] text-white transition-colors duration-300 group-hover:text-[#FF2E88]">
               MIXZO
             </span>
           </Link>
 
-          {/* Desktop Nav */}
-          <nav className="hidden md:flex items-center gap-1">
+          {/* Desktop Nav — true center */}
+          <nav className="hidden md:flex items-center justify-center gap-1">
             {NAV_LINKS.map((link) => (
               <Link
                 key={link.href}
@@ -61,9 +61,11 @@ export function ShopHeader() {
               </Link>
             ))}
           </nav>
+          {/* Empty spacer for mobile when nav is hidden */}
+          <div className="md:hidden" />
 
-          {/* Actions */}
-          <div className="flex items-center gap-0.5">
+          {/* Actions — right */}
+          <div className="flex items-center gap-0.5 justify-self-end">
             <button
               onClick={() => setSearchOpen(true)}
               className="h-10 w-10 flex items-center justify-center rounded-xl text-[#A0A0B8] hover:text-white hover:bg-white/[0.04] transition-all duration-300 cursor-pointer"
