@@ -403,30 +403,31 @@ export default function HomePage() {
                 </div>
               </div>
               <div className="hidden md:flex items-center justify-center">
-                <div className="grid grid-cols-2 gap-4 max-w-xs">
+                <div className="grid grid-cols-2 gap-6 max-w-md">
                   {[
-                    { label: 'Sneaker Cleaning', price: '$20', features: ['Full exterior clean', 'Lace cleaning', 'Deodorize'] },
-                    { label: 'Cleaning + Icing', price: '$30', features: ['Full deep clean', 'Sole icing', 'Sanitize'], popular: true },
+                    { label: 'Sneaker Cleaning', price: '$20', features: ['Full exterior clean', 'Lace cleaning', 'Deodorize', 'Quick turnaround'] },
+                    { label: 'Cleaning + Icing', price: '$30', features: ['Full deep clean', 'Sole icing', 'Sanitize', 'All surfaces scrubbed'], popular: true },
                   ].map((tier) => (
                     <motion.div
                       key={tier.label}
-                      whileHover={{ y: -4, scale: 1.02 }}
+                      whileHover={{ y: -6, scale: 1.03 }}
                       transition={{ duration: 0.3 }}
-                      className={`rounded-2xl bg-[#141418]/80 backdrop-blur-sm border p-5 transition-shadow duration-300 ${
+                      className={`rounded-2xl bg-[#141418]/80 backdrop-blur-sm border p-8 transition-shadow duration-300 ${
                         tier.popular
                           ? 'border-[#00C2D6]/30 shadow-lg shadow-[#00C2D6]/5'
                           : 'border-[#1E1E26] hover:border-[#00C2D6]/20'
                       }`}
                     >
                       {tier.popular && (
-                        <span className="inline-block text-[9px] font-bold uppercase tracking-wider text-[#00C2D6] bg-[#00C2D6]/10 px-2 py-0.5 rounded-full mb-2">Popular</span>
+                        <span className="inline-block text-[10px] font-bold uppercase tracking-wider text-[#00C2D6] bg-[#00C2D6]/10 px-3 py-1 rounded-full mb-3">Popular</span>
                       )}
-                      <p className="text-sm font-semibold mb-1">{tier.label}</p>
-                      <p className="text-3xl font-black text-[#00C2D6]">{tier.price}</p>
-                      <ul className="mt-4 space-y-2">
+                      <p className="text-base font-semibold mb-2">{tier.label}</p>
+                      <p className="text-4xl font-black text-[#00C2D6] mb-1">{tier.price}</p>
+                      <p className="text-xs text-[#6A6A80] mb-5">per pair</p>
+                      <ul className="space-y-3">
                         {tier.features.map(f => (
-                          <li key={f} className="text-xs text-[#A0A0B8] flex items-center gap-2">
-                            <CheckCircle className="w-3 h-3 text-[#00C2D6] shrink-0" />
+                          <li key={f} className="text-sm text-[#A0A0B8] flex items-center gap-2.5">
+                            <CheckCircle className="w-4 h-4 text-[#00C2D6] shrink-0" />
                             {f}
                           </li>
                         ))}
