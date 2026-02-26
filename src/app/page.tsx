@@ -212,7 +212,7 @@ export default function HomePage() {
                 </motion.div>
 
                 <motion.div
-                  className="absolute bottom-8 -left-6 w-24 h-24 rounded-2xl overflow-hidden border border-[#1E1E26]/60 bg-[#141418]/90 backdrop-blur-md shadow-2xl shadow-black/40"
+                  className="absolute bottom-8 left-4 w-24 h-24 rounded-2xl overflow-hidden border border-[#1E1E26]/60 bg-[#141418]/90 backdrop-blur-md shadow-2xl shadow-black/40 z-0"
                   initial={{ opacity: 0, x: -40, scale: 0.8 }}
                   animate={{ opacity: 1, x: 0, scale: 1 }}
                   transition={{ delay: 1.1, duration: 0.8, ease: easeOutExpo }}
