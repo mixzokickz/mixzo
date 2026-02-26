@@ -481,10 +481,6 @@ export default function HomePage() {
             transition={{ duration: 0.7, ease: easeOutExpo }}
             className="text-center"
           >
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#141418] border border-[#1E1E26] text-xs text-[#6A6A80] mb-6">
-              <Instagram className="w-3.5 h-3.5 text-[#FF2E88]" />
-              Follow the Heat
-            </div>
             <h2 className="text-3xl md:text-4xl font-black mb-4 tracking-tight">Stay in the Loop</h2>
             <p className="text-[#A0A0B8] max-w-lg mx-auto mb-10 leading-relaxed">
               Follow us on Instagram for first looks at new drops, behind-the-scenes cleaning transformations, and exclusive deals.
@@ -493,12 +489,11 @@ export default function HomePage() {
               href={`https://instagram.com/${BUSINESS_INSTAGRAM.replace('@', '')}`}
               target="_blank"
               rel="noopener noreferrer"
+              className="inline-flex items-center gap-2.5 px-6 py-3 rounded-full text-white font-semibold text-sm transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-purple-500/20"
+              style={{ background: 'linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888)' }}
             >
-              <Button variant="outline" size="lg" className="group">
-                <Instagram className="w-4 h-4" />
-                Follow {BUSINESS_INSTAGRAM}
-                <ArrowRight className="w-3.5 h-3.5 opacity-0 -ml-2 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300" />
-              </Button>
+              <Instagram className="w-5 h-5" />
+              Follow {BUSINESS_INSTAGRAM}
             </a>
           </motion.div>
         </div>

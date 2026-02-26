@@ -19,16 +19,6 @@ export function Footer() {
             <p className="mt-4 text-sm text-[#6A6A80] leading-relaxed">
               New and preowned sneakers, authenticated and shipped from Denver, Colorado.
             </p>
-            <a
-              href={`https://instagram.com/${BUSINESS_INSTAGRAM.replace('@', '')}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 mt-5 text-sm text-[#6A6A80] hover:text-[#FF2E88] transition-colors group"
-            >
-              <Instagram className="w-4 h-4" />
-              {BUSINESS_INSTAGRAM}
-              <ArrowUpRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
-            </a>
           </div>
 
           {/* Shop */}
