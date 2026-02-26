@@ -46,7 +46,7 @@ export default function EditProductPage() {
     try {
       const token = (await supabase.auth.getSession()).data.session?.access_token
       const res = await fetch('/api/admin/products', {
-        method: 'PUT',
+        method: 'PATCH',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({
           id: params.id,
@@ -70,10 +70,9 @@ export default function EditProductPage() {
   async function handleDelete() {
     if (!confirm('Delete this product permanently?')) return
     const token = (await supabase.auth.getSession()).data.session?.access_token
-    await fetch('/api/admin/products', {
+    await fetch(`/api/admin/products?id=${params.id}`, {
       method: 'DELETE',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ id: params.id }),
+      headers: { Authorization: `Bearer ${token}` },
     })
     toast.success('Product deleted')
     router.push('/admin/products')
