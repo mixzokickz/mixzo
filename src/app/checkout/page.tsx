@@ -100,14 +100,14 @@ export default function CheckoutPage() {
           <h1 className="text-2xl font-bold mb-6">Checkout</h1>
 
           {/* Step progress */}
-          <div className="flex items-center gap-3 mb-8">
+          <div className="flex items-center gap-2 sm:gap-3 mb-8 overflow-x-auto no-scrollbar">
             {['Shipping', 'Review', 'Payment'].map((step, i) => (
-              <div key={step} className="flex items-center gap-3">
-                <div className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium ${i === 0 ? 'bg-pink text-white' : 'bg-card border border-border text-text-muted'}`}>
+              <div key={step} className="flex items-center gap-2 sm:gap-3 shrink-0">
+                <div className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm font-medium ${i === 0 ? 'bg-pink text-white' : 'bg-card border border-border text-text-muted'}`}>
                   <span className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-xs">{i + 1}</span>
                   {step}
                 </div>
-                {i < 2 && <div className="w-8 h-px bg-border hidden sm:block" />}
+                {i < 2 && <div className="w-6 sm:w-8 h-px bg-border" />}
               </div>
             ))}
           </div>
@@ -117,12 +117,12 @@ export default function CheckoutPage() {
             <div className="lg:col-span-2 space-y-6">
               <div className="rounded-xl bg-card border border-border p-6">
                 <h2 className="text-lg font-semibold mb-4">Shipping Address</h2>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <Input placeholder="First name *" value={form.firstName} onChange={(e) => update('firstName', e.target.value)} />
                   <Input placeholder="Last name *" value={form.lastName} onChange={(e) => update('lastName', e.target.value)} />
-                  <div className="col-span-2"><Input placeholder="Email *" type="email" value={form.email} onChange={(e) => update('email', e.target.value)} /></div>
-                  <div className="col-span-2"><Input placeholder="Phone" type="tel" value={form.phone} onChange={(e) => update('phone', e.target.value)} /></div>
-                  <div className="col-span-2"><Input placeholder="Address *" value={form.address} onChange={(e) => update('address', e.target.value)} /></div>
+                  <div className="sm:col-span-2"><Input placeholder="Email *" type="email" value={form.email} onChange={(e) => update('email', e.target.value)} /></div>
+                  <div className="sm:col-span-2"><Input placeholder="Phone" type="tel" value={form.phone} onChange={(e) => update('phone', e.target.value)} /></div>
+                  <div className="sm:col-span-2"><Input placeholder="Address *" value={form.address} onChange={(e) => update('address', e.target.value)} /></div>
                   <Input placeholder="City *" value={form.city} onChange={(e) => update('city', e.target.value)} />
                   <div className="grid grid-cols-2 gap-4">
                     <Input placeholder="State *" value={form.state} onChange={(e) => update('state', e.target.value)} />

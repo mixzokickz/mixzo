@@ -91,7 +91,7 @@ export default function ShopPage() {
   return (
     <div className="min-h-screen flex flex-col">
       <ShopHeader />
-      <main className="flex-1 pt-20">
+      <main className="flex-1 pt-20 pb-mobile-nav">
         {/* Hero Banner */}
         <div className="relative bg-[#141418] border-b border-[#1E1E26] overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-r from-[#FF2E88]/[0.03] to-[#00C2D6]/[0.03]" />

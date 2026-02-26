@@ -7,6 +7,7 @@ import { CheckCircle, Package, ArrowRight } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { ShopHeader } from '@/components/layout/shop-header'
 import { Footer } from '@/components/layout/footer'
+import { MobileBottomNav } from '@/components/layout/mobile-bottom-nav'
 import { Button } from '@/components/ui/button'
 
 function ConfirmationContent() {
@@ -53,12 +54,13 @@ export default function ConfirmationPage() {
   return (
     <div className="min-h-screen flex flex-col">
       <ShopHeader />
-      <main className="flex-1 pt-24 px-6 md:px-12 lg:px-16">
+      <main className="flex-1 pt-24 px-6 md:px-12 lg:px-16 pb-mobile-nav">
         <Suspense fallback={<div className="flex items-center justify-center py-20 text-text-muted">Loading...</div>}>
           <ConfirmationContent />
         </Suspense>
       </main>
       <Footer />
+      <MobileBottomNav />
     </div>
   )
 }

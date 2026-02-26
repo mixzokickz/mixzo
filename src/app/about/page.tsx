@@ -220,7 +220,7 @@ export default function AboutPage() {
       </section>
 
       {/* Contact */}
-      <section className="px-4 py-16 pb-24">
+      <section className="px-4 py-16 pb-24 pb-mobile-nav">
         <div className="max-w-5xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}

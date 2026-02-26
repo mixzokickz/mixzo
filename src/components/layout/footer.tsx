@@ -12,9 +12,9 @@ export function Footer() {
       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[200px] bg-[#FF2E88]/[0.02] rounded-full blur-[100px] pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16 py-20 relative">
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-12">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-10 lg:gap-12">
           {/* Brand */}
-          <div className="col-span-2 md:col-span-1">
+          <div className="col-span-2 sm:col-span-3 lg:col-span-1">
             <span className="text-2xl font-black tracking-[-0.04em] text-white">MIXZO</span>
             <p className="mt-4 text-sm text-[#6A6A80] leading-relaxed">
               New and preowned sneakers, authenticated and shipped from Denver, Colorado.

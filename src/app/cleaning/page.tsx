@@ -127,7 +127,7 @@ export default function CleaningPage() {
             className="mb-24"
           >
             <h2 className="text-2xl md:text-3xl font-bold text-center mb-12">How It Works</h2>
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6">
               {STEPS.map(({ icon: Icon, label, desc }, i) => (
                 <div key={label} className="text-center">
                   <div className="w-14 h-14 rounded-2xl bg-card border border-border flex items-center justify-center mx-auto mb-4 transition-all duration-300 hover:border-pink/40 hover:shadow-lg hover:shadow-pink/10">
