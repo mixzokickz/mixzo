@@ -12,24 +12,24 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: 'Mixzo Kickz — Premium Sneakers, Denver CO',
-    template: '%s | Mixzo Kickz',
+    default: 'MixzoKickz — Premium Sneakers, Denver CO',
+    template: '%s | MixzoKickz',
   },
   description: 'Shop authenticated new and preowned sneakers. Professional sneaker cleaning service. Based in Denver, Colorado.',
   keywords: ['sneakers', 'kicks', 'denver', 'preowned sneakers', 'sneaker cleaning', 'authenticated'],
-  authors: [{ name: 'Mixzo Kickz' }],
+  authors: [{ name: 'MixzoKickz' }],
   openGraph: {
-    title: 'Mixzo Kickz',
+    title: 'MixzoKickz',
     description: 'Premium Kicks, Fair Prices. Denver, CO.',
     type: 'website',
     url: 'https://mixzokickz.com',
     locale: 'en_US',
-    siteName: 'Mixzo Kickz',
-    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'Mixzo Kickz' }],
+    siteName: 'MixzoKickz',
+    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'MixzoKickz' }],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Mixzo Kickz — New & Preowned Sneakers',
+    title: 'MixzoKickz — New & Preowned Sneakers',
     description: 'Shop authenticated new and preowned sneakers. Premium kicks, fair prices.',
     images: ['/og-image.png'],
   },

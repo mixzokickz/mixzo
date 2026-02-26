@@ -97,7 +97,7 @@ export default function ShippingPage() {
                 <li><strong className="text-white">Return (us → you):</strong> We cover the return shipping cost. Your freshly cleaned kicks come back to you free of charge.</li>
               </ul>
               <p className="text-text-muted">
-                We recommend using a tracked shipping method when sending your sneakers to us. Mixzo Kickz is not responsible for packages lost in transit to our facility.
+                We recommend using a tracked shipping method when sending your sneakers to us. MixzoKickz is not responsible for packages lost in transit to our facility.
               </p>
             </div>
           </motion.div>

@@ -37,14 +37,16 @@ export function ShopHeader() {
       <header className={cn(
         'fixed top-0 left-0 right-0 z-40 transition-all duration-500',
         scrolled
-          ? 'bg-[#0C0C0C]/90 backdrop-blur-xl border-b border-[#1E1E26]/60 shadow-xl shadow-black/20'
+          ? 'bg-[#0C0C0C]/90 backdrop-blur-xl border-b border-[#1E1E26]/60 shadow-xl shadow-black/20 shadow-[#FF2E88]/[0.03]'
           : 'bg-transparent'
       )}>
         <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16 h-16 md:h-20 grid grid-cols-[auto_1fr_auto] items-center">
           {/* Logo — hard left */}
-          <Link href="/" className="group flex items-center gap-2 justify-self-start">
-            <span className="text-2xl font-black tracking-[-0.04em] text-white transition-colors duration-300 group-hover:text-[#FF2E88]">
-              MIXZO
+          <Link href="/" className="group flex items-center gap-2 justify-self-start relative">
+            <div className="absolute -inset-3 bg-gradient-to-r from-[#FF2E88]/20 to-[#00C2D6]/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <span className="relative text-2xl font-black tracking-[-0.04em]">
+              <span className="bg-gradient-to-r from-[#FF2E88] to-[#FF5C9A] bg-clip-text text-transparent">MIXZO</span>
+              <span className="text-white group-hover:text-[#00C2D6] transition-colors duration-300">KICKZ</span>
             </span>
           </Link>
 

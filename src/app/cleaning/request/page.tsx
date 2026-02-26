@@ -124,7 +124,7 @@ export default function CleaningRequestPage() {
             <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl p-6 text-left mb-6 max-w-sm mx-auto">
               <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2"><Package size={16} /> Ship To:</h3>
               <div className="text-sm text-[var(--text-secondary)] space-y-1">
-                <p className="text-white font-medium">Mixzo Kickz</p>
+                <p className="text-white font-medium">MixzoKickz</p>
                 <p>Denver, CO</p>
                 <p className="text-xs text-[var(--text-muted)] mt-2">Exact address will be provided via email</p>
               </div>

@@ -81,7 +81,7 @@ export default function AboutPage() {
             <h2 className="text-2xl md:text-3xl font-bold mb-6">Our Story</h2>
             <div className="space-y-4 text-text-secondary leading-relaxed">
               <p>
-                Mixzo Kickz was born out of a simple belief: everyone deserves access to authentic,
+                MixzoKickz was born out of a simple belief: everyone deserves access to authentic,
                 premium sneakers at fair prices. Based in Denver, Colorado, we&apos;ve built a reputation
                 for trust, transparency, and an unmatched selection of new and preowned kicks.
               </p>
@@ -175,13 +175,13 @@ export default function AboutPage() {
           </motion.div>
           <div className="bg-card border border-border rounded-2xl p-8 md:p-12">
             <p className="text-text-secondary leading-relaxed mb-4">
-              Our cleaning service is what truly makes Mixzo Kickz unique. While other shops just sell you a pair
+              Our cleaning service is what truly makes MixzoKickz unique. While other shops just sell you a pair
               and move on, we&apos;re here for the full lifecycle of your sneakers. Bought a used pair that needs
               freshening up? We got you. Favorite Jordans looking beat? Send them in and we&apos;ll make them look
               brand new.
             </p>
             <p className="text-text-secondary leading-relaxed">
-              Whether you&apos;re buying, selling, or restoring — Mixzo Kickz is your go-to. We&apos;re not just a store,
+              Whether you&apos;re buying, selling, or restoring — MixzoKickz is your go-to. We&apos;re not just a store,
               we&apos;re a sneaker service built around trust, quality, and the Denver sneaker community.
             </p>
           </div>

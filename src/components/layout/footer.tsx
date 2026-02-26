@@ -15,7 +15,7 @@ export function Footer() {
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-10 lg:gap-12">
           {/* Brand */}
           <div className="col-span-2 sm:col-span-3 lg:col-span-1">
-            <span className="text-2xl font-black tracking-[-0.04em] text-white">MIXZO</span>
+            <span className="text-2xl font-black tracking-[-0.04em]"><span className="bg-gradient-to-r from-[#FF2E88] to-[#FF5C9A] bg-clip-text text-transparent">MIXZO</span><span className="text-white">KICKZ</span></span>
             <p className="mt-4 text-sm text-[#6A6A80] leading-relaxed">
               New and preowned sneakers, authenticated and shipped from Denver, Colorado.
             </p>
@@ -99,7 +99,7 @@ export function Footer() {
         </div>
 
         <div className="mt-14 pt-8 border-t border-[#1E1E26] flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-[#4A4A5A]">&copy; {new Date().getFullYear()} Mixzo Kickz. All rights reserved.</p>
+          <p className="text-xs text-[#4A4A5A]">&copy; {new Date().getFullYear()} MixzoKickz. All rights reserved.</p>
           <p className="text-xs text-[#4A4A5A]">Denver, Colorado</p>
         </div>
       </div>

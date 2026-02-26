@@ -3,7 +3,7 @@ import { ShopHeader } from '@/components/layout/shop-header'
 
 export const metadata: Metadata = {
   title: 'Terms of Service',
-  description: 'Mixzo Kickz terms of service — our policies on purchases, shipping, returns, and cleaning services.',
+  description: 'MixzoKickz terms of service — our policies on purchases, shipping, returns, and cleaning services.',
 }
 import { Footer } from '@/components/layout/footer'
 import { MobileBottomNav } from '@/components/layout/mobile-bottom-nav'
@@ -22,7 +22,7 @@ export default function TermsPage() {
             <section>
               <h2 className="text-lg font-semibold text-text mb-3">1. Agreement to Terms</h2>
               <p>
-                By accessing or using the Mixzo Kickz website (&quot;Site&quot;) and services, you agree to be
+                By accessing or using the MixzoKickz website (&quot;Site&quot;) and services, you agree to be
                 bound by these Terms of Service (&quot;Terms&quot;). If you do not agree to these Terms, you must
                 not use our Site or services. These Terms apply to all visitors, users, and customers.
               </p>
@@ -31,7 +31,7 @@ export default function TermsPage() {
             <section>
               <h2 className="text-lg font-semibold text-text mb-3">2. Products & Descriptions</h2>
               <p>
-                All products listed on Mixzo Kickz are either new or preowned sneakers. We make every
+                All products listed on MixzoKickz are either new or preowned sneakers. We make every
                 effort to accurately describe the condition and authenticity of each item. Product images
                 are of the actual item you will receive unless otherwise noted. Colors may appear slightly
                 different depending on your screen settings.
@@ -62,7 +62,7 @@ export default function TermsPage() {
             <section>
               <h2 className="text-lg font-semibold text-text mb-3">5. Authenticity Guarantee</h2>
               <p>
-                We guarantee the authenticity of every product sold on Mixzo Kickz. Each item is
+                We guarantee the authenticity of every product sold on MixzoKickz. Each item is
                 inspected and verified before listing. In the rare event that a product is determined
                 to be inauthentic after purchase, we will issue a full refund upon return of the item.
               </p>
@@ -102,7 +102,7 @@ export default function TermsPage() {
               <h2 className="text-lg font-semibold text-text mb-3">9. Intellectual Property</h2>
               <p>
                 All content on this Site, including text, graphics, logos, and images, is the property
-                of Mixzo Kickz or its content suppliers and is protected by applicable intellectual
+                of MixzoKickz or its content suppliers and is protected by applicable intellectual
                 property laws. You may not reproduce, distribute, or create derivative works without
                 our prior written consent.
               </p>
@@ -111,7 +111,7 @@ export default function TermsPage() {
             <section>
               <h2 className="text-lg font-semibold text-text mb-3">10. Limitation of Liability</h2>
               <p>
-                To the fullest extent permitted by law, Mixzo Kickz shall not be liable for any
+                To the fullest extent permitted by law, MixzoKickz shall not be liable for any
                 indirect, incidental, special, consequential, or punitive damages arising from
                 your use of our Site or services, including but not limited to loss of profits,
                 data, or goodwill.

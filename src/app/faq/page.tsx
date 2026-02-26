@@ -78,7 +78,7 @@ export default function FAQPage() {
               <HelpCircle className="w-7 h-7 text-pink" />
             </div>
             <h1 className="text-2xl md:text-3xl font-bold mb-2">Frequently Asked Questions</h1>
-            <p className="text-text-muted">Everything you need to know about shopping with Mixzo Kickz.</p>
+            <p className="text-text-muted">Everything you need to know about shopping with MixzoKickz.</p>
           </motion.div>
 
           <div className="divide-y divide-border">

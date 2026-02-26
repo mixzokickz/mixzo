@@ -34,7 +34,7 @@ export default function ReturnsPage() {
                 </div>
               </div>
               <p className="text-text-secondary leading-relaxed">
-                At Mixzo Kickz, all sales are final. We stand behind every pair we sell with our
+                At MixzoKickz, all sales are final. We stand behind every pair we sell with our
                 authenticity guarantee and provide detailed photos and descriptions so you can shop
                 with confidence.
               </p>
@@ -48,7 +48,7 @@ export default function ReturnsPage() {
               </h2>
               <div className="space-y-3 text-sm text-text-secondary leading-relaxed">
                 <p>
-                  Every sneaker listed on Mixzo Kickz has been carefully inspected and verified for
+                  Every sneaker listed on MixzoKickz has been carefully inspected and verified for
                   authenticity. We check materials, stitching, tags, boxes, and every detail that matters.
                   If we made a mistake and a pair turns out to be inauthentic, we will issue a full refund
                   — no questions asked.
