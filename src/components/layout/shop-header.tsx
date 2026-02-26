@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Search, ShoppingBag, User, Menu, X, Instagram } from 'lucide-react'
+import { Search, ShoppingBag, User, Menu, X, Instagram, Sparkles } from 'lucide-react'
 import { useCartStore } from '@/stores/cart'
 import { cn } from '@/lib/utils'
 import { SearchOverlay } from '@/components/shop/search-overlay'
@@ -35,45 +35,70 @@ export function ShopHeader() {
   return (
     <>
       <header className={cn(
-        'fixed top-0 left-0 right-0 z-40 transition-all duration-300',
-        scrolled ? 'glass border-b border-border shadow-lg shadow-black/20' : 'bg-[#0C0C0C]/80 backdrop-blur-md'
+        'fixed top-0 left-0 right-0 z-40 transition-all duration-500',
+        scrolled
+          ? 'bg-[#0C0C0C]/90 backdrop-blur-xl border-b border-[#1E1E26]/60 shadow-xl shadow-black/20'
+          : 'bg-transparent'
       )}>
         <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16 h-16 md:h-20 flex items-center justify-between">
-          <Link href="/" className="text-2xl font-black tracking-tight text-text hover:text-pink transition-colors">
-            MIXZO
+          {/* Logo */}
+          <Link href="/" className="group flex items-center gap-2">
+            <span className="text-2xl font-black tracking-[-0.04em] text-white transition-colors duration-300 group-hover:text-[#FF2E88]">
+              MIXZO
+            </span>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-8">
+          {/* Desktop Nav */}
+          <nav className="hidden md:flex items-center gap-1">
             {NAV_LINKS.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className="text-sm font-medium text-text-secondary hover:text-text transition-colors"
+                className="relative px-4 py-2 text-sm font-medium text-[#A0A0B8] hover:text-white transition-colors duration-300 group"
               >
                 {link.label}
+                <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-[2px] bg-[#FF2E88] rounded-full transition-all duration-300 group-hover:w-6" />
               </Link>
             ))}
           </nav>
 
-          <div className="flex items-center gap-1">
-            <button onClick={() => setSearchOpen(true)} className="h-10 w-10 flex items-center justify-center rounded-xl text-text-secondary hover:text-text hover:bg-elevated transition-colors cursor-pointer">
-              <Search className="w-5 h-5" />
+          {/* Actions */}
+          <div className="flex items-center gap-0.5">
+            <button
+              onClick={() => setSearchOpen(true)}
+              className="h-10 w-10 flex items-center justify-center rounded-xl text-[#A0A0B8] hover:text-white hover:bg-white/[0.04] transition-all duration-300 cursor-pointer"
+            >
+              <Search className="w-[18px] h-[18px]" />
             </button>
-            <a href={`https://instagram.com/${BUSINESS_INSTAGRAM.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="h-10 w-10 flex items-center justify-center rounded-xl text-text-secondary hover:text-pink hover:bg-elevated transition-colors">
-              <Instagram className="w-5 h-5" />
+            <a
+              href={`https://instagram.com/${BUSINESS_INSTAGRAM.replace('@', '')}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden sm:flex h-10 w-10 items-center justify-center rounded-xl text-[#A0A0B8] hover:text-[#FF2E88] hover:bg-[#FF2E88]/[0.06] transition-all duration-300"
+            >
+              <Instagram className="w-[18px] h-[18px]" />
             </a>
-            <Link href="/cart" className="relative h-10 w-10 flex items-center justify-center rounded-xl text-text-secondary hover:text-text hover:bg-elevated transition-colors">
-              <ShoppingBag className="w-5 h-5" />
+            <Link
+              href="/cart"
+              className="relative h-10 w-10 flex items-center justify-center rounded-xl text-[#A0A0B8] hover:text-white hover:bg-white/[0.04] transition-all duration-300"
+            >
+              <ShoppingBag className="w-[18px] h-[18px]" />
               {count > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 h-5 min-w-[1.25rem] flex items-center justify-center rounded-full bg-pink text-[10px] font-bold text-white px-1">
+                <span className="absolute -top-0.5 -right-0.5 h-5 min-w-[1.25rem] flex items-center justify-center rounded-full bg-[#FF2E88] text-[10px] font-bold text-white px-1 shadow-lg shadow-[#FF2E88]/30 animate-in zoom-in duration-200">
                   {count}
                 </span>
               )}
             </Link>
-            <Link href="/login" className="hidden md:flex h-10 w-10 items-center justify-center rounded-xl text-text-secondary hover:text-text hover:bg-elevated transition-colors">
-              <User className="w-5 h-5" />
+            <Link
+              href="/login"
+              className="hidden md:flex h-10 w-10 items-center justify-center rounded-xl text-[#A0A0B8] hover:text-white hover:bg-white/[0.04] transition-all duration-300"
+            >
+              <User className="w-[18px] h-[18px]" />
             </Link>
-            <button onClick={() => setMobileOpen(!mobileOpen)} className="md:hidden h-10 w-10 flex items-center justify-center rounded-xl text-text-secondary hover:text-text cursor-pointer">
+            <button
+              onClick={() => setMobileOpen(!mobileOpen)}
+              className="md:hidden h-10 w-10 flex items-center justify-center rounded-xl text-[#A0A0B8] hover:text-white cursor-pointer transition-colors"
+            >
               {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
@@ -82,19 +107,24 @@ export function ShopHeader() {
 
       {/* Mobile menu */}
       {mobileOpen && (
-        <div className="fixed inset-0 z-30 pt-16 bg-bg/95 backdrop-blur-lg md:hidden">
-          <nav className="flex flex-col p-6 gap-2">
-            {[...NAV_LINKS, { href: '/contact', label: 'Contact' }, { href: '/account', label: 'Account' }].map((link) => (
+        <div className="fixed inset-0 z-30 pt-16 bg-[#0C0C0C]/98 backdrop-blur-2xl md:hidden">
+          <nav className="flex flex-col p-6 gap-1">
+            {[...NAV_LINKS, { href: '/contact', label: 'Contact' }, { href: '/account', label: 'Account' }].map((link, i) => (
               <Link
                 key={link.href}
                 href={link.href}
                 onClick={() => setMobileOpen(false)}
-                className="py-3 px-4 text-lg font-medium text-text-secondary hover:text-text hover:bg-elevated rounded-xl transition-colors"
+                className="py-4 px-5 text-xl font-bold text-[#A0A0B8] hover:text-white hover:bg-white/[0.03] rounded-2xl transition-all duration-300"
+                style={{ animationDelay: `${i * 0.05}s` }}
               >
                 {link.label}
               </Link>
             ))}
           </nav>
+          <div className="absolute bottom-8 left-6 right-6">
+            <div className="glow-line mb-4" />
+            <p className="text-[11px] text-[#4A4A5A] text-center">Denver, CO · Authenticated Sneakers</p>
+          </div>
         </div>
       )}
 

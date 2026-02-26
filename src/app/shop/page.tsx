@@ -1,11 +1,13 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { Search, SlidersHorizontal, Package, X, ChevronDown, Grid3X3, LayoutList } from 'lucide-react'
+import { Search, SlidersHorizontal, Package, X } from 'lucide-react'
+import { motion } from 'framer-motion'
 import { supabase } from '@/lib/supabase'
 import { ShopHeader } from '@/components/layout/shop-header'
 import { Footer } from '@/components/layout/footer'
+import { MobileBottomNav } from '@/components/layout/mobile-bottom-nav'
 import { ProductCard } from '@/components/shop/product-card'
 import { cn } from '@/lib/utils'
 
@@ -36,12 +38,14 @@ const SORT_OPTIONS = [
   { value: 'name', label: 'A → Z' },
 ]
 
+const easeOutExpo = [0.16, 1, 0.3, 1] as const
+
 export default function ShopPage() {
   const searchParams = useSearchParams()
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState(searchParams.get('q') || '')
-  const [condition, setCondition] = useState('all')
+  const [condition, setCondition] = useState(searchParams.get('condition') || 'all')
   const [sort, setSort] = useState('newest')
   const [selectedBrand, setSelectedBrand] = useState('')
   const [selectedSize, setSelectedSize] = useState('')
@@ -89,28 +93,41 @@ export default function ShopPage() {
       <ShopHeader />
       <main className="flex-1 pt-20">
         {/* Hero Banner */}
-        <div className="bg-[var(--bg-card)] border-b border-[var(--border)]">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight">Shop</h1>
-            <p className="text-[var(--text-secondary)] text-sm mt-1">Authenticated new & preowned sneakers</p>
+        <div className="relative bg-[#141418] border-b border-[#1E1E26] overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-[#FF2E88]/[0.03] to-[#00C2D6]/[0.03]" />
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 relative">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, ease: easeOutExpo }}
+            >
+              <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#FF2E88] mb-2">Browse Collection</p>
+              <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tight">Shop</h1>
+              <p className="text-[#6A6A80] text-sm mt-2">Authenticated new & preowned sneakers</p>
+            </motion.div>
           </div>
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Search + Controls */}
-          <div className="flex flex-col sm:flex-row gap-3 mb-6">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1, ease: easeOutExpo }}
+            className="flex flex-col sm:flex-row gap-3 mb-6"
+          >
+            <div className="flex-1 relative group">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#4A4A5A] group-focus-within:text-[#FF2E88] transition-colors" />
               <input
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search by name, brand, or style ID..."
-                className="w-full h-11 pl-10 pr-4 rounded-xl bg-[var(--bg-card)] border border-[var(--border)] text-sm text-white placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--pink)] transition-colors"
+                className="w-full h-12 pl-11 pr-4 rounded-xl bg-[#141418] border border-[#1E1E26] text-sm text-white placeholder:text-[#4A4A5A] focus:outline-none focus:border-[#FF2E88]/50 focus:shadow-lg focus:shadow-[#FF2E88]/5 transition-all duration-300"
               />
               {search && (
-                <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2">
-                  <X size={14} className="text-[var(--text-muted)] hover:text-white" />
+                <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-md bg-[#1A1A22] flex items-center justify-center hover:bg-[#2A2A36] transition-colors">
+                  <X size={12} className="text-[#6A6A80]" />
                 </button>
               )}
             </div>
@@ -118,16 +135,16 @@ export default function ShopPage() {
               <button
                 onClick={() => setFiltersOpen(!filtersOpen)}
                 className={cn(
-                  'h-11 px-4 rounded-xl border flex items-center gap-2 text-sm font-medium transition-colors',
+                  'h-12 px-5 rounded-xl border flex items-center gap-2 text-sm font-semibold transition-all duration-300',
                   filtersOpen || hasFilters
-                    ? 'bg-[var(--pink)]/10 border-[var(--pink)]/30 text-[var(--pink)]'
-                    : 'bg-[var(--bg-card)] border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--pink)]/30'
+                    ? 'bg-[#FF2E88]/10 border-[#FF2E88]/30 text-[#FF2E88]'
+                    : 'bg-[#141418] border-[#1E1E26] text-[#A0A0B8] hover:border-[#2A2A36]'
                 )}
               >
                 <SlidersHorizontal size={16} />
                 Filters
                 {activeFilterCount > 0 && (
-                  <span className="w-5 h-5 rounded-full bg-[var(--pink)] text-white text-[10px] font-bold flex items-center justify-center">
+                  <span className="w-5 h-5 rounded-full bg-[#FF2E88] text-white text-[10px] font-bold flex items-center justify-center">
                     {activeFilterCount}
                   </span>
                 )}
@@ -135,15 +152,20 @@ export default function ShopPage() {
               <select
                 value={sort}
                 onChange={(e) => setSort(e.target.value)}
-                className="h-11 px-3 pr-8 rounded-xl bg-[var(--bg-card)] border border-[var(--border)] text-sm text-[var(--text-secondary)] focus:outline-none focus:border-[var(--pink)] appearance-none"
+                className="h-12 px-4 pr-8 rounded-xl bg-[#141418] border border-[#1E1E26] text-sm text-[#A0A0B8] focus:outline-none focus:border-[#FF2E88]/50 appearance-none cursor-pointer transition-colors"
               >
                 {SORT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
               </select>
             </div>
-          </div>
+          </motion.div>
 
           {/* Condition Tabs */}
-          <div className="flex gap-2 mb-6">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.15, ease: easeOutExpo }}
+            className="flex gap-2 mb-6"
+          >
             {[
               { value: 'all', label: 'All' },
               { value: 'new', label: 'New' },
@@ -153,34 +175,40 @@ export default function ShopPage() {
                 key={tab.value}
                 onClick={() => setCondition(tab.value)}
                 className={cn(
-                  'px-5 py-2 rounded-full text-sm font-medium transition-all',
+                  'px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300',
                   condition === tab.value
-                    ? 'bg-white text-black'
-                    : 'bg-[var(--bg-card)] text-[var(--text-secondary)] border border-[var(--border)] hover:border-[var(--text-muted)]'
+                    ? 'bg-white text-black shadow-lg'
+                    : 'bg-[#141418] text-[#6A6A80] border border-[#1E1E26] hover:border-[#2A2A36] hover:text-[#A0A0B8]'
                 )}
               >
                 {tab.label}
               </button>
             ))}
-          </div>
+          </motion.div>
 
           {/* Expanded Filters */}
           {filtersOpen && (
-            <div className="mb-6 p-5 rounded-xl bg-[var(--bg-card)] border border-[var(--border)] space-y-4 animate-in fade-in slide-in-from-top-2 duration-200">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <motion.div
+              initial={{ opacity: 0, y: -10, height: 0 }}
+              animate={{ opacity: 1, y: 0, height: 'auto' }}
+              exit={{ opacity: 0, y: -10, height: 0 }}
+              transition={{ duration: 0.3 }}
+              className="mb-6 p-6 rounded-2xl bg-[#141418] border border-[#1E1E26] space-y-5"
+            >
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 {/* Brand */}
                 <div>
-                  <label className="text-xs font-medium text-[var(--text-muted)] mb-2 block uppercase tracking-wider">Brand</label>
-                  <div className="flex flex-wrap gap-1.5">
+                  <label className="text-[10px] font-bold text-[#4A4A5A] mb-3 block uppercase tracking-[0.15em]">Brand</label>
+                  <div className="flex flex-wrap gap-2">
                     {BRANDS.map(b => (
                       <button
                         key={b}
                         onClick={() => setSelectedBrand(selectedBrand === b ? '' : b)}
                         className={cn(
-                          'px-3 py-1.5 rounded-lg text-xs font-medium border transition-all',
+                          'px-3.5 py-2 rounded-lg text-xs font-semibold border transition-all duration-300',
                           selectedBrand === b
-                            ? 'bg-[var(--pink)] text-white border-[var(--pink)]'
-                            : 'bg-[var(--bg-elevated)] border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--pink)]/40'
+                            ? 'bg-[#FF2E88] text-white border-[#FF2E88] shadow-md shadow-[#FF2E88]/20'
+                            : 'bg-[#1A1A22] border-[#1E1E26] text-[#6A6A80] hover:border-[#FF2E88]/30 hover:text-[#A0A0B8]'
                         )}
                       >
                         {b}
@@ -191,17 +219,17 @@ export default function ShopPage() {
 
                 {/* Size */}
                 <div>
-                  <label className="text-xs font-medium text-[var(--text-muted)] mb-2 block uppercase tracking-wider">Size</label>
-                  <div className="flex flex-wrap gap-1.5">
+                  <label className="text-[10px] font-bold text-[#4A4A5A] mb-3 block uppercase tracking-[0.15em]">Size</label>
+                  <div className="flex flex-wrap gap-2">
                     {SIZES.map(s => (
                       <button
                         key={s}
                         onClick={() => setSelectedSize(selectedSize === s ? '' : s)}
                         className={cn(
-                          'w-10 py-1.5 rounded-lg text-xs font-medium border transition-all text-center',
+                          'w-11 py-2 rounded-lg text-xs font-semibold border transition-all duration-300 text-center',
                           selectedSize === s
-                            ? 'bg-[var(--pink)] text-white border-[var(--pink)]'
-                            : 'bg-[var(--bg-elevated)] border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--pink)]/40'
+                            ? 'bg-[#FF2E88] text-white border-[#FF2E88] shadow-md shadow-[#FF2E88]/20'
+                            : 'bg-[#1A1A22] border-[#1E1E26] text-[#6A6A80] hover:border-[#FF2E88]/30 hover:text-[#A0A0B8]'
                         )}
                       >
                         {s}
@@ -212,16 +240,16 @@ export default function ShopPage() {
               </div>
 
               {hasFilters && (
-                <button onClick={clearFilters} className="text-xs text-[var(--pink)] hover:underline flex items-center gap-1">
+                <button onClick={clearFilters} className="text-xs text-[#FF2E88] hover:text-[#FF2E88]/80 font-semibold flex items-center gap-1 transition-colors">
                   <X size={12} /> Clear all filters
                 </button>
               )}
-            </div>
+            </motion.div>
           )}
 
           {/* Results count */}
           {!loading && (
-            <p className="text-xs text-[var(--text-muted)] mb-4 uppercase tracking-wider">
+            <p className="text-[10px] text-[#4A4A5A] mb-5 uppercase tracking-[0.15em] font-bold">
               {products.length} {products.length === 1 ? 'product' : 'products'}
               {hasFilters && ' found'}
             </p>
@@ -229,27 +257,32 @@ export default function ShopPage() {
 
           {/* Product Grid */}
           {loading ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
               {Array.from({ length: 8 }).map((_, i) => (
-                <div key={i} className="rounded-xl bg-[var(--bg-card)] border border-[var(--border)] overflow-hidden">
-                  <div className="aspect-square bg-[var(--bg-elevated)] shimmer" />
-                  <div className="p-3.5 space-y-2">
-                    <div className="h-3 w-16 bg-[var(--bg-elevated)] rounded shimmer" />
-                    <div className="h-4 w-full bg-[var(--bg-elevated)] rounded shimmer" />
-                    <div className="h-4 w-20 bg-[var(--bg-elevated)] rounded shimmer" />
+                <div key={i} className="rounded-2xl bg-[#141418] border border-[#1E1E26] overflow-hidden">
+                  <div className="aspect-square bg-[#1A1A22] shimmer" />
+                  <div className="p-3.5 space-y-2.5">
+                    <div className="h-3 w-16 bg-[#1A1A22] rounded shimmer" />
+                    <div className="h-4 w-full bg-[#1A1A22] rounded shimmer" />
+                    <div className="h-4 w-20 bg-[#1A1A22] rounded shimmer" />
                   </div>
                 </div>
               ))}
             </div>
           ) : products.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-24 text-center">
-              <div className="w-20 h-20 rounded-2xl bg-[var(--bg-card)] border border-[var(--border)] flex items-center justify-center mb-5">
-                <Package size={32} className="text-[var(--text-muted)]" />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5 }}
+              className="flex flex-col items-center justify-center py-28 text-center"
+            >
+              <div className="w-20 h-20 rounded-3xl bg-[#141418] border border-[#1E1E26] flex items-center justify-center mb-6">
+                <Package size={32} className="text-[#4A4A5A]" />
               </div>
-              <h3 className="text-xl font-bold text-white mb-2">
+              <h3 className="text-xl font-black text-white mb-2">
                 {hasFilters ? 'No matches' : 'Coming soon'}
               </h3>
-              <p className="text-sm text-[var(--text-muted)] max-w-sm mb-6">
+              <p className="text-sm text-[#6A6A80] max-w-sm mb-8">
                 {hasFilters
                   ? 'Try adjusting your filters or search terms.'
                   : 'Fresh inventory dropping soon. Check back or follow us for updates.'}
@@ -257,22 +290,30 @@ export default function ShopPage() {
               {hasFilters && (
                 <button
                   onClick={clearFilters}
-                  className="px-5 py-2.5 rounded-xl bg-[var(--pink)] text-white text-sm font-semibold hover:opacity-90 transition"
+                  className="px-6 py-3 rounded-xl bg-[#FF2E88] text-white text-sm font-bold hover:shadow-lg hover:shadow-[#FF2E88]/20 transition-all active:scale-[0.97]"
                 >
                   Clear Filters
                 </button>
               )}
-            </div>
+            </motion.div>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {products.map(product => (
-                <ProductCard key={product.id} product={product} />
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
+              {products.map((product, i) => (
+                <motion.div
+                  key={product.id}
+                  initial={{ opacity: 0, y: 25 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.03, duration: 0.5, ease: easeOutExpo }}
+                >
+                  <ProductCard product={product} />
+                </motion.div>
               ))}
             </div>
           )}
         </div>
       </main>
       <Footer />
+      <MobileBottomNav />
     </div>
   )
 }

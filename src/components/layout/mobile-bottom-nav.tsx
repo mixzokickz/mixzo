@@ -18,12 +18,11 @@ export function MobileBottomNav() {
   const pathname = usePathname()
   const count = useCartStore((s) => s.getCount())
 
-  // Hide on admin pages
   if (pathname.startsWith('/admin')) return null
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden">
-      <div className="bg-[var(--bg-card)]/80 backdrop-blur-xl border-t border-[var(--border)]">
+      <div className="bg-[#0C0C0C]/90 backdrop-blur-xl border-t border-[#1E1E26]/60">
         <div className="flex items-center justify-around h-16 pb-[env(safe-area-inset-bottom)]">
           {links.map(({ href, icon: Icon, label }) => {
             const active = href === '/' ? pathname === '/' : pathname.startsWith(href)
@@ -32,19 +31,22 @@ export function MobileBottomNav() {
                 key={href}
                 href={href}
                 className={cn(
-                  'flex flex-col items-center gap-0.5 px-3 py-1.5 transition-colors',
-                  active ? 'text-[var(--pink)]' : 'text-[var(--text-muted)]'
+                  'flex flex-col items-center gap-0.5 px-3 py-1.5 transition-all duration-300',
+                  active ? 'text-[#FF2E88]' : 'text-[#4A4A5A]'
                 )}
               >
                 <div className="relative">
-                  <Icon className="w-5 h-5" />
+                  <Icon className={cn('w-5 h-5 transition-transform duration-300', active && 'scale-110')} />
                   {label === 'Cart' && count > 0 && (
-                    <span className="absolute -top-1.5 -right-2.5 h-4 min-w-[1rem] flex items-center justify-center rounded-full bg-[var(--pink)] text-[9px] font-bold text-white px-0.5">
+                    <span className="absolute -top-1.5 -right-2.5 h-4 min-w-[1rem] flex items-center justify-center rounded-full bg-[#FF2E88] text-[9px] font-bold text-white px-0.5 shadow-lg shadow-[#FF2E88]/30">
                       {count}
                     </span>
                   )}
                 </div>
-                <span className={cn('text-[10px] font-medium', active && 'text-[var(--pink)]')}>{label}</span>
+                <span className={cn('text-[10px] font-medium', active && 'text-[#FF2E88] font-semibold')}>{label}</span>
+                {active && (
+                  <span className="absolute -top-px left-1/2 -translate-x-1/2 w-8 h-[2px] rounded-full bg-[#FF2E88]" />
+                )}
               </Link>
             )
           })}

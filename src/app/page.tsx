@@ -1,9 +1,10 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
-import { ArrowRight, Shield, Truck, RefreshCw, Package, Sparkles, Droplets, Instagram } from 'lucide-react'
-import { motion } from 'framer-motion'
+import Image from 'next/image'
+import { ArrowRight, Shield, Truck, RefreshCw, Package, Sparkles, Droplets, Instagram, Star, Zap, CheckCircle, ChevronRight } from 'lucide-react'
+import { motion, useScroll, useTransform, useInView } from 'framer-motion'
 import { supabase } from '@/lib/supabase'
 import { ShopHeader } from '@/components/layout/shop-header'
 import { Footer } from '@/components/layout/footer'
@@ -25,25 +26,43 @@ interface Product {
   status: string
 }
 
-const TRUST_SIGNALS = [
-  { icon: Shield, label: 'Authenticated', desc: 'Every pair verified' },
-  { icon: Truck, label: 'Fast Shipping', desc: 'Free over $200' },
-  { icon: RefreshCw, label: 'Easy Returns', desc: 'Hassle-free process' },
+const MARQUEE_ITEMS = [
+  'AUTHENTICATED PAIRS',
+  'FREE SHIPPING OVER $200',
+  'DENVER, CO',
+  'NEW & PREOWNED',
+  'SNEAKER CLEANING',
+  'FAIR PRICES',
+  'SOLE ICING',
+  'VERIFIED AUTHENTIC',
 ]
 
-const fadeUp = {
-  hidden: { opacity: 0, y: 30 },
-  visible: (i: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: { delay: i * 0.1, duration: 0.6, ease: [0.22, 1, 0.36, 1] as const },
-  }),
-}
+const TRUST_SIGNALS = [
+  { icon: Shield, label: 'Authenticated', desc: 'Every pair verified', color: '#FF2E88' },
+  { icon: Truck, label: 'Fast Shipping', desc: 'Free over $200', color: '#00C2D6' },
+  { icon: RefreshCw, label: 'Easy Returns', desc: 'Hassle-free process', color: '#A855F7' },
+  { icon: Star, label: '5-Star Service', desc: 'Customer first always', color: '#F59E0B' },
+]
+
+const CATEGORIES = [
+  { name: 'New Arrivals', desc: 'Fresh heat just dropped', href: '/shop?condition=new', gradient: 'from-[#FF2E88]/20 to-[#FF2E88]/5', icon: Zap },
+  { name: 'Preowned', desc: 'Authenticated & affordable', href: '/shop?condition=preowned', gradient: 'from-[#00C2D6]/20 to-[#00C2D6]/5', icon: CheckCircle },
+  { name: 'Deals', desc: 'Below retail steals', href: '/deals', gradient: 'from-[#A855F7]/20 to-[#A855F7]/5', icon: Star },
+]
+
+const easeOutExpo = [0.16, 1, 0.3, 1] as const
 
 export default function HomePage() {
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState('all')
+  const heroRef = useRef<HTMLDivElement>(null)
+  const { scrollYProgress } = useScroll({
+    target: heroRef,
+    offset: ['start start', 'end start'],
+  })
+  const heroY = useTransform(scrollYProgress, [0, 1], ['0%', '30%'])
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.6], [1, 0])
 
   useEffect(() => {
     async function load() {
@@ -67,99 +86,121 @@ export default function HomePage() {
     <div className="min-h-screen flex flex-col">
       <ShopHeader />
 
-      {/* Hero */}
-      <section className="relative pt-40 pb-28 md:pt-56 md:pb-48 px-6 md:px-12 lg:px-16 overflow-hidden">
-        {/* Concrete texture background */}
-        <div className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-30" style={{ backgroundImage: 'url(/hero-bg.webp)' }} />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#0C0C0C]/60 via-transparent to-[#0C0C0C]" />
+      {/* ─── Marquee Ticker ─── */}
+      <div className="fixed top-16 md:top-20 left-0 right-0 z-30 bg-[#0C0C0C] border-b border-[#1E1E26]/50 overflow-hidden">
+        <div className="marquee-track py-2">
+          {[...MARQUEE_ITEMS, ...MARQUEE_ITEMS].map((item, i) => (
+            <span key={i} className="flex items-center gap-3 px-6 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#6A6A80] whitespace-nowrap">
+              {item}
+              <span className="w-1 h-1 rounded-full bg-[#FF2E88]" />
+            </span>
+          ))}
+        </div>
+      </div>
 
-        <div className="max-w-7xl mx-auto relative">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+      {/* ─── Hero ─── */}
+      <section ref={heroRef} className="relative pt-48 pb-32 md:pt-64 md:pb-52 px-6 md:px-12 lg:px-16 overflow-hidden">
+        {/* Parallax background */}
+        <motion.div style={{ y: heroY }} className="absolute inset-0">
+          <div className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20" style={{ backgroundImage: 'url(/hero-bg.webp)' }} />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0C0C0C] via-[#0C0C0C]/40 to-[#0C0C0C]" />
+        </motion.div>
+
+        {/* Ambient glows */}
+        <div className="absolute top-20 left-1/4 w-[600px] h-[600px] rounded-full bg-[#FF2E88]/[0.04] blur-[150px] pointer-events-none" />
+        <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] rounded-full bg-[#00C2D6]/[0.03] blur-[120px] pointer-events-none" />
+
+        <motion.div style={{ opacity: heroOpacity }} className="max-w-7xl mx-auto relative">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
             {/* Left: Text */}
             <div>
               <motion.div
-                initial="hidden"
-                animate="visible"
-                custom={0}
-                variants={fadeUp}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-card border border-border text-xs text-text-muted mb-8"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, ease: easeOutExpo }}
+                className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-[#141418]/80 border border-[#1E1E26] text-xs text-[#6A6A80] mb-8 backdrop-blur-sm"
               >
-                <Sparkles className="w-3.5 h-3.5 text-pink" />
-                LIVE HEAT. TRUSTED PAIRS. — Denver, CO
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#FF2E88] opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[#FF2E88]" />
+                </span>
+                LIVE INVENTORY — Denver, CO
               </motion.div>
 
               <motion.h1
-                initial="hidden"
-                animate="visible"
-                custom={1}
-                variants={fadeUp}
-                className="text-5xl sm:text-6xl lg:text-7xl font-black leading-[0.95] tracking-tight"
+                initial={{ opacity: 0, y: 40 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 1, ease: easeOutExpo, delay: 0.1 }}
+                className="text-5xl sm:text-6xl lg:text-[5.5rem] font-black leading-[0.9] tracking-[-0.03em]"
               >
-                Premium Kicks,
+                Premium
                 <br />
-                <span className="text-pink">Fair Prices</span>
+                Kicks,
+                <br />
+                <span className="text-gradient">Fair Prices</span>
               </motion.h1>
 
               <motion.p
-                initial="hidden"
-                animate="visible"
-                custom={2}
-                variants={fadeUp}
-                className="mt-6 text-lg md:text-xl text-text-secondary max-w-lg leading-relaxed"
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, ease: easeOutExpo, delay: 0.2 }}
+                className="mt-8 text-lg md:text-xl text-[#A0A0B8] max-w-lg leading-relaxed"
               >
-                Shop authenticated new and preowned sneakers from Denver. Every pair verified, every purchase backed by our guarantee.
+                Shop authenticated new and preowned sneakers. Every pair verified, every purchase backed by our guarantee.
               </motion.p>
 
               <motion.div
-                initial="hidden"
-                animate="visible"
-                custom={3}
-                variants={fadeUp}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, ease: easeOutExpo, delay: 0.35 }}
                 className="flex flex-wrap gap-4 mt-10"
               >
                 <Link href="/shop">
-                  <Button size="lg">
+                  <Button size="lg" className="group">
                     Shop Now
-                    <ArrowRight className="w-4 h-4" />
+                    <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                   </Button>
                 </Link>
                 <Link href="/cleaning">
-                  <Button variant="outline" size="lg">
+                  <Button variant="secondary" size="lg">
+                    <Droplets className="w-4 h-4" />
                     Cleaning Service
                   </Button>
                 </Link>
               </motion.div>
             </div>
 
-            {/* Right: Animated Sneaker Showcase */}
+            {/* Right: Sneaker Showcase */}
             <div className="hidden lg:block relative">
               <div className="relative w-full aspect-square max-w-lg mx-auto">
-                {/* Glow effects */}
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full bg-[#FF2E88]/10 blur-[100px]" />
-                <div className="absolute top-1/3 right-0 w-48 h-48 rounded-full bg-[#00C2D6]/8 blur-[80px]" />
+                {/* Glow rings */}
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] rounded-full border border-[#FF2E88]/[0.06]" />
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] rounded-full border border-[#FF2E88]/[0.04]" />
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full bg-[#FF2E88]/[0.06] blur-[100px]" />
+                <div className="absolute top-1/3 right-0 w-48 h-48 rounded-full bg-[#00C2D6]/[0.04] blur-[80px]" />
 
                 {/* Main floating sneaker */}
                 <motion.div
-                  initial={{ opacity: 0, scale: 0.8, y: 40 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: 0.3 }}
+                  initial={{ opacity: 0, scale: 0.7, y: 60, rotateZ: -5 }}
+                  animate={{ opacity: 1, scale: 1, y: 0, rotateZ: 0 }}
+                  transition={{ duration: 1.2, ease: easeOutExpo, delay: 0.3 }}
                   className="relative z-10"
                 >
                   <motion.img
                     src="/images/library/hero-sneaker.webp"
                     alt="Premium Sneaker"
-                    className="w-full h-full object-contain drop-shadow-2xl"
-                    animate={{ y: [-8, 8, -8] }}
-                    transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+                    className="w-full h-full object-contain drop-shadow-[0_20px_60px_rgba(255,46,136,0.15)]"
+                    animate={{ y: [-10, 10, -10], rotateZ: [-1, 1, -1] }}
+                    transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
                   />
                 </motion.div>
 
-                {/* Orbiting smaller sneakers */}
+                {/* Floating cards */}
                 <motion.div
-                  className="absolute top-4 right-4 w-28 h-28 rounded-2xl overflow-hidden border border-border/50 bg-card/80 backdrop-blur-sm shadow-xl"
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.8, duration: 0.6 }}
+                  className="absolute top-4 right-2 w-28 h-28 rounded-2xl overflow-hidden border border-[#1E1E26]/60 bg-[#141418]/90 backdrop-blur-md shadow-2xl shadow-black/40"
+                  initial={{ opacity: 0, x: 40, scale: 0.8 }}
+                  animate={{ opacity: 1, x: 0, scale: 1 }}
+                  transition={{ delay: 0.9, duration: 0.8, ease: easeOutExpo }}
                 >
                   <motion.img
                     src="/images/library/pedestal.webp"
@@ -171,10 +212,10 @@ export default function HomePage() {
                 </motion.div>
 
                 <motion.div
-                  className="absolute bottom-8 -left-4 w-24 h-24 rounded-2xl overflow-hidden border border-border/50 bg-card/80 backdrop-blur-sm shadow-xl"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 1, duration: 0.6 }}
+                  className="absolute bottom-8 -left-6 w-24 h-24 rounded-2xl overflow-hidden border border-[#1E1E26]/60 bg-[#141418]/90 backdrop-blur-md shadow-2xl shadow-black/40"
+                  initial={{ opacity: 0, x: -40, scale: 0.8 }}
+                  animate={{ opacity: 1, x: 0, scale: 1 }}
+                  transition={{ delay: 1.1, duration: 0.8, ease: easeOutExpo }}
                 >
                   <motion.img
                     src="/images/library/deals-banner.webp"
@@ -185,33 +226,21 @@ export default function HomePage() {
                   />
                 </motion.div>
 
+                {/* Verified badge */}
                 <motion.div
-                  className="absolute bottom-24 right-0 w-20 h-20 rounded-xl overflow-hidden border border-[#FF2E88]/20 bg-card/80 backdrop-blur-sm shadow-xl"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 1.2, duration: 0.6 }}
-                >
-                  <motion.img
-                    src="/images/library/collection.webp"
-                    alt=""
-                    className="w-full h-full object-cover"
-                    animate={{ scale: [1, 1.04, 1] }}
-                    transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
-                  />
-                </motion.div>
-
-                {/* Floating badge */}
-                <motion.div
-                  className="absolute top-16 -left-2 px-3 py-2 rounded-xl bg-card/90 border border-border/50 backdrop-blur-sm shadow-lg"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 1.4, duration: 0.5 }}
+                  className="absolute top-16 -left-4 px-4 py-2.5 rounded-xl bg-[#141418]/95 border border-[#1E1E26] backdrop-blur-md shadow-2xl shadow-black/30"
+                  initial={{ opacity: 0, x: -30, scale: 0.9 }}
+                  animate={{ opacity: 1, x: 0, scale: 1 }}
+                  transition={{ delay: 1.5, duration: 0.6, ease: easeOutExpo }}
                 >
                   <motion.div
                     animate={{ y: [-3, 3, -3] }}
                     transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }}
                   >
-                    <p className="text-[10px] text-text-muted">Verified ✓</p>
+                    <div className="flex items-center gap-1.5 mb-0.5">
+                      <Shield className="w-3 h-3 text-[#10B981]" />
+                      <p className="text-[10px] text-[#10B981] font-medium">Verified</p>
+                    </div>
                     <p className="text-xs font-bold text-white">100% Authentic</p>
                   </motion.div>
                 </motion.div>
@@ -221,43 +250,86 @@ export default function HomePage() {
 
           {/* Trust signals */}
           <motion.div
-            initial="hidden"
-            animate="visible"
-            custom={4}
-            variants={fadeUp}
-            className="flex flex-wrap gap-10 mt-20 pt-10 border-t border-[#1E1E26]"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: easeOutExpo, delay: 0.5 }}
+            className="mt-24"
           >
-            {TRUST_SIGNALS.map(({ icon: Icon, label, desc }) => (
-              <div
-                key={label}
-                className="flex items-center gap-4 group"
-              >
-                <div className="w-12 h-12 rounded-2xl bg-card border border-border flex items-center justify-center transition-all duration-300 group-hover:border-pink/40 group-hover:shadow-lg group-hover:shadow-pink/10">
-                  <Icon className="w-5 h-5 text-pink" />
+            <div className="glow-line mb-10" />
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              {TRUST_SIGNALS.map(({ icon: Icon, label, desc, color }) => (
+                <div key={label} className="group flex items-center gap-4">
+                  <div
+                    className="w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-500 group-hover:scale-110 border"
+                    style={{
+                      backgroundColor: `${color}08`,
+                      borderColor: `${color}15`,
+                    }}
+                  >
+                    <Icon className="w-5 h-5" style={{ color }} />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-white">{label}</p>
+                    <p className="text-xs text-[#6A6A80]">{desc}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm font-semibold text-text">{label}</p>
-                  <p className="text-xs text-text-muted">{desc}</p>
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </motion.div>
+        </motion.div>
+      </section>
+
+      {/* ─── Category Spotlights ─── */}
+      <section className="px-6 md:px-12 lg:px-16 py-16">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-4">
+            {CATEGORIES.map((cat, i) => (
+              <motion.div
+                key={cat.name}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-40px' }}
+                transition={{ delay: i * 0.1, duration: 0.6, ease: easeOutExpo }}
+              >
+                <Link href={cat.href}>
+                  <div className={`relative rounded-2xl bg-gradient-to-br ${cat.gradient} border border-[#1E1E26] p-6 md:p-8 overflow-hidden group transition-all duration-500 hover:border-[#FF2E88]/20 hover:shadow-xl hover:shadow-black/30`}>
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-white/[0.02] rounded-full blur-[40px] group-hover:w-40 group-hover:h-40 transition-all duration-700" />
+                    <cat.icon className="w-8 h-8 text-white/20 mb-4 group-hover:text-white/40 transition-colors duration-500" />
+                    <h3 className="text-lg font-bold text-white mb-1">{cat.name}</h3>
+                    <p className="text-sm text-[#A0A0B8] mb-4">{cat.desc}</p>
+                    <div className="flex items-center gap-1 text-xs font-medium text-[#FF2E88] group-hover:gap-2 transition-all duration-300">
+                      Browse <ChevronRight className="w-3.5 h-3.5" />
+                    </div>
+                  </div>
+                </Link>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* Products Section */}
-      <section className="px-6 md:px-12 lg:px-16 pt-20 pb-32 pb-mobile-nav">
+      {/* ─── Products Section ─── */}
+      <section className="px-6 md:px-12 lg:px-16 pt-12 pb-32 pb-mobile-nav">
         <div className="max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-50px' }}
-            transition={{ duration: 0.5 }}
-            className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8"
+            transition={{ duration: 0.6, ease: easeOutExpo }}
+            className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-10"
           >
             <div>
-              <h2 className="text-2xl md:text-3xl font-bold">Shop</h2>
-              <p className="text-sm text-text-muted mt-1">Authenticated sneakers, updated daily</p>
+              <motion.p
+                initial={{ opacity: 0, x: -10 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.1 }}
+                className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#FF2E88] mb-2"
+              >
+                Latest Inventory
+              </motion.p>
+              <h2 className="text-3xl md:text-4xl font-black tracking-tight">Fresh Heat</h2>
+              <p className="text-sm text-[#6A6A80] mt-2">Authenticated sneakers, updated daily</p>
             </div>
             <FilterTabs
               tabs={[
@@ -273,76 +345,90 @@ export default function HomePage() {
           {loading ? (
             <ProductGridSkeleton count={8} />
           ) : filtered.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-24 text-center">
-              <div className="w-16 h-16 rounded-2xl bg-card border border-border flex items-center justify-center mb-6">
-                <Package className="w-7 h-7 text-text-muted" />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="flex flex-col items-center justify-center py-28 text-center"
+            >
+              <div className="w-20 h-20 rounded-3xl bg-[#141418] border border-[#1E1E26] flex items-center justify-center mb-6">
+                <Package className="w-8 h-8 text-[#6A6A80]" />
               </div>
-              <h3 className="text-lg font-semibold text-text mb-2">Inventory Coming Soon</h3>
-              <p className="text-sm text-text-muted max-w-xs">
+              <h3 className="text-xl font-bold text-white mb-2">Inventory Coming Soon</h3>
+              <p className="text-sm text-[#6A6A80] max-w-xs">
                 New inventory coming soon. Follow us on Instagram to get notified first.
               </p>
-            </div>
+            </motion.div>
           ) : (
             <>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
                 {filtered.map((product, i) => (
                   <motion.div
                     key={product.id}
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, margin: '-30px' }}
-                    transition={{ delay: i * 0.05, duration: 0.4 }}
+                    transition={{ delay: i * 0.04, duration: 0.5, ease: easeOutExpo }}
                   >
                     <ProductCard product={product} />
                   </motion.div>
                 ))}
               </div>
               {products.length >= 12 && (
-                <div className="flex justify-center mt-12">
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  className="flex justify-center mt-14"
+                >
                   <Link href="/shop">
-                    <Button variant="secondary" size="lg">
+                    <Button variant="secondary" size="lg" className="group">
                       View All Products
-                      <ArrowRight className="w-4 h-4" />
+                      <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                     </Button>
                   </Link>
-                </div>
+                </motion.div>
               )}
             </>
           )}
         </div>
       </section>
 
-      {/* Cleaning Service CTA */}
+      {/* ─── Cleaning Service CTA ─── */}
       <section className="px-6 md:px-12 lg:px-16 py-20">
         <div className="max-w-7xl mx-auto">
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-50px' }}
-            transition={{ duration: 0.6 }}
-            className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-[#141418] to-[#0C0C0C] border border-border"
+            viewport={{ once: true, margin: '-80px' }}
+            transition={{ duration: 0.8, ease: easeOutExpo }}
+            className="relative rounded-3xl overflow-hidden border border-[#1E1E26] noise"
           >
-            <div className="absolute top-0 right-0 w-80 h-80 bg-[#00C2D6]/5 rounded-full blur-[100px]" />
-            <div className="absolute bottom-0 left-0 w-60 h-60 bg-pink/5 rounded-full blur-[80px]" />
+            {/* Background layers */}
+            <div className="absolute inset-0 bg-gradient-to-br from-[#141418] via-[#0F0F13] to-[#0C0C0C]" />
+            <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-[#00C2D6]/[0.04] rounded-full blur-[120px]" />
+            <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-[#FF2E88]/[0.03] rounded-full blur-[100px]" />
+
             <div className="relative grid md:grid-cols-2 gap-8 p-8 md:p-12 lg:p-16 items-center">
               <div>
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#00C2D6]/10 text-[#00C2D6] text-xs font-medium mb-6">
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#00C2D6]/10 border border-[#00C2D6]/20 text-[#00C2D6] text-xs font-medium mb-6">
                   <Droplets className="w-3.5 h-3.5" />
                   Professional Service
                 </div>
-                <h2 className="text-3xl md:text-4xl font-black leading-tight">
-                  Sneaker Cleaning
+                <h2 className="text-3xl md:text-4xl lg:text-5xl font-black leading-[0.95] tracking-tight">
+                  Sneaker
+                  <br />
+                  Cleaning
                   <br />
                   <span className="text-[#00C2D6]">& Restoration</span>
                 </h2>
-                <p className="mt-4 text-text-secondary leading-relaxed max-w-md">
+                <p className="mt-6 text-[#A0A0B8] leading-relaxed max-w-md">
                   Got a pair that needs some love? Our professional cleaning service brings your kicks back to life. From basic cleans to sole icing — starting at just $20.
                 </p>
                 <div className="flex flex-wrap gap-3 mt-8">
                   <Link href="/cleaning">
-                    <Button size="lg">
+                    <Button size="lg" className="group">
                       Learn More
-                      <ArrowRight className="w-4 h-4" />
+                      <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                     </Button>
                   </Link>
                 </div>
@@ -353,18 +439,30 @@ export default function HomePage() {
                     { label: 'Sneaker Cleaning', price: '$20', features: ['Full exterior clean', 'Lace cleaning', 'Deodorize'] },
                     { label: 'Cleaning + Icing', price: '$30', features: ['Full deep clean', 'Sole icing', 'Sanitize'], popular: true },
                   ].map((tier) => (
-                    <div key={tier.label} className={`rounded-2xl bg-card/80 border p-5 ${tier.popular ? 'border-[#00C2D6]/40' : 'border-border'}`}>
+                    <motion.div
+                      key={tier.label}
+                      whileHover={{ y: -4, scale: 1.02 }}
+                      transition={{ duration: 0.3 }}
+                      className={`rounded-2xl bg-[#141418]/80 backdrop-blur-sm border p-5 transition-shadow duration-300 ${
+                        tier.popular
+                          ? 'border-[#00C2D6]/30 shadow-lg shadow-[#00C2D6]/5'
+                          : 'border-[#1E1E26] hover:border-[#00C2D6]/20'
+                      }`}
+                    >
+                      {tier.popular && (
+                        <span className="inline-block text-[9px] font-bold uppercase tracking-wider text-[#00C2D6] bg-[#00C2D6]/10 px-2 py-0.5 rounded-full mb-2">Popular</span>
+                      )}
                       <p className="text-sm font-semibold mb-1">{tier.label}</p>
-                      <p className="text-2xl font-black text-[#00C2D6]">{tier.price}</p>
-                      <ul className="mt-3 space-y-1.5">
+                      <p className="text-3xl font-black text-[#00C2D6]">{tier.price}</p>
+                      <ul className="mt-4 space-y-2">
                         {tier.features.map(f => (
-                          <li key={f} className="text-xs text-text-muted flex items-center gap-1.5">
-                            <Sparkles className="w-3 h-3 text-[#00C2D6] shrink-0" />
+                          <li key={f} className="text-xs text-[#A0A0B8] flex items-center gap-2">
+                            <CheckCircle className="w-3 h-3 text-[#00C2D6] shrink-0" />
                             {f}
                           </li>
                         ))}
                       </ul>
-                    </div>
+                    </motion.div>
                   ))}
                 </div>
               </div>
@@ -373,22 +471,22 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Instagram CTA */}
-      <section className="px-6 md:px-12 lg:px-16 pb-24 pb-mobile-nav">
+      {/* ─── Instagram CTA ─── */}
+      <section className="px-6 md:px-12 lg:px-16 pb-28 pb-mobile-nav">
         <div className="max-w-7xl mx-auto">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-50px' }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.7, ease: easeOutExpo }}
             className="text-center"
           >
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-card border border-border text-xs text-text-muted mb-6">
-              <Instagram className="w-3.5 h-3.5 text-pink" />
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#141418] border border-[#1E1E26] text-xs text-[#6A6A80] mb-6">
+              <Instagram className="w-3.5 h-3.5 text-[#FF2E88]" />
               Follow the Heat
             </div>
-            <h2 className="text-2xl md:text-3xl font-bold mb-3">Stay in the Loop</h2>
-            <p className="text-text-secondary max-w-lg mx-auto mb-8">
+            <h2 className="text-3xl md:text-4xl font-black mb-4 tracking-tight">Stay in the Loop</h2>
+            <p className="text-[#A0A0B8] max-w-lg mx-auto mb-10 leading-relaxed">
               Follow us on Instagram for first looks at new drops, behind-the-scenes cleaning transformations, and exclusive deals.
             </p>
             <a
@@ -396,9 +494,10 @@ export default function HomePage() {
               target="_blank"
               rel="noopener noreferrer"
             >
-              <Button variant="outline" size="lg">
+              <Button variant="outline" size="lg" className="group">
                 <Instagram className="w-4 h-4" />
                 Follow {BUSINESS_INSTAGRAM}
+                <ArrowRight className="w-3.5 h-3.5 opacity-0 -ml-2 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300" />
               </Button>
             </a>
           </motion.div>

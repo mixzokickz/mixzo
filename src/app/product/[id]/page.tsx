@@ -3,7 +3,7 @@
 import { useState, useEffect, use } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ShoppingBag, Truck, Shield, Package, ChevronLeft, ChevronRight, Share2, Heart } from 'lucide-react'
+import { ShoppingBag, Truck, Shield, Package, ChevronLeft, ChevronRight, Share2, Heart, Star, CheckCircle, ArrowRight } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { supabase } from '@/lib/supabase'
 import { useCartStore } from '@/stores/cart'
@@ -35,6 +35,8 @@ interface Product {
   status: string
 }
 
+const easeOutExpo = [0.16, 1, 0.3, 1] as const
+
 export default function ProductPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
   const [product, setProduct] = useState<Product | null>(null)
@@ -42,6 +44,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
   const [loading, setLoading] = useState(true)
   const [selectedImage, setSelectedImage] = useState(0)
   const [imageDirection, setImageDirection] = useState(0)
+  const [addedToCart, setAddedToCart] = useState(false)
   const addItem = useCartStore((s) => s.addItem)
 
   useEffect(() => {
@@ -68,7 +71,6 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
     load()
   }, [id])
 
-  // Build gallery from images array + image_url fallback
   const gallery: string[] = []
   if (product?.images?.length) {
     gallery.push(...product.images)
@@ -97,7 +99,9 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
       condition: product.condition,
       image_url: gallery[0] || product.image_url,
     })
+    setAddedToCart(true)
     toast.success('Added to cart')
+    setTimeout(() => setAddedToCart(false), 2000)
   }
 
   const handleShare = async () => {
@@ -115,15 +119,15 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
     return (
       <div className="min-h-screen flex flex-col">
         <ShopHeader />
-        <main className="flex-1 pt-24 px-6 md:px-12 lg:px-16">
-          <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-10">
-            <Skeleton className="aspect-square w-full rounded-2xl" />
+        <main className="flex-1 pt-28 px-6 md:px-12 lg:px-16">
+          <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12">
+            <Skeleton className="aspect-square w-full rounded-3xl" />
             <div className="space-y-4 py-4">
               <Skeleton className="h-4 w-24" />
-              <Skeleton className="h-8 w-3/4" />
-              <Skeleton className="h-6 w-20" />
-              <Skeleton className="h-10 w-28" />
-              <Skeleton className="h-12 w-full rounded-xl" />
+              <Skeleton className="h-10 w-3/4" />
+              <Skeleton className="h-6 w-32" />
+              <Skeleton className="h-12 w-40" />
+              <Skeleton className="h-14 w-full rounded-2xl" />
             </div>
           </div>
         </main>
@@ -137,10 +141,12 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
     return (
       <div className="min-h-screen flex flex-col">
         <ShopHeader />
-        <main className="flex-1 pt-20 flex flex-col items-center justify-center text-center px-4">
-          <Package className="w-16 h-16 text-text-muted mb-4" />
-          <h1 className="text-2xl font-bold mb-2">Product not found</h1>
-          <p className="text-text-muted mb-6">This product may have been removed or sold.</p>
+        <main className="flex-1 pt-24 flex flex-col items-center justify-center text-center px-4">
+          <div className="w-20 h-20 rounded-3xl bg-[#141418] border border-[#1E1E26] flex items-center justify-center mb-6">
+            <Package className="w-8 h-8 text-[#4A4A5A]" />
+          </div>
+          <h1 className="text-2xl font-black mb-2">Product not found</h1>
+          <p className="text-[#6A6A80] mb-8">This product may have been removed or sold.</p>
           <Link href="/shop"><Button variant="secondary">Back to Shop</Button></Link>
         </main>
         <Footer />
@@ -149,40 +155,54 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
     )
   }
 
+  const savingsPercent = product.stockx_price && product.stockx_price > product.price
+    ? Math.round((1 - product.price / product.stockx_price) * 100)
+    : null
+
   return (
     <div className="min-h-screen flex flex-col">
       <ShopHeader />
-      <main className="flex-1 pt-24 px-6 md:px-12 lg:px-16 pb-mobile-nav">
+      <main className="flex-1 pt-28 px-6 md:px-12 lg:px-16 pb-mobile-nav">
         <div className="max-w-6xl mx-auto">
           {/* Breadcrumb */}
-          <nav className="flex items-center gap-2 text-sm text-text-muted mb-6">
-            <Link href="/" className="hover:text-text transition-colors">Home</Link>
-            <span>/</span>
-            <Link href="/shop" className="hover:text-text transition-colors">Shop</Link>
-            <span>/</span>
-            <span className="text-text truncate max-w-[200px]">{product.name}</span>
-          </nav>
+          <motion.nav
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="flex items-center gap-2 text-sm text-[#4A4A5A] mb-8"
+          >
+            <Link href="/" className="hover:text-white transition-colors">Home</Link>
+            <span className="text-[#2A2A36]">/</span>
+            <Link href="/shop" className="hover:text-white transition-colors">Shop</Link>
+            <span className="text-[#2A2A36]">/</span>
+            <span className="text-[#6A6A80] truncate max-w-[200px]">{product.name}</span>
+          </motion.nav>
 
-          <div className="grid md:grid-cols-2 gap-10">
-            {/* Image Gallery */}
-            <div className="space-y-3">
-              <div className="aspect-square relative rounded-2xl bg-card border border-border overflow-hidden group">
+          <div className="grid md:grid-cols-2 gap-12 lg:gap-16">
+            {/* ─── Image Gallery ─── */}
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, ease: easeOutExpo }}
+              className="space-y-4"
+            >
+              <div className="aspect-square relative rounded-3xl bg-[#141418] border border-[#1E1E26] overflow-hidden group">
                 {gallery.length > 0 ? (
                   <>
                     <AnimatePresence mode="wait" initial={false}>
                       <motion.div
                         key={selectedImage}
-                        initial={{ opacity: 0, x: imageDirection * 30 }}
+                        initial={{ opacity: 0, x: imageDirection * 40 }}
                         animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: imageDirection * -30 }}
-                        transition={{ duration: 0.2 }}
+                        exit={{ opacity: 0, x: imageDirection * -40 }}
+                        transition={{ duration: 0.3, ease: easeOutExpo }}
                         className="absolute inset-0"
                       >
                         <Image
                           src={gallery[selectedImage]}
                           alt={product.name}
                           fill
-                          className="object-contain p-8"
+                          className="object-contain p-10 md:p-12"
                           sizes="(max-width: 768px) 100vw, 50vw"
                           priority
                         />
@@ -194,125 +214,198 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                       <>
                         <button
                           onClick={() => navigateImage(-1)}
-                          className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer hover:bg-black/60"
+                          className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-[#0C0C0C]/60 backdrop-blur-md border border-[#1E1E26]/50 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all duration-300 cursor-pointer hover:bg-[#0C0C0C]/80 hover:scale-110"
                         >
                           <ChevronLeft className="w-5 h-5" />
                         </button>
                         <button
                           onClick={() => navigateImage(1)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer hover:bg-black/60"
+                          className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-[#0C0C0C]/60 backdrop-blur-md border border-[#1E1E26]/50 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all duration-300 cursor-pointer hover:bg-[#0C0C0C]/80 hover:scale-110"
                         >
                           <ChevronRight className="w-5 h-5" />
                         </button>
                         {/* Dots */}
-                        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
+                        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 bg-[#0C0C0C]/50 backdrop-blur-sm px-3 py-2 rounded-full">
                           {gallery.map((_, i) => (
                             <button
                               key={i}
                               onClick={() => { setImageDirection(i > selectedImage ? 1 : -1); setSelectedImage(i) }}
-                              className={`w-2 h-2 rounded-full transition-all cursor-pointer ${i === selectedImage ? 'bg-white w-5' : 'bg-white/40 hover:bg-white/60'}`}
+                              className={`w-2 h-2 rounded-full transition-all duration-300 cursor-pointer ${i === selectedImage ? 'bg-[#FF2E88] w-6' : 'bg-white/30 hover:bg-white/50'}`}
                             />
                           ))}
                         </div>
                       </>
                     )}
+
+                    {/* Savings badge */}
+                    {savingsPercent && (
+                      <div className="absolute top-4 left-4 px-3 py-1.5 rounded-xl bg-[#10B981]/90 text-white text-xs font-bold shadow-lg">
+                        Save {savingsPercent}%
+                      </div>
+                    )}
                   </>
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-text-muted">No Image</div>
+                  <div className="w-full h-full flex items-center justify-center text-[#4A4A5A]">No Image</div>
                 )}
               </div>
 
               {/* Thumbnail strip */}
               {gallery.length > 1 && (
-                <div className="flex gap-2 overflow-x-auto no-scrollbar">
+                <div className="flex gap-3 overflow-x-auto no-scrollbar">
                   {gallery.map((img, i) => (
                     <button
                       key={i}
                       onClick={() => { setImageDirection(i > selectedImage ? 1 : -1); setSelectedImage(i) }}
-                      className={`w-16 h-16 rounded-xl border-2 overflow-hidden shrink-0 cursor-pointer transition-all ${
-                        i === selectedImage ? 'border-pink' : 'border-border hover:border-text-muted'
+                      className={`w-18 h-18 rounded-xl border-2 overflow-hidden shrink-0 cursor-pointer transition-all duration-300 ${
+                        i === selectedImage ? 'border-[#FF2E88] shadow-lg shadow-[#FF2E88]/20' : 'border-[#1E1E26] hover:border-[#2A2A36]'
                       }`}
                     >
-                      <Image src={img} alt="" width={64} height={64} className="w-full h-full object-contain p-1 bg-card" />
+                      <Image src={img} alt="" width={72} height={72} className="w-full h-full object-contain p-1.5 bg-[#141418]" />
                     </button>
                   ))}
                 </div>
               )}
-            </div>
+            </motion.div>
 
-            {/* Details */}
-            <div className="py-2">
+            {/* ─── Details ─── */}
+            <motion.div
+              initial={{ opacity: 0, x: 30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, ease: easeOutExpo, delay: 0.1 }}
+              className="py-2"
+            >
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <p className="text-sm font-medium text-text-muted uppercase tracking-wider">{product.brand}</p>
-                  <h1 className="text-2xl md:text-3xl font-bold mt-1">{product.name}</h1>
+                  <p className="text-[11px] font-bold text-[#6A6A80] uppercase tracking-[0.2em]">{product.brand}</p>
+                  <h1 className="text-2xl md:text-3xl lg:text-4xl font-black mt-2 leading-tight tracking-tight">{product.name}</h1>
                 </div>
                 <button
                   onClick={handleShare}
-                  className="shrink-0 w-10 h-10 rounded-xl bg-card border border-border flex items-center justify-center text-text-muted hover:text-text hover:border-text-muted transition-colors cursor-pointer"
+                  className="shrink-0 w-11 h-11 rounded-xl bg-[#141418] border border-[#1E1E26] flex items-center justify-center text-[#6A6A80] hover:text-white hover:border-[#2A2A36] transition-all duration-300 cursor-pointer hover:scale-105"
                 >
                   <Share2 className="w-4 h-4" />
                 </button>
               </div>
 
-              {product.colorway && <p className="text-sm text-text-secondary mt-1">{product.colorway}</p>}
-              {product.style_id && <p className="text-xs text-text-muted mt-0.5 font-mono">{product.style_id}</p>}
+              {product.colorway && <p className="text-sm text-[#A0A0B8] mt-2">{product.colorway}</p>}
+              {product.style_id && <p className="text-xs text-[#4A4A5A] mt-1 font-mono">{product.style_id}</p>}
 
-              <div className="flex items-center gap-3 mt-4">
+              {/* Tags row */}
+              <div className="flex flex-wrap items-center gap-2.5 mt-5">
                 <ConditionBadge condition={product.condition} />
-                <span className="text-sm text-text-muted">Size {product.size}</span>
+                <span className="text-xs text-[#6A6A80] bg-[#141418] border border-[#1E1E26] px-3 py-1 rounded-lg font-medium">
+                  Size {product.size}
+                </span>
                 {product.has_box !== null && (
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-card border border-border text-text-muted">
-                    {product.has_box ? 'With Box' : 'No Box'}
+                  <span className="text-xs px-3 py-1 rounded-lg bg-[#141418] border border-[#1E1E26] text-[#6A6A80] font-medium">
+                    {product.has_box ? '📦 With Box' : 'No Box'}
                   </span>
                 )}
               </div>
 
-              <div className="mt-6">
-                <span className="text-3xl font-black">{formatPrice(product.price)}</span>
-                {product.stockx_price && product.stockx_price > product.price && (
-                  <div className="mt-1.5">
-                    <span className="text-sm text-text-muted line-through mr-2">{formatPrice(product.stockx_price)}</span>
-                    <span className="text-sm text-cyan font-semibold">
-                      Save {Math.round((1 - product.price / product.stockx_price) * 100)}%
-                    </span>
-                  </div>
+              {/* Price */}
+              <div className="mt-8 p-5 rounded-2xl bg-[#141418] border border-[#1E1E26]">
+                <div className="flex items-baseline gap-3">
+                  <span className="text-4xl font-black tracking-tight">{formatPrice(product.price)}</span>
+                  {product.stockx_price && product.stockx_price > product.price && (
+                    <span className="text-lg text-[#4A4A5A] line-through font-medium">{formatPrice(product.stockx_price)}</span>
+                  )}
+                </div>
+                {savingsPercent && (
+                  <p className="mt-2 text-sm text-[#10B981] font-semibold flex items-center gap-1.5">
+                    <CheckCircle className="w-3.5 h-3.5" />
+                    You save {formatPrice(product.stockx_price! - product.price)} ({savingsPercent}% below retail)
+                  </p>
                 )}
               </div>
 
-              <Button onClick={handleAddToCart} size="lg" className="w-full mt-8">
-                <ShoppingBag className="w-5 h-5" />
-                Add to Cart
+              {/* Add to cart */}
+              <Button
+                onClick={handleAddToCart}
+                size="lg"
+                className={`w-full mt-6 h-14 text-base rounded-2xl transition-all duration-300 ${addedToCart ? 'bg-[#10B981] hover:bg-[#10B981]' : ''}`}
+              >
+                {addedToCart ? (
+                  <>
+                    <CheckCircle className="w-5 h-5" />
+                    Added to Cart!
+                  </>
+                ) : (
+                  <>
+                    <ShoppingBag className="w-5 h-5" />
+                    Add to Cart — {formatPrice(product.price)}
+                  </>
+                )}
               </Button>
 
+              {/* Description */}
               {product.description && (
                 <div className="mt-8">
-                  <h3 className="text-sm font-semibold mb-2">Description</h3>
-                  <p className="text-sm text-text-secondary leading-relaxed">{product.description}</p>
+                  <h3 className="text-sm font-bold mb-3 text-white">Description</h3>
+                  <p className="text-sm text-[#A0A0B8] leading-relaxed">{product.description}</p>
                 </div>
               )}
 
-              <div className="mt-8 space-y-3 p-4 rounded-xl bg-card border border-border">
-                <div className="flex items-center gap-3 text-sm text-text-secondary">
-                  <Truck className="w-4 h-4 text-pink shrink-0" />
-                  {product.price >= FREE_SHIPPING_THRESHOLD ? 'Free shipping' : `Free shipping on orders over ${formatPrice(FREE_SHIPPING_THRESHOLD)}`}
+              {/* Trust badges */}
+              <div className="mt-8 space-y-0 rounded-2xl bg-[#141418] border border-[#1E1E26] overflow-hidden divide-y divide-[#1E1E26]">
+                <div className="flex items-center gap-4 px-5 py-4 group">
+                  <div className="w-9 h-9 rounded-xl bg-[#FF2E88]/10 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-300">
+                    <Truck className="w-4 h-4 text-[#FF2E88]" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-white">
+                      {product.price >= FREE_SHIPPING_THRESHOLD ? 'Free Shipping' : 'Shipping'}
+                    </p>
+                    <p className="text-[11px] text-[#4A4A5A]">
+                      {product.price >= FREE_SHIPPING_THRESHOLD ? 'This item ships free' : `Free shipping on orders over ${formatPrice(FREE_SHIPPING_THRESHOLD)}`}
+                    </p>
+                  </div>
                 </div>
-                <div className="flex items-center gap-3 text-sm text-text-secondary">
-                  <Shield className="w-4 h-4 text-pink shrink-0" />
-                  Authenticity guaranteed
+                <div className="flex items-center gap-4 px-5 py-4 group">
+                  <div className="w-9 h-9 rounded-xl bg-[#10B981]/10 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-300">
+                    <Shield className="w-4 h-4 text-[#10B981]" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-white">Authenticity Guaranteed</p>
+                    <p className="text-[11px] text-[#4A4A5A]">Every pair verified before it ships</p>
+                  </div>
                 </div>
               </div>
-            </div>
+            </motion.div>
           </div>
 
-          {/* Related */}
+          {/* ─── Related Products ─── */}
           {related.length > 0 && (
-            <section className="mt-16 pb-8">
-              <h2 className="text-xl font-bold mb-6">You Might Also Like</h2>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {related.map((p) => <ProductCard key={p.id} product={p} />)}
+            <motion.section
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-50px' }}
+              transition={{ duration: 0.8, ease: easeOutExpo }}
+              className="mt-24 pb-12"
+            >
+              <div className="flex items-end justify-between mb-8">
+                <div>
+                  <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#FF2E88] mb-1">More From {product.brand}</p>
+                  <h2 className="text-2xl font-black tracking-tight">You Might Also Like</h2>
+                </div>
+                <Link href="/shop" className="text-sm text-[#6A6A80] hover:text-[#FF2E88] transition-colors font-medium flex items-center gap-1 group">
+                  View All <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                </Link>
               </div>
-            </section>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-5">
+                {related.map((p, i) => (
+                  <motion.div
+                    key={p.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.05, duration: 0.5 }}
+                  >
+                    <ProductCard product={p} />
+                  </motion.div>
+                ))}
+              </div>
+            </motion.section>
           )}
         </div>
       </main>
