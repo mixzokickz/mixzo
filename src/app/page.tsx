@@ -87,7 +87,7 @@ export default function HomePage() {
       <ShopHeader />
 
       {/* ─── Marquee Ticker ─── */}
-      <div className="fixed top-16 md:top-20 left-0 right-0 z-30 bg-[#0C0C0C] border-b border-[#1E1E26]/50 overflow-hidden">
+      <motion.div style={{ opacity: heroOpacity }} className="fixed top-16 md:top-20 left-0 right-0 z-30 bg-[#0C0C0C] border-b border-[#1E1E26]/50 overflow-hidden pointer-events-auto">
         <div className="marquee-track py-2">
           {[...MARQUEE_ITEMS, ...MARQUEE_ITEMS].map((item, i) => (
             <span key={i} className="flex items-center gap-3 px-6 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#6A6A80] whitespace-nowrap">
@@ -96,7 +96,7 @@ export default function HomePage() {
             </span>
           ))}
         </div>
-      </div>
+      </motion.div>
 
       {/* ─── Hero ─── */}
       <section ref={heroRef} className="relative pt-48 pb-32 md:pt-64 md:pb-52 px-6 md:px-12 lg:px-16 overflow-hidden">
