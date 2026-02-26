@@ -79,7 +79,6 @@ const NAV_SECTIONS = [
     label: 'System',
     items: [
       { href: '/admin/monitoring', label: 'Monitoring', icon: Activity },
-      { href: '/admin/price-sync', label: 'Price Sync', icon: RefreshCw },
       { href: '/admin/settings', label: 'Store Settings', icon: Settings },
       { href: '/admin/help', label: 'Help Center', icon: HelpCircle },
     ],
