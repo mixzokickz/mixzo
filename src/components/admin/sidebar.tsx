@@ -7,7 +7,7 @@ import {
   LayoutDashboard, ScanBarcode, Package, ShoppingCart,
   Users, Flame, BarChart3, Settings, Menu, X, LogOut,
   Tag, FileText, Boxes, Truck,
-  Activity, Star, Link2,
+  Activity, Star, Link2, Gift, HelpCircle, Calculator, RefreshCw,
   Receipt, Bell, UserCog, Sparkles, ExternalLink, MessageSquare
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -50,6 +50,7 @@ const NAV_SECTIONS = [
     items: [
       { href: '/admin/daily-deals', label: 'Deals', icon: Flame },
       { href: '/admin/discounts', label: 'Discount Codes', icon: Tag },
+      { href: '/admin/gift-cards', label: 'Gift Cards', icon: Gift },
     ],
   },
   {
@@ -64,6 +65,7 @@ const NAV_SECTIONS = [
       { href: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
       { href: '/admin/reports', label: 'Reports', icon: FileText },
       { href: '/admin/purchases', label: 'Purchases', icon: Receipt },
+      { href: '/admin/reconciliation', label: 'Reconciliation', icon: Calculator },
       { href: '/admin/payment-links', label: 'Payment Links', icon: Link2 },
     ],
   },
@@ -78,7 +80,9 @@ const NAV_SECTIONS = [
     label: 'System',
     items: [
       { href: '/admin/monitoring', label: 'Monitoring', icon: Activity },
+      { href: '/admin/price-sync', label: 'Price Sync', icon: RefreshCw },
       { href: '/admin/settings', label: 'Store Settings', icon: Settings },
+      { href: '/admin/help', label: 'Help Center', icon: HelpCircle },
     ],
   },
 ]

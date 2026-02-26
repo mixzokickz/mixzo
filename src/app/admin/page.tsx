@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabase'
 import {
   DollarSign, Package, ShoppingCart, Users, Plus, FileText,
   ScanLine, AlertTriangle, TrendingUp, TrendingDown, Eye, Clock, Truck,
-  CheckCircle, XCircle, MessageSquare, Activity, ArrowUpRight, Sparkles
+  CheckCircle, XCircle, MessageSquare, Activity, ArrowUpRight, Sparkles, ExternalLink
 } from 'lucide-react'
 import { formatPrice } from '@/lib/utils'
 import Link from 'next/link'
@@ -222,21 +222,31 @@ export default function AdminDashboard() {
           </div>
           <p className="text-xs text-[#6A6A80]">Sales, inventory, and what needs attention</p>
         </div>
-        <div className="flex items-center gap-1 bg-[#141418] border border-[#1E1E26] rounded-xl p-1">
-          {(['1d','7d','30d','90d','all'] as TimeRange[]).map(v => (
-            <button
-              key={v}
-              onClick={() => setTimeRange(v)}
-              className={cn(
-                'px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-all duration-300',
-                timeRange === v
-                  ? 'bg-[#FF2E88] text-white shadow-md shadow-[#FF2E88]/20'
-                  : 'text-[#6A6A80] hover:text-white hover:bg-white/[0.03]'
-              )}
-            >
-              {v === 'all' ? 'All' : v.toUpperCase()}
-            </button>
-          ))}
+        <div className="flex items-center gap-3">
+          <Link
+            href="/"
+            target="_blank"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#00C2D6] text-white text-sm font-bold hover:bg-[#00C2D6]/90 transition-all duration-300 shadow-lg shadow-[#00C2D6]/20 hover:shadow-[#00C2D6]/30 hover:shadow-xl active:scale-[0.97]"
+          >
+            <ExternalLink size={16} />
+            View Store
+          </Link>
+          <div className="flex items-center gap-1 bg-[#141418] border border-[#1E1E26] rounded-xl p-1">
+            {(['1d','7d','30d','90d','all'] as TimeRange[]).map(v => (
+              <button
+                key={v}
+                onClick={() => setTimeRange(v)}
+                className={cn(
+                  'px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-all duration-300',
+                  timeRange === v
+                    ? 'bg-[#FF2E88] text-white shadow-md shadow-[#FF2E88]/20'
+                    : 'text-[#6A6A80] hover:text-white hover:bg-white/[0.03]'
+                )}
+              >
+                {v === 'all' ? 'All' : v.toUpperCase()}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
