@@ -3,12 +3,13 @@
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { ArrowRight, Shield, Truck, RefreshCw, Package, Sparkles, Droplets, Instagram, Star, Zap, CheckCircle, ChevronRight } from 'lucide-react'
+import { ArrowRight, Shield, Truck, RefreshCw, Package, Droplets, Instagram, Star, Zap, CheckCircle, ChevronRight } from 'lucide-react'
 import { motion, useScroll, useTransform, useInView } from 'framer-motion'
 import { supabase } from '@/lib/supabase'
 import { ShopHeader } from '@/components/layout/shop-header'
 import { Footer } from '@/components/layout/footer'
 import { MobileBottomNav } from '@/components/layout/mobile-bottom-nav'
+import { HeroShowcase } from '@/components/home/hero-showcase'
 import { ProductCard } from '@/components/shop/product-card'
 import { FilterTabs } from '@/components/shop/filter-tabs'
 import { ProductGridSkeleton } from '@/components/ui/skeleton'
@@ -170,31 +171,8 @@ export default function HomePage() {
               </motion.div>
             </div>
 
-            {/* Right: Trust Badges */}
-            <div className="hidden lg:flex flex-col items-center justify-center gap-6">
-              {[
-                { icon: Shield, label: '100% Authentic', desc: 'Every pair verified before shipping', color: '#10B981' },
-                { icon: Truck, label: 'Free Shipping', desc: 'On orders over $200', color: '#00C2D6' },
-                { icon: Sparkles, label: 'Premium Quality', desc: 'New & certified preowned kicks', color: '#FF2E88' },
-              ].map((item, i) => (
-                <motion.div
-                  key={item.label}
-                  initial={{ opacity: 0, x: 40 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.5 + i * 0.15, duration: 0.8, ease: easeOutExpo }}
-                  whileHover={{ x: -4, scale: 1.02 }}
-                  className="flex items-center gap-5 px-8 py-5 rounded-2xl bg-[#141418]/80 border border-[#1E1E26] backdrop-blur-sm w-full max-w-sm"
-                >
-                  <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0" style={{ background: `${item.color}15` }}>
-                    <item.icon className="w-6 h-6" style={{ color: item.color }} />
-                  </div>
-                  <div>
-                    <p className="text-sm font-bold text-white">{item.label}</p>
-                    <p className="text-xs text-[#6A6A80] mt-0.5">{item.desc}</p>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
+            {/* Right: Hero Showcase */}
+            <HeroShowcase />
           </div>
 
           {/* Trust signals */}
