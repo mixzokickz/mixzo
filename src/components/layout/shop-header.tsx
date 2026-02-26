@@ -78,7 +78,7 @@ export function ShopHeader() {
               href={`https://instagram.com/${BUSINESS_INSTAGRAM.replace('@', '')}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="hidden sm:flex h-10 w-10 items-center justify-center rounded-xl text-[#A0A0B8] hover:text-[#FF2E88] hover:bg-[#FF2E88]/[0.06] transition-all duration-300"
+              className="flex h-10 w-10 items-center justify-center rounded-xl text-[#A0A0B8] hover:text-[#FF2E88] hover:bg-[#FF2E88]/[0.06] transition-all duration-300"
             >
               <Instagram className="w-[18px] h-[18px]" />
             </a>
