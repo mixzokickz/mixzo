@@ -211,7 +211,7 @@ function ShopContent() {
               {SORT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
             </select>
           </div>
-          </motion.div>
+        )}
 
         {/* Grid */}
         {loading ? (
