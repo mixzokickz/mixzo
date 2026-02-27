@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, Suspense } from 'react'
+import { useState, useEffect, useMemo, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Search, Package, X } from 'lucide-react'
 import { motion } from 'framer-motion'
@@ -8,7 +8,7 @@ import { supabase } from '@/lib/supabase'
 import { ProductCard } from '@/components/shop/product-card'
 import { ProductGridSkeleton } from '@/components/ui/skeleton'
 import { Button } from '@/components/ui/button'
-import { FilterTabs } from '@/components/shop/filter-tabs'
+import { FilterPanel } from '@/components/shop/filter-panel'
 
 interface Product {
   id: string
@@ -20,12 +20,6 @@ interface Product {
   image_url: string | null
 }
 
-const SORT_OPTIONS = [
-  { value: 'newest', label: 'Newest' },
-  { value: 'price-asc', label: 'Price: Low → High' },
-  { value: 'price-desc', label: 'Price: High → Low' },
-]
-
 function ShopContent() {
   const searchParams = useSearchParams()
   const [products, setProducts] = useState<Product[]>([])
@@ -33,6 +27,8 @@ function ShopContent() {
   const [search, setSearch] = useState(searchParams.get('q') || '')
   const [condition, setCondition] = useState(searchParams.get('condition') || 'all')
   const [sort, setSort] = useState('newest')
+  const [selectedSizes, setSelectedSizes] = useState<string[]>([])
+  const [selectedBrands, setSelectedBrands] = useState<string[]>([])
 
   useEffect(() => {
     async function load() {
@@ -53,22 +49,58 @@ function ShopContent() {
 
       if (sort === 'price-asc') query = query.order('price', { ascending: true })
       else if (sort === 'price-desc') query = query.order('price', { ascending: false })
+      else if (sort === 'name-asc') query = query.order('name', { ascending: true })
       else query = query.order('created_at', { ascending: false })
 
-      const { data } = await query.limit(48)
+      const { data } = await query.limit(200)
       setProducts(data || [])
       setLoading(false)
     }
     load()
   }, [condition, sort, search])
 
+  // Client-side filtering for size and brand (multi-select)
+  const filtered = useMemo(() => {
+    let result = products
+    if (selectedSizes.length > 0) {
+      result = result.filter(p => {
+        if (!p.size) return false
+        // Handle comma-separated sizes and check if any match
+        const productSizes = p.size.split(',').map(s => s.trim())
+        return selectedSizes.some(s => productSizes.includes(s))
+      })
+    }
+    if (selectedBrands.length > 0) {
+      result = result.filter(p => selectedBrands.includes(p.brand))
+    }
+    return result
+  }, [products, selectedSizes, selectedBrands])
+
+  // Extract available brands and sizes from loaded products
+  const availableBrands = useMemo(() => {
+    const brands = [...new Set(products.map(p => p.brand).filter(Boolean))]
+    return brands.sort()
+  }, [products])
+
+  const availableSizes = useMemo(() => {
+    const sizes = new Set<string>()
+    products.forEach(p => {
+      if (p.size) {
+        p.size.split(',').map(s => s.trim()).forEach(s => sizes.add(s))
+      }
+    })
+    return [...sizes].sort((a, b) => parseFloat(a) - parseFloat(b))
+  }, [products])
+
   const clearFilters = () => {
     setCondition('all')
     setSearch('')
     setSort('newest')
+    setSelectedSizes([])
+    setSelectedBrands([])
   }
 
-  const hasFilters = condition !== 'all' || search
+  const hasFilters = condition !== 'all' || search || selectedSizes.length > 0 || selectedBrands.length > 0
 
   return (
     <div className="px-4 py-6 pb-mobile-nav">
@@ -98,42 +130,69 @@ function ShopContent() {
           )}
         </motion.div>
 
-        {/* Filters row */}
+        {/* Filter Panel */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.05 }}
-          className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6"
+          className="mb-6"
         >
-          <FilterTabs
-            tabs={[
-              { value: 'all', label: 'All' },
-              { value: 'new', label: 'New' },
-              { value: 'used', label: 'Preowned' },
-            ]}
-            value={condition}
-            onChange={setCondition}
+          <FilterPanel
+            condition={condition}
+            onConditionChange={setCondition}
+            selectedSizes={selectedSizes}
+            onSizesChange={setSelectedSizes}
+            selectedBrands={selectedBrands}
+            onBrandsChange={setSelectedBrands}
+            availableBrands={availableBrands}
+            availableSizes={availableSizes}
+            sort={sort}
+            onSortChange={setSort}
+            totalCount={filtered.length}
           />
-          <div className="flex items-center gap-3">
-            <select
-              value={sort}
-              onChange={(e) => setSort(e.target.value)}
-              className="h-10 px-3 rounded-xl bg-card border border-border text-sm text-text-secondary focus:outline-none focus:border-pink/50 cursor-pointer"
-            >
-              {SORT_OPTIONS.map((o) => (
-                <option key={o.value} value={o.value}>{o.label}</option>
-              ))}
-            </select>
-          </div>
         </motion.div>
 
-        {/* Product count + clear */}
+        {/* Active filter pills */}
+        {(selectedSizes.length > 0 || selectedBrands.length > 0) && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            className="flex flex-wrap items-center gap-2 mb-4"
+          >
+            {selectedSizes.map(size => (
+              <button
+                key={`size-${size}`}
+                onClick={() => setSelectedSizes(selectedSizes.filter(s => s !== size))}
+                className="h-7 px-3 rounded-full bg-pink/10 text-pink text-xs font-medium flex items-center gap-1.5 hover:bg-pink/20 transition-colors cursor-pointer"
+              >
+                Size {size} <X className="w-3 h-3" />
+              </button>
+            ))}
+            {selectedBrands.map(brand => (
+              <button
+                key={`brand-${brand}`}
+                onClick={() => setSelectedBrands(selectedBrands.filter(b => b !== brand))}
+                className="h-7 px-3 rounded-full bg-cyan/10 text-cyan text-xs font-medium flex items-center gap-1.5 hover:bg-cyan/20 transition-colors cursor-pointer"
+              >
+                {brand} <X className="w-3 h-3" />
+              </button>
+            ))}
+            <button
+              onClick={clearFilters}
+              className="h-7 px-3 rounded-full bg-elevated text-text-muted text-xs font-medium hover:text-text transition-colors cursor-pointer"
+            >
+              Clear all
+            </button>
+          </motion.div>
+        )}
+
+        {/* Product count */}
         {!loading && (
           <div className="flex items-center gap-3 mb-4">
             <p className="text-sm text-text-muted">
-              {products.length} {products.length === 1 ? 'product' : 'products'}
+              {filtered.length} {filtered.length === 1 ? 'product' : 'products'}
             </p>
-            {hasFilters && (
+            {hasFilters && !selectedSizes.length && !selectedBrands.length && (
               <button onClick={clearFilters} className="text-xs text-pink hover:underline cursor-pointer flex items-center gap-1">
                 <X className="w-3 h-3" /> Clear filters
               </button>
@@ -144,7 +203,7 @@ function ShopContent() {
         {/* Grid */}
         {loading ? (
           <ProductGridSkeleton count={8} />
-        ) : products.length === 0 ? (
+        ) : filtered.length === 0 ? (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -167,12 +226,12 @@ function ShopContent() {
           </motion.div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {products.map((product, i) => (
+            {filtered.map((product, i) => (
               <motion.div
                 key={product.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: i * 0.03 }}
+                transition={{ duration: 0.3, delay: Math.min(i * 0.03, 0.3) }}
               >
                 <ProductCard product={product} />
               </motion.div>
