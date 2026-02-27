@@ -17,11 +17,6 @@ const NAV_LINKS = [
   { href: '/about', label: 'About' },
 ]
 
-const NAV_LINKS = [
-  { href: '/shop', label: 'Shop' },
-  { href: '/about', label: 'About' },
-]
-
 export function ShopHeader() {
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
