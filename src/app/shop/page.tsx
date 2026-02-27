@@ -26,6 +26,13 @@ interface Product {
   created_at: string
 }
 
+const SORT_OPTIONS = [
+  { value: 'newest', label: 'Newest' },
+  { value: 'price-asc', label: 'Price: Low to High' },
+  { value: 'price-desc', label: 'Price: High to Low' },
+  { value: 'name-asc', label: 'Name: A-Z' },
+]
+
 function ShopContent() {
   const searchParams = useSearchParams()
   const [products, setProducts] = useState<Product[]>([])
@@ -249,136 +256,9 @@ function ShopContent() {
                 <ProductCard product={product} />
               </motion.div>
             ))}
-          </motion.div>
-
-          {/* Expanded Filters */}
-          {filtersOpen && (
-            <motion.div
-              initial={{ opacity: 0, y: -10, height: 0 }}
-              animate={{ opacity: 1, y: 0, height: 'auto' }}
-              exit={{ opacity: 0, y: -10, height: 0 }}
-              transition={{ duration: 0.3 }}
-              className="mb-6 p-6 rounded-2xl bg-[#141418] border border-[#1E1E26] space-y-5"
-            >
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                {/* Brand */}
-                <div>
-                  <label className="text-[10px] font-bold text-[#4A4A5A] mb-3 block uppercase tracking-[0.15em]">Brand</label>
-                  <div className="flex flex-wrap gap-2">
-                    {BRANDS.map(b => (
-                      <button
-                        key={b}
-                        onClick={() => setSelectedBrand(selectedBrand === b ? '' : b)}
-                        className={cn(
-                          'px-3.5 py-2 rounded-lg text-xs font-semibold border transition-all duration-300',
-                          selectedBrand === b
-                            ? 'bg-[#FF2E88] text-white border-[#FF2E88] shadow-md shadow-[#FF2E88]/20'
-                            : 'bg-[#1A1A22] border-[#1E1E26] text-[#6A6A80] hover:border-[#FF2E88]/30 hover:text-[#A0A0B8]'
-                        )}
-                      >
-                        {b}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Size */}
-                <div>
-                  <label className="text-[10px] font-bold text-[#4A4A5A] mb-3 block uppercase tracking-[0.15em]">Size</label>
-                  <div className="flex flex-wrap gap-2">
-                    {SIZES.map(s => (
-                      <button
-                        key={s}
-                        onClick={() => setSelectedSize(selectedSize === s ? '' : s)}
-                        className={cn(
-                          'w-11 py-2 rounded-lg text-xs font-semibold border transition-all duration-300 text-center',
-                          selectedSize === s
-                            ? 'bg-[#FF2E88] text-white border-[#FF2E88] shadow-md shadow-[#FF2E88]/20'
-                            : 'bg-[#1A1A22] border-[#1E1E26] text-[#6A6A80] hover:border-[#FF2E88]/30 hover:text-[#A0A0B8]'
-                        )}
-                      >
-                        {s}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {hasFilters && (
-                <button onClick={clearFilters} className="text-xs text-[#FF2E88] hover:text-[#FF2E88]/80 font-semibold flex items-center gap-1 transition-colors">
-                  <X size={12} /> Clear all filters
-                </button>
-              )}
-            </motion.div>
-          )}
-
-          {/* Results count */}
-          {!loading && (
-            <p className="text-[10px] text-[#4A4A5A] mb-5 uppercase tracking-[0.15em] font-bold">
-              {products.length} {products.length === 1 ? 'product' : 'products'}
-              {hasFilters && ' found'}
-            </p>
-          )}
-
-          {/* Product Grid */}
-          {loading ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
-              {Array.from({ length: 8 }).map((_, i) => (
-                <div key={i} className="rounded-2xl bg-[#141418] border border-[#1E1E26] overflow-hidden">
-                  <div className="aspect-square bg-[#1A1A22] shimmer" />
-                  <div className="p-3.5 space-y-2.5">
-                    <div className="h-3 w-16 bg-[#1A1A22] rounded shimmer" />
-                    <div className="h-4 w-full bg-[#1A1A22] rounded shimmer" />
-                    <div className="h-4 w-20 bg-[#1A1A22] rounded shimmer" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : products.length === 0 ? (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5 }}
-              className="flex flex-col items-center justify-center py-28 text-center"
-            >
-              <div className="w-20 h-20 rounded-3xl bg-[#141418] border border-[#1E1E26] flex items-center justify-center mb-6">
-                <Package size={32} className="text-[#4A4A5A]" />
-              </div>
-              <h3 className="text-xl font-black text-white mb-2">
-                {hasFilters ? 'No matches' : 'Coming soon'}
-              </h3>
-              <p className="text-sm text-[#6A6A80] max-w-sm mb-8">
-                {hasFilters
-                  ? 'Try adjusting your filters or search terms.'
-                  : 'Fresh inventory dropping soon. Check back or follow us for updates.'}
-              </p>
-              {hasFilters && (
-                <button
-                  onClick={clearFilters}
-                  className="px-6 py-3 rounded-xl bg-[#FF2E88] text-white text-sm font-bold hover:shadow-lg hover:shadow-[#FF2E88]/20 transition-all active:scale-[0.97]"
-                >
-                  Clear Filters
-                </button>
-              )}
-            </motion.div>
-          ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
-              {products.map((product, i) => (
-                <motion.div
-                  key={product.id}
-                  initial={{ opacity: 0, y: 25 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.03, duration: 0.5, ease: easeOutExpo }}
-                >
-                  <ProductCard product={product} />
-                </motion.div>
-              ))}
-            </div>
-          )}
-        </div>
-      </main>
-      <Footer />
-      <MobileBottomNav />
+          </div>
+        )}
+      </div>
     </div>
   )
 }
