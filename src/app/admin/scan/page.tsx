@@ -48,8 +48,34 @@ export default function ScanPage() {
 
   useEffect(() => {
     const type = detectType(query)
-    // Treat barcode as stockx search too — GOAT handles UPCs well
-    setSearchType(query.trim().length >= 2 ? 'stockx' : type)
+    setSearchType(type)
+
+    if (type === 'upc' && query.trim().length >= 10) {
+      if (debounceRef.current) clearTimeout(debounceRef.current)
+      debounceRef.current = setTimeout(async () => {
+        setUpcLoading(true)
+        try {
+          // Check barcode cache first
+          const cacheRes = await fetch(`/api/admin/barcode-cache?barcode=${encodeURIComponent(query.trim())}`)
+          const cacheData = await cacheRes.json()
+          if (cacheData.product) {
+            setPrefill({
+              name: cacheData.product.productName || cacheData.product.name,
+              brand: cacheData.product.brand,
+              styleId: cacheData.product.styleId,
+              image: cacheData.product.imageUrl || cacheData.product.image,
+              retailPrice: cacheData.product.retailPrice,
+            })
+            toast.success('Product found in cache')
+            return
+          }
+        } catch {}
+        // Not in cache — switch to text search so user can find by name
+        setSearchType('stockx')
+        toast('Barcode not cached — search by product name', { icon: '🔍' })
+        setUpcLoading(false)
+      }, 500)
+    }
 
     return () => { if (debounceRef.current) clearTimeout(debounceRef.current) }
   }, [query, detectType])
