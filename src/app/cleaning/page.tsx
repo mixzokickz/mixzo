@@ -307,7 +307,7 @@ export default function CleaningPage() {
             </div>
           </motion.div>
 
-          {/* Before/After placeholder */}
+          {/* Before/After Results */}
           <motion.section
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -319,26 +319,47 @@ export default function CleaningPage() {
               <span className="text-xs font-bold text-[#00C2D6] uppercase tracking-[0.2em]">Results</span>
               <h2 className="text-2xl md:text-3xl font-black mt-2">The Results Speak</h2>
             </div>
-            <div className="grid md:grid-cols-3 gap-6">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="rounded-2xl bg-card border border-[#00C2D6]/10 overflow-hidden hover:border-[#00C2D6]/25 transition-all duration-300">
+            <div className="grid md:grid-cols-2 gap-6">
+              {[
+                { slug: 'jordan-11-soles', label: 'Jordan 11 Sole Restoration' },
+                { slug: 'air-max-soles', label: 'Air Max Sole Icing' },
+                { slug: 'off-white-af1', label: 'Off-White AF1 Full Restoration' },
+                { slug: 'jordan-11-low', label: 'Jordan 11 Low Sole Icing' },
+              ].map((item, i) => (
+                <motion.div
+                  key={item.slug}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.1 }}
+                  className="rounded-2xl bg-card border border-[#00C2D6]/10 overflow-hidden hover:border-[#00C2D6]/25 transition-all duration-300 group"
+                >
                   <div className="grid grid-cols-2">
-                    <div className="aspect-square bg-elevated flex items-center justify-center border-r border-[#00C2D6]/10">
-                      <div className="text-center">
-                        <p className="text-xs text-text-muted font-bold uppercase tracking-wider">Before</p>
-                      </div>
+                    <div className="relative overflow-hidden">
+                      <img
+                        src={`/cleaning/${item.slug}-before.jpg`}
+                        alt={`${item.label} — Before`}
+                        className="w-full aspect-square object-cover"
+                      />
+                      <span className="absolute bottom-2 left-2 px-3 py-1 rounded-lg bg-black/70 backdrop-blur-sm text-[10px] font-bold uppercase tracking-wider text-white/80">
+                        Before
+                      </span>
                     </div>
-                    <div className="aspect-square bg-[#00C2D6]/5 flex items-center justify-center">
-                      <div className="text-center">
-                        <p className="text-xs text-[#00C2D6] font-bold uppercase tracking-wider">After</p>
-                      </div>
+                    <div className="relative overflow-hidden">
+                      <img
+                        src={`/cleaning/${item.slug}-after.jpg`}
+                        alt={`${item.label} — After`}
+                        className="w-full aspect-square object-cover"
+                      />
+                      <span className="absolute bottom-2 right-2 px-3 py-1 rounded-lg bg-[#00C2D6]/80 backdrop-blur-sm text-[10px] font-bold uppercase tracking-wider text-white">
+                        After
+                      </span>
                     </div>
                   </div>
-                  <div className="p-4 text-center border-t border-[#00C2D6]/10">
-                    <p className="text-sm font-semibold">Coming Soon</p>
-                    <p className="text-xs text-text-muted">Before &amp; after photos</p>
+                  <div className="px-5 py-4 border-t border-[#00C2D6]/10">
+                    <p className="text-sm font-semibold">{item.label}</p>
                   </div>
-                </div>
+                </motion.div>
               ))}
             </div>
           </motion.section>
