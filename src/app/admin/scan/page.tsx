@@ -78,7 +78,7 @@ export default function ScanPage() {
       toast.error('Camera access denied')
       setShowCamera(false)
     }
-  }, [])
+  }
 
   const saveToCache = (barcodeVal: string, product: ProductResult) => {
     fetch('/api/admin/barcode-cache', {

@@ -27,12 +27,13 @@ export default function AdminDashboard() {
   }
 
   useEffect(() => {
-    const start = prevRef.current
-    const diff = target - start
-    if (diff === 0) return
-    const startTime = performance.now()
-
-      const allOrders = await supabase.from('orders').select('total, status')
+    async function fetchData() {
+      const [allOrders, products, customers, orders] = await Promise.all([
+        supabase.from('orders').select('total, status'),
+        supabase.from('products').select('*', { count: 'exact', head: true }),
+        supabase.from('customers').select('*', { count: 'exact', head: true }),
+        supabase.from('orders').select('id, total, status, created_at, customer_name').order('created_at', { ascending: false }).limit(5),
+      ])
       const totalRevenue = allOrders.data?.filter(o => o.status !== 'cancelled').reduce((sum, o) => sum + (o.total || 0), 0) || 0
       const activeOrders = allOrders.data?.filter(o => !['delivered', 'cancelled'].includes(o.status)).length || 0
 
@@ -45,8 +46,8 @@ export default function AdminDashboard() {
       setRecentOrders(orders.data || [])
       setLoading(false)
     }
-    requestAnimationFrame(animate)
-  }, [target, duration])
+    fetchData()
+  }, [])
 
   const statCards = [
     { label: 'Total Products', value: stats.products.toString(), icon: Package, color: 'var(--pink)' },

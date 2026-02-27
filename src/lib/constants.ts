@@ -56,6 +56,11 @@ export const STOCKX_API_BASE = 'https://api.stockx.com'
 export const STOCKX_AUDIENCE = 'gateway.stockx.com'
 export const STOCKX_REDIRECT_URI = 'https://mixzokickz.com/stockx/callback'
 
+export const CLEANING_TIERS = [
+  { value: 'cleaning', label: 'Sneaker Cleaning', price: 20 },
+  { value: 'cleaning_icing', label: 'Cleaning + Icing', price: 30 },
+]
+
 export const SNEAKER_BRANDS = [
   'nike', 'jordan', 'air jordan', 'adidas', 'yeezy', 'new balance',
   'puma', 'reebok', 'asics', 'converse', 'vans', 'saucony',

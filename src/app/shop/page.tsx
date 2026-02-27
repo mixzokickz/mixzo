@@ -202,14 +202,15 @@ function ShopContent() {
               <button onClick={clearFilters} className="text-xs text-pink hover:underline cursor-pointer flex items-center gap-1">
                 <X className="w-3 h-3" /> Clear filters
               </button>
-              <select
-                value={sort}
-                onChange={(e) => setSort(e.target.value)}
-                className="h-12 px-4 pr-8 rounded-xl bg-[#141418] border border-[#1E1E26] text-sm text-[#A0A0B8] focus:outline-none focus:border-[#FF2E88]/50 appearance-none cursor-pointer transition-colors"
-              >
-                {SORT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-              </select>
-            </div>
+            )}
+            <select
+              value={sort}
+              onChange={(e) => setSort(e.target.value)}
+              className="ml-auto h-9 px-3 pr-8 rounded-lg bg-[#141418] border border-[#1E1E26] text-xs text-[#A0A0B8] focus:outline-none focus:border-[#FF2E88]/50 appearance-none cursor-pointer transition-colors"
+            >
+              {SORT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+            </select>
+          </div>
           </motion.div>
 
         {/* Grid */}
