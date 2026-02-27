@@ -52,7 +52,7 @@ export default function CheckoutPage() {
     setLoading(true)
     try {
       const orderId = generateOrderId()
-      await supabase.from('orders').insert({
+      const { error } = await supabase.from('orders').insert({
         order_id: orderId,
         customer_email: form.email,
         customer_name: form.fullName,
@@ -64,10 +64,9 @@ export default function CheckoutPage() {
         total,
         status: 'pending',
       })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error || 'Checkout failed')
+      if (error) throw new Error(error.message || 'Checkout failed')
       clear()
-      router.push(`/checkout/confirmation?order=${data.order_number}`)
+      router.push(`/checkout/confirmation?order=${orderId}`)
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Something went wrong. Please try again.')
     } finally {

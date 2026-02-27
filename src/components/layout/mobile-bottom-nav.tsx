@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, Store, ShoppingBag, User } from 'lucide-react'
+import { Home, Store, ShoppingBag, User, Sparkles } from 'lucide-react'
 import { useCartStore } from '@/stores/cart'
 import { cn } from '@/lib/utils'
 

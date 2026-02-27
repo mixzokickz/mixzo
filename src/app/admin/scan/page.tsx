@@ -14,6 +14,19 @@ interface ProductPrefill {
   retailPrice?: number
 }
 
+interface ProductResult {
+  id?: string
+  name: string
+  brand: string
+  colorway?: string
+  styleId?: string
+  size?: string
+  retailPrice?: number
+  imageUrl?: string
+  imageUrls?: string[]
+  goatProductId?: string
+}
+
 export default function ScanPage() {
   const [query, setQuery] = useState('')
   const [prefill, setPrefill] = useState<ProductPrefill | null>(null)

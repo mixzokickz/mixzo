@@ -25,7 +25,6 @@ export const metadata: Metadata = {
     url: 'https://mixzokickz.com',
     locale: 'en_US',
     siteName: 'Mixzo Kickz',
-    url: 'https://mixzokickz.com',
     images: [{ url: 'https://mixzokickz.com/og-image.png', width: 1200, height: 630, alt: 'Mixzo Kickz' }],
   },
   icons: {
