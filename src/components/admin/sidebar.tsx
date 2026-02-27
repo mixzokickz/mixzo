@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation'
 import {
   LayoutDashboard, ScanBarcode, Package, ShoppingCart,
   Users, Flame, BarChart3, Settings, Menu, X, LogOut,
-  Tag, FileText, Boxes
+  Tag, FileText, Boxes, Sparkles, Ticket
 } from 'lucide-react'
 import Image from 'next/image'
 import { cn } from '@/lib/utils'
@@ -26,12 +26,14 @@ const NAV_SECTIONS = [
     items: [
       { href: '/admin/products', label: 'Inventory', icon: Boxes },
       { href: '/admin/orders', label: 'Orders', icon: ShoppingCart },
+      { href: '/admin/cleaning', label: 'Cleaning', icon: Sparkles },
     ],
   },
   {
     label: 'People',
     items: [
       { href: '/admin/customers', label: 'Customers', icon: Users },
+      { href: '/admin/tickets', label: 'Tickets', icon: Ticket },
     ],
   },
   {
