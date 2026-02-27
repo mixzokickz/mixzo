@@ -73,13 +73,41 @@ async function searchGOAT(query: string, limit: number) {
     }))
 }
 
+async function resolveBarcode(upc: string): Promise<string | null> {
+  try {
+    // Try UPC Item DB
+    const res = await fetch(`https://api.upcitemdb.com/prod/trial/lookup?upc=${encodeURIComponent(upc)}`, {
+      headers: { Accept: 'application/json' },
+    })
+    if (res.ok) {
+      const data = await res.json()
+      const item = data.items?.[0]
+      if (item?.title) {
+        // Clean up the title — remove size info, keep brand + model
+        return item.title.replace(/\s*size\s*\d+\.?\d*/gi, '').trim()
+      }
+    }
+  } catch {}
+  return null
+}
+
+function looksLikeBarcode(q: string): boolean {
+  return /^\d{8,14}$/.test(q.trim())
+}
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url)
-    const query = searchParams.get('q')
+    let query = searchParams.get('q')
     const limit = parseInt(searchParams.get('limit') || '20')
 
     if (!query) return NextResponse.json({ error: 'Query required', products: [] }, { status: 400 })
+
+    // If it looks like a barcode, resolve to product name first
+    if (looksLikeBarcode(query)) {
+      const resolved = await resolveBarcode(query)
+      if (resolved) query = resolved
+    }
 
     // Try StockX first (if authenticated), fallback to GOAT
     let products = await searchStockX(query, limit)
