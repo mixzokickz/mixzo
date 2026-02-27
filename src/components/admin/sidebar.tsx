@@ -24,8 +24,7 @@ const NAV_SECTIONS = [
   {
     label: 'Store',
     items: [
-      { href: '/admin/inventory', label: 'Inventory', icon: Boxes },
-      { href: '/admin/products', label: 'Products', icon: Package },
+      { href: '/admin/products', label: 'Inventory', icon: Boxes },
       { href: '/admin/orders', label: 'Orders', icon: ShoppingCart },
     ],
   },
