@@ -1,43 +1,7 @@
 import { NextResponse } from 'next/server'
-import { getStockXToken } from '@/lib/stockx'
-
-const STOCKX_API_KEY = process.env.STOCKX_API_KEY || ''
 
 const GOAT_ALGOLIA_APP = '2FWOTDVM2O'
 const GOAT_ALGOLIA_KEY = 'ac96de6fef0e02bb95d433d8d5c7038a'
-
-async function searchStockX(query: string, limit: number) {
-  try {
-    if (!STOCKX_API_KEY) return null
-    const token = await getStockXToken()
-    if (!token) return null
-
-    const res = await fetch(
-      `https://api.stockx.com/v2/catalog/search?query=${encodeURIComponent(query)}&pageSize=${limit}`,
-      {
-        headers: {
-          'x-api-key': STOCKX_API_KEY,
-          'Authorization': `Bearer ${token}`,
-          'Accept': 'application/json',
-        },
-      }
-    )
-    if (!res.ok) return null
-    const data = await res.json()
-    return (data.products || []).map((p: any) => ({
-      id: p.id,
-      name: p.title || p.name,
-      brand: p.brand,
-      colorway: p.colorway,
-      retailPrice: p.retailPrice,
-      styleId: p.styleId,
-      image: p.media?.imageUrl || p.media?.thumbUrl || '',
-      thumb: p.media?.thumbUrl || p.media?.imageUrl || '',
-    }))
-  } catch {
-    return null
-  }
-}
 
 async function searchGOAT(query: string, limit: number) {
   const res = await fetch(`https://${GOAT_ALGOLIA_APP}-dsn.algolia.net/1/indexes/product_variants_v2/query`, {
@@ -47,14 +11,22 @@ async function searchGOAT(query: string, limit: number) {
       'x-algolia-application-id': GOAT_ALGOLIA_APP,
       'x-algolia-api-key': GOAT_ALGOLIA_KEY,
     },
-    body: JSON.stringify({ query, hitsPerPage: Math.min(limit * 5, 100), distinct: true, attributesToRetrieve: ['product_template_id', 'name', 'product_title', 'brand_name', 'color', 'retail_price_cents', 'sku', 'main_picture_url', 'picture_url', 'slug'] }),
+    body: JSON.stringify({
+      query,
+      hitsPerPage: Math.min(limit * 5, 100),
+      distinct: true,
+      attributesToRetrieve: [
+        'product_template_id', 'name', 'product_title', 'brand_name',
+        'color', 'retail_price_cents', 'sku', 'main_picture_url',
+        'picture_url', 'slug',
+      ],
+    }),
   })
-  if (!res.ok) return null
+  if (!res.ok) return []
   const data = await res.json()
   const seen = new Set<string>()
   return (data.hits || [])
     .filter((h: any) => {
-      // Dedup by product_template_id (groups all sizes of same shoe)
       const k = h.product_template_id || h.sku || h.name
       if (seen.has(k)) return false
       seen.add(k)
@@ -74,20 +46,27 @@ async function searchGOAT(query: string, limit: number) {
 }
 
 async function resolveBarcode(upc: string): Promise<string | null> {
+  // Try UPC Item DB
   try {
-    // Try UPC Item DB
     const res = await fetch(`https://api.upcitemdb.com/prod/trial/lookup?upc=${encodeURIComponent(upc)}`, {
       headers: { Accept: 'application/json' },
     })
     if (res.ok) {
       const data = await res.json()
       const item = data.items?.[0]
-      if (item?.title) {
-        // Clean up the title — remove size info, keep brand + model
-        return item.title.replace(/\s*size\s*\d+\.?\d*/gi, '').trim()
-      }
+      if (item?.title) return item.title.replace(/\s*size\s*\d+\.?\d*/gi, '').trim()
     }
   } catch {}
+
+  // Try Barcode Spider (free, no key)
+  try {
+    const res = await fetch(`https://api.barcodespider.com/v1/lookup?upc=${encodeURIComponent(upc)}`)
+    if (res.ok) {
+      const data = await res.json()
+      if (data.item_attributes?.title) return data.item_attributes.title
+    }
+  } catch {}
+
   return null
 }
 
@@ -103,19 +82,23 @@ export async function GET(request: Request) {
 
     if (!query) return NextResponse.json({ error: 'Query required', products: [] }, { status: 400 })
 
-    // If it looks like a barcode, resolve to product name first
+    // If barcode, try to resolve to product name
     if (looksLikeBarcode(query)) {
       const resolved = await resolveBarcode(query)
-      if (resolved) query = resolved
+      if (resolved) {
+        query = resolved
+      } else {
+        // Can't resolve barcode — return empty with hint
+        return NextResponse.json({
+          products: [],
+          hint: 'Barcode not found in database. Try searching by product name instead.',
+        })
+      }
     }
 
-    // Try StockX first (if authenticated), fallback to GOAT
-    let products = await searchStockX(query, limit)
-    if (!products || products.length === 0) {
-      products = await searchGOAT(query, limit)
-    }
-
-    return NextResponse.json({ products: products || [] })
+    // Search via GOAT (free, no auth needed, reliable)
+    const products = await searchGOAT(query, limit)
+    return NextResponse.json({ products })
   } catch (error) {
     console.error('Search failed:', error)
     return NextResponse.json({ error: 'Search failed', products: [] }, { status: 500 })
