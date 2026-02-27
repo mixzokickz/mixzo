@@ -8,6 +8,7 @@ import {
   Users, Flame, BarChart3, Settings, Menu, X, LogOut,
   Tag, FileText, Boxes
 } from 'lucide-react'
+import Image from 'next/image'
 import { cn } from '@/lib/utils'
 import { supabase } from '@/lib/supabase'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -127,9 +128,9 @@ export default function AdminSidebar() {
     <>
       {/* Mobile header */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 h-14 bg-[var(--bg-card)]/95 backdrop-blur-md border-b border-[var(--border)]">
-        <Link href="/admin" className="flex items-baseline gap-1.5">
-          <span className="gradient-text text-xl font-bold tracking-tight">MIXZO</span>
-          <span className="text-[var(--text-muted)] text-xs">Admin</span>
+        <Link href="/admin" className="flex items-center gap-2">
+          <Image src="/logo.png" alt="MixzoKickz" width={32} height={32} className="rounded-md" />
+          <span className="text-[var(--text-muted)] text-xs font-medium">Admin</span>
         </Link>
         <button onClick={() => setOpen(!open)} className="text-white p-2 -mr-2">
           {open ? <X size={24} /> : <Menu size={24} />}
@@ -164,9 +165,12 @@ export default function AdminSidebar() {
       {/* Desktop sidebar */}
       <aside className="hidden lg:flex fixed top-0 left-0 h-full w-[280px] bg-[var(--bg-card)] border-r border-[var(--border)] flex-col z-40">
         <div className="p-6 pb-4 border-b border-[var(--border)]">
-          <Link href="/admin" className="flex items-baseline gap-2">
-            <span className="gradient-text text-2xl font-bold tracking-tight">MIXZO</span>
-            <span className="text-[var(--text-muted)] text-xs font-medium">Admin</span>
+          <Link href="/admin" className="flex items-center gap-3">
+            <Image src="/logo.png" alt="MixzoKickz" width={40} height={40} className="rounded-lg" />
+            <div className="flex flex-col">
+              <span className="gradient-text text-lg font-bold tracking-tight leading-tight">MixzoKickz</span>
+              <span className="text-[var(--text-muted)] text-[11px] font-medium">Admin Panel</span>
+            </div>
           </Link>
         </div>
         {navContent}
