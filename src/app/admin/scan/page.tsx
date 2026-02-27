@@ -48,12 +48,8 @@ export default function ScanPage() {
 
   useEffect(() => {
     const type = detectType(query)
-    setSearchType(type)
-
-    if (type === 'upc' && query.trim().length >= 10) {
-      if (debounceRef.current) clearTimeout(debounceRef.current)
-      debounceRef.current = setTimeout(() => lookupUPC(query.trim()), 500)
-    }
+    // Treat barcode as stockx search too — GOAT handles UPCs well
+    setSearchType(query.trim().length >= 2 ? 'stockx' : type)
 
     return () => { if (debounceRef.current) clearTimeout(debounceRef.current) }
   }, [query, detectType])

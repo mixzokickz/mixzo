@@ -7,31 +7,36 @@ const GOAT_ALGOLIA_APP = '2FWOTDVM2O'
 const GOAT_ALGOLIA_KEY = 'ac96de6fef0e02bb95d433d8d5c7038a'
 
 async function searchStockX(query: string, limit: number) {
-  const token = await getStockXToken()
-  if (!token || !STOCKX_API_KEY) return null
+  try {
+    if (!STOCKX_API_KEY) return null
+    const token = await getStockXToken()
+    if (!token) return null
 
-  const res = await fetch(
-    `https://api.stockx.com/v2/catalog/search?query=${encodeURIComponent(query)}&pageSize=${limit}`,
-    {
-      headers: {
-        'x-api-key': STOCKX_API_KEY,
-        'Authorization': `Bearer ${token}`,
-        'Accept': 'application/json',
-      },
-    }
-  )
-  if (!res.ok) return null
-  const data = await res.json()
-  return (data.products || []).map((p: any) => ({
-    id: p.id,
-    name: p.title || p.name,
-    brand: p.brand,
-    colorway: p.colorway,
-    retailPrice: p.retailPrice,
-    styleId: p.styleId,
-    image: p.media?.imageUrl || p.media?.thumbUrl || '',
-    thumb: p.media?.thumbUrl || p.media?.imageUrl || '',
-  }))
+    const res = await fetch(
+      `https://api.stockx.com/v2/catalog/search?query=${encodeURIComponent(query)}&pageSize=${limit}`,
+      {
+        headers: {
+          'x-api-key': STOCKX_API_KEY,
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json',
+        },
+      }
+    )
+    if (!res.ok) return null
+    const data = await res.json()
+    return (data.products || []).map((p: any) => ({
+      id: p.id,
+      name: p.title || p.name,
+      brand: p.brand,
+      colorway: p.colorway,
+      retailPrice: p.retailPrice,
+      styleId: p.styleId,
+      image: p.media?.imageUrl || p.media?.thumbUrl || '',
+      thumb: p.media?.thumbUrl || p.media?.imageUrl || '',
+    }))
+  } catch {
+    return null
+  }
 }
 
 async function searchGOAT(query: string, limit: number) {
