@@ -1,83 +1,170 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { ClipboardCheck, AlertTriangle, CheckCircle } from 'lucide-react'
+import { Calculator, DollarSign, TrendingUp, TrendingDown, Package, ShoppingCart, AlertTriangle, CheckCircle } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
-
-interface Item { id: string; name: string; expected: number; actual: number | null; image_url?: string }
+import { formatPrice } from '@/lib/utils'
+import { motion } from 'framer-motion'
+import { cn } from '@/lib/utils'
 
 export default function ReconciliationPage() {
-  const [items, setItems] = useState<Item[]>([])
   const [loading, setLoading] = useState(true)
-  const [counting, setCounting] = useState(false)
+  const [stats, setStats] = useState({
+    inventoryValue: 0,
+    inventoryCost: 0,
+    totalRevenue: 0,
+    totalCOGS: 0,
+    productCount: 0,
+    unitCount: 0,
+    ordersCount: 0,
+    missingCost: 0,
+  })
 
   useEffect(() => {
-    supabase.from('products').select('id, name, quantity, image_url').eq('status', 'active').order('name')
-      .then(({ data }) => {
-        setItems((data || []).map((p: any) => ({ id: p.id, name: p.name, expected: p.quantity || 0, actual: null, image_url: p.image_url })))
-        setLoading(false)
-      })
+    load()
   }, [])
 
-  const updateActual = (id: string, val: string) => {
-    setItems(prev => prev.map(i => i.id === id ? { ...i, actual: val === '' ? null : parseInt(val) } : i))
+  async function load() {
+    const [{ data: products }, { data: orders }] = await Promise.all([
+      supabase.from('products').select('price, cost, quantity').eq('status', 'active'),
+      supabase.from('orders').select('total, items, status').neq('status', 'cancelled'),
+    ])
+
+    const prods = products || []
+    const ords = orders || []
+
+    const inventoryValue = prods.reduce((s, p: any) => s + (p.price || 0) * (p.quantity || 0), 0)
+    const inventoryCost = prods.reduce((s, p: any) => s + (p.cost || 0) * (p.quantity || 0), 0)
+    const totalRevenue = ords.reduce((s, o: any) => s + (o.total || 0), 0)
+    const missingCost = prods.filter((p: any) => !p.cost || p.cost === 0).length
+
+    let totalCOGS = 0
+    for (const o of ords) {
+      if (Array.isArray((o as any).items)) {
+        for (const item of (o as any).items) {
+          totalCOGS += (item.cost || 0) * (item.quantity || 1)
+        }
+      }
+    }
+
+    setStats({
+      inventoryValue,
+      inventoryCost,
+      totalRevenue,
+      totalCOGS,
+      productCount: prods.length,
+      unitCount: prods.reduce((s, p: any) => s + (p.quantity || 0), 0),
+      ordersCount: ords.length,
+      missingCost,
+    })
+    setLoading(false)
   }
 
-  const discrepancies = items.filter(i => i.actual !== null && i.actual !== i.expected)
+  const grossProfit = stats.totalRevenue - stats.totalCOGS
+  const potentialProfit = stats.inventoryValue - stats.inventoryCost
+  const margin = stats.totalRevenue > 0 ? (grossProfit / stats.totalRevenue * 100) : 0
 
-  if (loading) return <div className="space-y-4"><div className="skeleton h-8 w-40" /><div className="space-y-2">{[1,2,3].map(i => <div key={i} className="skeleton h-16 rounded-xl" />)}</div></div>
+  if (loading) {
+    return (
+      <div className="space-y-4 page-enter">
+        <div className="h-8 w-48 shimmer rounded-xl" />
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">{[1,2,3,4].map(i => <div key={i} className="h-28 shimmer rounded-2xl" />)}</div>
+      </div>
+    )
+  }
+
+  const cards = [
+    { label: 'Total Revenue', value: formatPrice(stats.totalRevenue), icon: DollarSign, color: '#FF2E88', sub: `${stats.ordersCount} orders` },
+    { label: 'Cost of Goods Sold', value: formatPrice(stats.totalCOGS), icon: TrendingDown, color: '#A855F7', sub: 'from order items' },
+    { label: 'Gross Profit', value: formatPrice(grossProfit), icon: TrendingUp, color: grossProfit >= 0 ? '#10B981' : '#EF4444', sub: `${margin.toFixed(1)}% margin` },
+    { label: 'Inventory Value', value: formatPrice(stats.inventoryValue), icon: Package, color: '#00C2D6', sub: `${stats.unitCount} units at sell price` },
+    { label: 'Inventory Cost', value: formatPrice(stats.inventoryCost), icon: Calculator, color: '#F59E0B', sub: 'cost basis' },
+    { label: 'Potential Profit', value: formatPrice(potentialProfit), icon: TrendingUp, color: potentialProfit >= 0 ? '#10B981' : '#EF4444', sub: 'if all sold at ask' },
+  ]
 
   return (
-    <div className="space-y-6 page-enter">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-white">Reconciliation</h1>
-          <p className="text-sm text-[var(--text-muted)]">{items.length} products · {discrepancies.length} discrepancies</p>
-        </div>
-        <button onClick={() => setCounting(!counting)} className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-white text-sm font-medium hover:opacity-90 transition ${counting ? 'bg-green-600' : 'bg-[var(--pink)]'}`}>
-          <ClipboardCheck size={16} /> {counting ? 'Finish Count' : 'Start Count'}
-        </button>
+    <div className="space-y-6 page-enter max-w-5xl">
+      <div>
+        <h1 className="text-2xl font-black text-white tracking-tight">Reconciliation</h1>
+        <p className="text-sm text-[var(--text-muted)]">Financial overview — revenue, costs, and margins</p>
       </div>
 
-      {items.length === 0 ? (
-        <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl p-12 text-center">
-          <ClipboardCheck size={40} className="text-[var(--text-muted)] mx-auto mb-3" />
-          <h2 className="text-lg font-semibold text-white mb-1">No products to reconcile</h2>
-          <p className="text-sm text-[var(--text-secondary)]">Add products first</p>
-        </div>
-      ) : (
-        <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl overflow-hidden">
-          <table className="w-full text-sm">
-            <thead><tr className="border-b border-[var(--border)] text-left text-xs text-[var(--text-muted)]">
-              <th className="px-4 py-3 font-medium">Product</th><th className="px-4 py-3 font-medium text-center">Expected</th><th className="px-4 py-3 font-medium text-center">Actual</th><th className="px-4 py-3 font-medium text-center">Diff</th><th className="px-4 py-3 font-medium text-center">Status</th>
-            </tr></thead>
-            <tbody>
-              {items.map(i => {
-                const diff = i.actual !== null ? i.actual - i.expected : null
-                return (
-                  <tr key={i.id} className="border-b border-[var(--border)] last:border-0 hover:bg-white/[0.02]">
-                    <td className="px-4 py-3 text-white font-medium">{i.name}</td>
-                    <td className="px-4 py-3 text-[var(--text-secondary)] text-center">{i.expected}</td>
-                    <td className="px-4 py-3 text-center">
-                      {counting ? (
-                        <input type="number" value={i.actual ?? ''} onChange={e => updateActual(i.id, e.target.value)} className="w-16 bg-[var(--bg)] border border-[var(--border)] rounded-lg px-2 py-1 text-sm text-white text-center focus:border-[var(--pink)] focus:outline-none" />
-                      ) : (
-                        <span className="text-[var(--text-muted)]">{i.actual ?? '—'}</span>
-                      )}
-                    </td>
-                    <td className={`px-4 py-3 text-center font-medium ${diff === null ? 'text-[var(--text-muted)]' : diff === 0 ? 'text-green-400' : 'text-red-400'}`}>
-                      {diff === null ? '—' : diff > 0 ? `+${diff}` : diff}
-                    </td>
-                    <td className="px-4 py-3 text-center">
-                      {diff === null ? <span className="text-[var(--text-muted)]">—</span> : diff === 0 ? <CheckCircle size={16} className="text-green-400 mx-auto" /> : <AlertTriangle size={16} className="text-red-400 mx-auto" />}
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
-        </div>
+      {/* Warning if missing costs */}
+      {stats.missingCost > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex items-center gap-4 bg-yellow-500/5 border border-yellow-500/20 rounded-2xl px-5 py-4"
+        >
+          <div className="w-10 h-10 rounded-xl bg-yellow-500/10 flex items-center justify-center shrink-0">
+            <AlertTriangle size={18} className="text-yellow-400" />
+          </div>
+          <div>
+            <p className="text-sm font-bold text-white">{stats.missingCost} product{stats.missingCost > 1 ? 's' : ''} missing cost data</p>
+            <p className="text-xs text-[var(--text-muted)]">Add cost prices to get accurate margin calculations</p>
+          </div>
+        </motion.div>
       )}
+
+      {/* KPI Grid */}
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+        {cards.map((card, i) => {
+          const Icon = card.icon
+          return (
+            <motion.div
+              key={card.label}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.05 }}
+              className="bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl p-5 group hover:border-[var(--border)]/80 transition-all"
+            >
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-[0.15em] font-bold">{card.label}</span>
+                <div
+                  className="w-8 h-8 rounded-xl flex items-center justify-center transition-transform duration-300 group-hover:scale-110"
+                  style={{ backgroundColor: `${card.color}10` }}
+                >
+                  <Icon size={15} style={{ color: card.color }} />
+                </div>
+              </div>
+              <p className="text-2xl font-black text-white font-mono tracking-tight">{card.value}</p>
+              <p className="text-[10px] text-[var(--text-muted)] mt-1.5 font-medium">{card.sub}</p>
+            </motion.div>
+          )
+        })}
+      </div>
+
+      {/* Summary */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+        className="bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl p-6"
+      >
+        <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
+          <CheckCircle size={14} className="text-[#00C2D6]" /> Summary
+        </h3>
+        <div className="space-y-3">
+          <div className="flex items-center justify-between py-2 border-b border-[var(--border)]">
+            <span className="text-sm text-[var(--text-secondary)]">Active Products</span>
+            <span className="text-sm font-bold text-white">{stats.productCount} ({stats.unitCount} units)</span>
+          </div>
+          <div className="flex items-center justify-between py-2 border-b border-[var(--border)]">
+            <span className="text-sm text-[var(--text-secondary)]">Completed Orders</span>
+            <span className="text-sm font-bold text-white">{stats.ordersCount}</span>
+          </div>
+          <div className="flex items-center justify-between py-2 border-b border-[var(--border)]">
+            <span className="text-sm text-[var(--text-secondary)]">Average Order Value</span>
+            <span className="text-sm font-bold text-white">{stats.ordersCount > 0 ? formatPrice(stats.totalRevenue / stats.ordersCount) : '$0'}</span>
+          </div>
+          <div className="flex items-center justify-between py-2">
+            <span className="text-sm text-[var(--text-secondary)]">Gross Margin</span>
+            <span className={cn('text-sm font-bold', margin >= 0 ? 'text-green-400' : 'text-red-400')}>
+              {margin.toFixed(1)}%
+            </span>
+          </div>
+        </div>
+      </motion.div>
     </div>
   )
 }

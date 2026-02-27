@@ -25,17 +25,25 @@ interface Product {
   size: string
   condition: string
   image_url: string | null
+  images: string[] | null
   description: string | null
   colorway: string | null
+  style_id: string | null
   stockx_price: number | null
+  has_box: boolean | null
   status: string
 }
+
+const easeOutExpo = [0.16, 1, 0.3, 1] as const
 
 export default function ProductPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
   const [product, setProduct] = useState<Product | null>(null)
   const [related, setRelated] = useState<Pick<Product, 'id' | 'name' | 'brand' | 'price' | 'size' | 'condition' | 'image_url'>[]>([])
   const [loading, setLoading] = useState(true)
+  const [selectedImage, setSelectedImage] = useState(0)
+  const [imageDirection, setImageDirection] = useState(0)
+  const [addedToCart, setAddedToCart] = useState(false)
   const addItem = useCartStore((s) => s.addItem)
 
   useEffect(() => {
@@ -62,6 +70,23 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
     load()
   }, [id])
 
+  const gallery: string[] = []
+  if (product?.images?.length) {
+    gallery.push(...product.images)
+  } else if (product?.image_url) {
+    gallery.push(product.image_url)
+  }
+
+  const navigateImage = (dir: number) => {
+    setImageDirection(dir)
+    setSelectedImage(prev => {
+      const next = prev + dir
+      if (next < 0) return gallery.length - 1
+      if (next >= gallery.length) return 0
+      return next
+    })
+  }
+
   const handleAddToCart = () => {
     if (!product) return
     addItem({
@@ -71,9 +96,22 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
       size: product.size,
       price: product.price,
       condition: product.condition,
-      image_url: product.image_url,
+      image_url: gallery[0] || product.image_url,
     })
+    setAddedToCart(true)
     toast.success('Added to cart')
+    setTimeout(() => setAddedToCart(false), 2000)
+  }
+
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: product?.name, url: window.location.href })
+      } catch {}
+    } else {
+      await navigator.clipboard.writeText(window.location.href)
+      toast.success('Link copied to clipboard')
+    }
   }
 
   const isNew = product?.condition === 'new'
@@ -82,9 +120,9 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
     return (
       <div className="min-h-screen flex flex-col">
         <ShopHeader />
-        <main className="flex-1 pt-20 px-4">
-          <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-10">
-            <Skeleton className="aspect-square w-full rounded-2xl" />
+        <main className="flex-1 pt-28 px-6 md:px-12 lg:px-16">
+          <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12">
+            <Skeleton className="aspect-square w-full rounded-3xl" />
             <div className="space-y-4 py-4">
               <Skeleton className="h-4 w-24" />
               <Skeleton className="h-8 w-3/4" />
@@ -104,10 +142,12 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
     return (
       <div className="min-h-screen flex flex-col">
         <ShopHeader />
-        <main className="flex-1 pt-20 flex flex-col items-center justify-center text-center px-4">
-          <Package className="w-16 h-16 text-text-muted mb-4" />
-          <h1 className="text-2xl font-bold mb-2">Product not found</h1>
-          <p className="text-text-muted mb-6">This product may have been removed or sold.</p>
+        <main className="flex-1 pt-24 flex flex-col items-center justify-center text-center px-4">
+          <div className="w-20 h-20 rounded-3xl bg-[#141418] border border-[#1E1E26] flex items-center justify-center mb-6">
+            <Package className="w-8 h-8 text-[#4A4A5A]" />
+          </div>
+          <h1 className="text-2xl font-black mb-2">Product not found</h1>
+          <p className="text-[#6A6A80] mb-8">This product may have been removed or sold.</p>
           <Link href="/shop"><Button variant="secondary">Back to Shop</Button></Link>
         </main>
         <Footer />
@@ -116,10 +156,14 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
     )
   }
 
+  const savingsPercent = product.stockx_price && product.stockx_price > product.price
+    ? Math.round((1 - product.price / product.stockx_price) * 100)
+    : null
+
   return (
     <div className="min-h-screen flex flex-col">
       <ShopHeader />
-      <main className="flex-1 pt-20 px-4 pb-mobile-nav">
+      <main className="flex-1 pt-28 px-6 md:px-12 lg:px-16 pb-mobile-nav">
         <div className="max-w-6xl mx-auto">
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
             <Link href="/shop" className="inline-flex items-center gap-1.5 text-sm text-text-muted hover:text-text transition-colors mb-6">
@@ -184,6 +228,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
 
               <p className="text-xs text-text-muted text-center mt-3">All sales are final</p>
 
+              {/* Description */}
               {product.description && (
                 <div className="mt-8 pt-6 border-t border-border">
                   <h3 className="text-sm font-semibold mb-2">Description</h3>
@@ -196,15 +241,20 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                   <Truck className="w-4 h-4 text-pink shrink-0" />
                   {product.price >= FREE_SHIPPING_THRESHOLD ? 'Free shipping' : `Free shipping on orders over ${formatPrice(FREE_SHIPPING_THRESHOLD)}`}
                 </div>
-                <div className="flex items-center gap-3 text-sm text-text-secondary">
-                  <Shield className="w-4 h-4 text-pink shrink-0" />
-                  Authenticity guaranteed
+                <div className="flex items-center gap-4 px-5 py-4 group">
+                  <div className="w-9 h-9 rounded-xl bg-[#10B981]/10 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-300">
+                    <Shield className="w-4 h-4 text-[#10B981]" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-white">Authenticity Guaranteed</p>
+                    <p className="text-[11px] text-[#4A4A5A]">Every pair verified before it ships</p>
+                  </div>
                 </div>
               </div>
             </motion.div>
           </div>
 
-          {/* Related */}
+          {/* ─── Related Products ─── */}
           {related.length > 0 && (
             <motion.section
               initial={{ opacity: 0, y: 20 }}

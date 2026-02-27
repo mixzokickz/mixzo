@@ -93,11 +93,16 @@ export default function AdminSidebar() {
                         : 'text-[var(--text-secondary)] hover:text-white hover:bg-white/[0.03]'
                     )}
                   >
+                    {/* Active indicator bar */}
                     {active && (
-                      <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full bg-gradient-to-b from-[var(--pink)] to-[var(--cyan)]" />
+                      <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full bg-gradient-to-b from-[#FF2E88] to-[#FF2E88]/60" />
                     )}
                     <Icon size={20} className={cn('transition-colors duration-200', active ? 'text-[var(--pink)]' : 'group-hover:text-[var(--text-primary)]')} />
                     {label}
+                    {/* Hover glow */}
+                    {!active && (
+                      <span className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none bg-gradient-to-r from-white/[0.01] to-transparent" />
+                    )}
                   </Link>
                 )
               })}

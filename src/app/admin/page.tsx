@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
 import { DollarSign, Package, ShoppingCart, Users, ArrowUpRight, ScanBarcode, Plus, Boxes } from 'lucide-react'
 import { formatPrice } from '@/lib/utils'
@@ -27,12 +27,10 @@ export default function AdminDashboard() {
   }
 
   useEffect(() => {
-    async function load() {
-      const [products, orders, customers] = await Promise.all([
-        supabase.from('products').select('id', { count: 'exact', head: true }),
-        supabase.from('orders').select('id, total, status, created_at, customer_name').order('created_at', { ascending: false }).limit(5),
-        supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('role', 'customer'),
-      ])
+    const start = prevRef.current
+    const diff = target - start
+    if (diff === 0) return
+    const startTime = performance.now()
 
       const allOrders = await supabase.from('orders').select('total, status')
       const totalRevenue = allOrders.data?.filter(o => o.status !== 'cancelled').reduce((sum, o) => sum + (o.total || 0), 0) || 0
@@ -47,8 +45,8 @@ export default function AdminDashboard() {
       setRecentOrders(orders.data || [])
       setLoading(false)
     }
-    load()
-  }, [])
+    requestAnimationFrame(animate)
+  }, [target, duration])
 
   const statCards = [
     { label: 'Total Products', value: stats.products.toString(), icon: Package, color: 'var(--pink)' },

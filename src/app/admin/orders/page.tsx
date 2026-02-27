@@ -44,7 +44,7 @@ export default function OrdersPage() {
           <h1 className="text-2xl font-bold text-white">Orders</h1>
           <p className="text-sm text-[var(--text-muted)]">{orders.length} total orders</p>
         </div>
-        <Link href="/admin/orders/new" className="bg-gradient-to-r from-[var(--pink)] to-[var(--cyan)] text-white text-sm font-semibold px-4 py-2.5 rounded-xl flex items-center gap-2">
+        <Link href="/admin/orders/new" className="bg-[#FF2E88] hover:opacity-90 text-white text-sm font-semibold px-4 py-2.5 rounded-xl flex items-center gap-2">
           <Plus size={16} /> Create Order
         </Link>
       </div>
@@ -67,7 +67,7 @@ export default function OrdersPage() {
       </div>
 
       {filtered.length === 0 ? (
-        <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl p-12 text-center">
+        <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl p-12 text-center">
           <ShoppingCart size={40} className="text-[var(--text-muted)] mx-auto mb-3" />
           <h2 className="text-lg font-semibold text-white mb-1">No orders found</h2>
           <p className="text-sm text-[var(--text-secondary)]">Orders will appear here when customers purchase</p>

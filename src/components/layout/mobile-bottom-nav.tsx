@@ -9,13 +9,16 @@ import { cn } from '@/lib/utils'
 const links = [
   { href: '/', icon: Home, label: 'Home' },
   { href: '/shop', icon: Store, label: 'Shop' },
+  { href: '/cleaning', icon: Sparkles, label: 'Clean' },
   { href: '/cart', icon: ShoppingBag, label: 'Cart' },
-  { href: '/login', icon: User, label: 'Account' },
+  { href: '/account', icon: User, label: 'Account' },
 ]
 
 export function MobileBottomNav() {
   const pathname = usePathname()
   const count = useCartStore((s) => s.getCount())
+
+  if (pathname.startsWith('/admin')) return null
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-40 md:hidden">

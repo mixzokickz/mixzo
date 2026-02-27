@@ -1,16 +1,10 @@
-'use client'
+import type { Metadata } from 'next'
 
-import { ShopHeader } from '@/components/layout/shop-header'
-import { Footer } from '@/components/layout/footer'
-import { MobileBottomNav } from '@/components/layout/mobile-bottom-nav'
+export const metadata: Metadata = {
+  title: 'Shop',
+  description: 'Browse authenticated new and preowned sneakers. Nike, Jordan, Adidas, Yeezy, New Balance and more. Based in Denver, CO.',
+}
 
 export default function ShopLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="min-h-screen flex flex-col">
-      <ShopHeader />
-      <main className="flex-1 pt-16">{children}</main>
-      <Footer />
-      <MobileBottomNav />
-    </div>
-  )
+  return children
 }

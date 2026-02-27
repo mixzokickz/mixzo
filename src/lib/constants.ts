@@ -3,7 +3,7 @@ export const SITE_URL = 'https://mixzokickz.com'
 export const SITE_DESCRIPTION = 'New & Preowned Sneakers — Denver, CO'
 export const BUSINESS_PHONE = '720-720-5015'
 export const BUSINESS_EMAIL = 'Mixzo.kickz@gmail.com'
-export const BUSINESS_INSTAGRAM = '@mixzo.Kickz'
+export const BUSINESS_INSTAGRAM = '@mixzo.kickz'
 export const BUSINESS_LOCATION = 'Denver, CO'
 
 export const FREE_SHIPPING_THRESHOLD = 200

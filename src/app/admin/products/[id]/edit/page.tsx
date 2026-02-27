@@ -46,7 +46,7 @@ export default function EditProductPage() {
     try {
       const token = (await supabase.auth.getSession()).data.session?.access_token
       const res = await fetch('/api/admin/products', {
-        method: 'PUT',
+        method: 'PATCH',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({
           id: params.id,
@@ -70,10 +70,9 @@ export default function EditProductPage() {
   async function handleDelete() {
     if (!confirm('Delete this product permanently?')) return
     const token = (await supabase.auth.getSession()).data.session?.access_token
-    await fetch('/api/admin/products', {
+    await fetch(`/api/admin/products?id=${params.id}`, {
       method: 'DELETE',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ id: params.id }),
+      headers: { Authorization: `Bearer ${token}` },
     })
     toast.success('Product deleted')
     router.push('/admin/products')
@@ -141,7 +140,7 @@ export default function EditProductPage() {
         </div>
 
         <div className="flex gap-3">
-          <button type="submit" disabled={saving} className="flex-1 bg-gradient-to-r from-[var(--pink)] to-[var(--cyan)] py-3.5 rounded-xl text-white font-semibold flex items-center justify-center gap-2 disabled:opacity-50 text-sm">
+          <button type="submit" disabled={saving} className="flex-1 bg-[#FF2E88] hover:opacity-90 py-3.5 rounded-xl text-white font-semibold flex items-center justify-center gap-2 disabled:opacity-50 text-sm">
             {saving ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Save size={16} />}
             {saving ? 'Saving...' : 'Save Changes'}
           </button>

@@ -1,5 +1,6 @@
 'use client'
 
+import { useRef } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
@@ -40,7 +41,7 @@ export function ProductCard({ product }: ProductCardProps) {
             </motion.div>
           ) : (
             <div className="w-full h-full flex items-center justify-center">
-              <span className="text-text-muted text-sm">No Image</span>
+              <span className="text-[#6A6A80] text-sm">No Image</span>
             </div>
           )}
         </div>

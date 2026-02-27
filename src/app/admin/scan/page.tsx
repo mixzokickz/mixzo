@@ -78,6 +78,25 @@ export default function ScanPage() {
       toast.error('Camera access denied')
       setShowCamera(false)
     }
+  }, [])
+
+  const saveToCache = (barcodeVal: string, product: ProductResult) => {
+    fetch('/api/admin/barcode-cache', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        barcode: barcodeVal,
+        productName: product.name,
+        brand: product.brand,
+        colorway: product.colorway,
+        styleId: product.styleId,
+        size: product.size,
+        retailPrice: product.retailPrice,
+        imageUrl: product.imageUrl,
+        imageUrls: product.imageUrls,
+        goatProductId: product.goatProductId || product.id,
+      }),
+    }).catch(() => {})
   }
 
   function closeCamera() {

@@ -1,96 +1,135 @@
 'use client'
 
-import { useState } from 'react'
-import { Truck, Search, Package, Plug, ExternalLink } from 'lucide-react'
-
-const MOCK_SHIPMENTS = [
-  { id: 'SHP-001', order: 'ORD-1042', customer: 'James Wilson', carrier: 'FedEx', tracking: '789456123', status: 'In Transit', date: '2026-02-22' },
-  { id: 'SHP-002', order: 'ORD-1038', customer: 'Maria Lopez', carrier: 'UPS', tracking: '321654987', status: 'Delivered', date: '2026-02-20' },
-  { id: 'SHP-003', order: 'ORD-1035', customer: 'Tyler Chen', carrier: 'USPS', tracking: '654789321', status: 'Label Created', date: '2026-02-19' },
-]
-
-const statusColor: Record<string, string> = {
-  'Delivered': 'text-green-400 bg-green-500/10',
-  'In Transit': 'text-[var(--cyan)] bg-[var(--cyan)]/10',
-  'Label Created': 'text-yellow-400 bg-yellow-500/10',
-}
+import { useState, useEffect } from 'react'
+import { Truck, Package, Clock, CheckCircle, ArrowRight } from 'lucide-react'
+import { supabase } from '@/lib/supabase'
+import { formatPrice } from '@/lib/utils'
+import { motion } from 'framer-motion'
+import { cn } from '@/lib/utils'
+import Link from 'next/link'
 
 export default function ShippingPage() {
-  const [tracking, setTracking] = useState('')
-  const [search, setSearch] = useState('')
+  const [orders, setOrders] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [filter, setFilter] = useState('pending')
 
-  const filtered = MOCK_SHIPMENTS.filter(s => {
-    if (!search) return true
-    const q = search.toLowerCase()
-    return s.order.toLowerCase().includes(q) || s.customer.toLowerCase().includes(q) || s.tracking.includes(q)
-  })
+  useEffect(() => { load() }, [filter])
+
+  async function load() {
+    setLoading(true)
+    let query = supabase.from('orders').select('*').order('created_at', { ascending: false })
+    if (filter === 'pending') query = query.in('status', ['pending', 'confirmed', 'processing'])
+    else if (filter === 'shipped') query = query.eq('status', 'shipped')
+    else if (filter === 'delivered') query = query.eq('status', 'delivered')
+    const { data } = await query
+    setOrders(data || [])
+    setLoading(false)
+  }
+
+  const filterOptions = [
+    { val: 'pending', label: 'Needs Shipping', icon: Clock, color: '#F59E0B' },
+    { val: 'shipped', label: 'Shipped', icon: Truck, color: '#00C2D6' },
+    { val: 'delivered', label: 'Delivered', icon: CheckCircle, color: '#10B981' },
+    { val: 'all', label: 'All', icon: Package, color: '#A0A0B8' },
+  ]
 
   return (
     <div className="space-y-6 page-enter">
       <div>
-        <h1 className="text-2xl font-bold text-white">Shipping</h1>
-        <p className="text-sm text-[var(--text-muted)]">Manage shipments and tracking</p>
+        <h1 className="text-2xl font-black text-white tracking-tight">Shipping</h1>
+        <p className="text-sm text-[var(--text-muted)]">Manage order fulfillment and tracking</p>
       </div>
 
-      {/* Connect Provider Card */}
-      <div className="bg-gradient-to-br from-[var(--pink)]/10 to-[var(--cyan)]/10 border border-[var(--border)] rounded-2xl p-6">
-        <div className="flex items-start gap-4">
-          <div className="p-3 rounded-xl bg-[var(--pink)]/20"><Plug size={24} className="text-[var(--pink)]" /></div>
-          <div className="flex-1">
-            <h2 className="text-lg font-semibold text-white mb-1">Connect Shipping Provider</h2>
-            <p className="text-sm text-[var(--text-secondary)] mb-3">Connect FedEx, UPS, or USPS to auto-generate labels and track shipments in real time.</p>
-            <button className="px-4 py-2 rounded-xl bg-[var(--pink)] text-white text-sm font-medium hover:opacity-90 transition">Connect Provider</button>
-          </div>
-        </div>
-      </div>
-
-      {/* Tracking Lookup */}
-      <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl p-5">
-        <h3 className="text-sm font-semibold text-white mb-3">Tracking Lookup</h3>
-        <div className="flex gap-2">
-          <input value={tracking} onChange={e => setTracking(e.target.value)} placeholder="Enter tracking number..." className="flex-1 bg-[var(--bg)] border border-[var(--border)] rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-[var(--text-muted)] focus:border-[var(--pink)] focus:outline-none" />
-          <button className="px-4 py-2.5 rounded-xl bg-white/5 border border-[var(--border)] text-white text-sm font-medium hover:bg-white/10 transition flex items-center gap-2">
-            <Search size={16} /> Track
+      {/* Filter tabs */}
+      <div className="flex gap-2">
+        {filterOptions.map(({ val, label, icon: Icon, color }) => (
+          <button
+            key={val}
+            onClick={() => setFilter(val)}
+            className={cn(
+              'flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold transition-all duration-300 border',
+              filter === val
+                ? 'text-white border-transparent shadow-lg'
+                : 'bg-[var(--bg-card)] border-[var(--border)] text-[var(--text-secondary)] hover:text-white hover:border-[var(--border)]/80'
+            )}
+            style={filter === val ? { backgroundColor: color, boxShadow: `0 8px 20px ${color}30` } : undefined}
+          >
+            <Icon size={14} />
+            {label}
           </button>
-        </div>
+        ))}
       </div>
 
-      {/* Recent Shipments */}
-      <div>
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-semibold text-white">Recent Shipments</h3>
+      {loading ? (
+        <div className="space-y-2">{[1, 2, 3].map(i => <div key={i} className="h-20 shimmer rounded-2xl" />)}</div>
+      ) : orders.length === 0 ? (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl p-16 text-center relative overflow-hidden"
+        >
+          <div className="absolute inset-0 bg-gradient-to-br from-[#00C2D6]/5 to-transparent pointer-events-none" />
           <div className="relative">
-            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />
-            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search..." className="bg-[var(--bg-card)] border border-[var(--border)] rounded-lg pl-8 pr-3 py-1.5 text-xs text-white placeholder:text-[var(--text-muted)] focus:border-[var(--pink)] focus:outline-none w-48" />
+            <div className="w-20 h-20 rounded-3xl bg-[#00C2D6]/10 border border-[#00C2D6]/20 flex items-center justify-center mx-auto mb-5">
+              <Truck size={32} className="text-[#00C2D6]" />
+            </div>
+            <h2 className="text-lg font-bold text-white mb-2">
+              {filter === 'all' ? 'No Orders Yet' : 'Nothing to Show'}
+            </h2>
+            <p className="text-sm text-[var(--text-secondary)]">
+              {filter === 'pending' ? 'No orders waiting to ship — you\'re all caught up!' : 'Orders will appear here once placed'}
+            </p>
           </div>
-        </div>
+        </motion.div>
+      ) : (
+        <div className="space-y-2">
+          {orders.map((o, i) => {
+            const statusConfig: Record<string, { color: string; bg: string }> = {
+              pending: { color: 'text-yellow-400', bg: 'bg-yellow-500/10' },
+              confirmed: { color: 'text-yellow-400', bg: 'bg-yellow-500/10' },
+              processing: { color: 'text-blue-400', bg: 'bg-blue-500/10' },
+              shipped: { color: 'text-[#00C2D6]', bg: 'bg-[#00C2D6]/10' },
+              delivered: { color: 'text-green-400', bg: 'bg-green-500/10' },
+            }
+            const sc = statusConfig[o.status] || statusConfig.pending
 
-        {filtered.length === 0 ? (
-          <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl p-12 text-center">
-            <Truck size={40} className="text-[var(--text-muted)] mx-auto mb-3" />
-            <h2 className="text-lg font-semibold text-white mb-1">No shipments yet</h2>
-            <p className="text-sm text-[var(--text-secondary)]">Shipments will appear here when orders are fulfilled</p>
-          </div>
-        ) : (
-          <div className="space-y-2">
-            {filtered.map(s => (
-              <div key={s.id} className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl p-4 flex items-center justify-between hover:border-[var(--border-hover)] transition">
-                <div className="flex items-center gap-4">
-                  <div className="p-2 rounded-lg bg-white/5"><Package size={18} className="text-[var(--text-muted)]" /></div>
-                  <div>
-                    <p className="text-sm font-medium text-white">{s.customer}</p>
-                    <p className="text-xs text-[var(--text-muted)]">{s.order} · {s.carrier} · {s.tracking}</p>
+            return (
+              <motion.div
+                key={o.id}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.03 }}
+              >
+                <Link
+                  href={`/admin/orders/${o.id}`}
+                  className="flex items-center justify-between p-4 rounded-2xl bg-[var(--bg-card)] border border-[var(--border)] hover:border-[var(--border)]/80 transition-all group"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-xl bg-[var(--bg-elevated)] flex items-center justify-center group-hover:scale-105 transition-transform">
+                      <Package size={18} className="text-[var(--text-muted)]" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-white group-hover:text-[#FF2E88] transition-colors">
+                        {o.order_number || o.id?.slice(0, 8)}
+                      </p>
+                      <p className="text-xs text-[var(--text-muted)]">
+                        {o.customer_name || o.customer_email} · {Array.isArray(o.items) ? o.items.length : 0} item{Array.isArray(o.items) && o.items.length !== 1 ? 's' : ''}
+                      </p>
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${statusColor[s.status] || 'text-[var(--text-muted)] bg-white/5'}`}>{s.status}</span>
-                  <span className="text-xs text-[var(--text-muted)]">{s.date}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+                  <div className="flex items-center gap-4">
+                    <span className="text-sm font-black font-mono text-white">{formatPrice(o.total || 0)}</span>
+                    <span className={cn('text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider', sc.color, sc.bg)}>
+                      {o.status}
+                    </span>
+                    <ArrowRight size={14} className="text-[var(--text-muted)] opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                </Link>
+              </motion.div>
+            )
+          })}
+        </div>
+      )}
     </div>
   )
 }

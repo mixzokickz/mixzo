@@ -1,17 +1,18 @@
 import { cn } from '@/lib/utils'
 
 interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
-  variant?: 'new' | 'preowned' | 'default'
+  variant?: 'new' | 'preowned' | 'like-new' | 'default'
 }
 
 export function Badge({ className, variant = 'default', children, ...props }: BadgeProps) {
   return (
     <span
       className={cn(
-        'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold uppercase tracking-wider',
+        'inline-flex items-center text-[10px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-full',
         {
-          'bg-cyan/15 text-cyan border border-cyan/25': variant === 'new',
-          'bg-pink/15 text-pink border border-pink/25': variant === 'preowned',
+          'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20': variant === 'new',
+          'bg-amber-500/10 text-amber-400 border border-amber-500/20': variant === 'preowned',
+          'bg-sky-500/10 text-sky-400 border border-sky-500/20': variant === 'like-new',
           'bg-elevated text-text-secondary border border-border': variant === 'default',
         },
         className
@@ -24,10 +25,17 @@ export function Badge({ className, variant = 'default', children, ...props }: Ba
 }
 
 export function ConditionBadge({ condition }: { condition: string }) {
-  const isNew = condition === 'new'
-  return (
-    <Badge variant={isNew ? 'new' : 'preowned'}>
-      {isNew ? 'New' : 'Preowned'}
-    </Badge>
-  )
+  const normalized = condition.toLowerCase().trim()
+  let variant: BadgeProps['variant'] = 'preowned'
+  let label = 'Preowned'
+
+  if (normalized === 'new') {
+    variant = 'new'
+    label = 'New'
+  } else if (normalized === 'like new' || normalized === 'like-new') {
+    variant = 'like-new'
+    label = 'Like New'
+  }
+
+  return <Badge variant={variant}>{label}</Badge>
 }

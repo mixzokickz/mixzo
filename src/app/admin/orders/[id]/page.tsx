@@ -104,7 +104,7 @@ export default function OrderDetailPage() {
               onClick={() => updateStatus(s)}
               disabled={updating || order.status === s}
               className={`px-3 py-2 rounded-lg text-xs font-medium capitalize transition-colors disabled:opacity-50 ${
-                order.status === s ? 'bg-gradient-to-r from-[var(--pink)] to-[var(--cyan)] text-white' : 'bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:text-white'
+                order.status === s ? 'bg-[#FF2E88] hover:opacity-90 text-white' : 'bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:text-white'
               }`}
             >{s}</button>
           ))}
@@ -122,7 +122,7 @@ export default function OrderDetailPage() {
         ) : (
           <form onSubmit={updateTracking} className="flex gap-3">
             <input name="tracking" placeholder="Enter tracking number..." className="flex-1 bg-[var(--bg-elevated)] border border-[var(--border)] rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-[var(--text-muted)] focus:border-[var(--pink)] focus:outline-none" />
-            <button type="submit" disabled={updating} className="bg-gradient-to-r from-[var(--pink)] to-[var(--cyan)] text-white text-sm font-semibold px-4 rounded-xl disabled:opacity-50">
+            <button type="submit" disabled={updating} className="bg-[#FF2E88] hover:opacity-90 text-white text-sm font-semibold px-4 rounded-xl disabled:opacity-50">
               Add & Ship
             </button>
           </form>

@@ -4,8 +4,10 @@ import { Suspense } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { CheckCircle, Package, ArrowRight } from 'lucide-react'
+import { motion } from 'framer-motion'
 import { ShopHeader } from '@/components/layout/shop-header'
 import { Footer } from '@/components/layout/footer'
+import { MobileBottomNav } from '@/components/layout/mobile-bottom-nav'
 import { Button } from '@/components/ui/button'
 
 function ConfirmationContent() {
@@ -14,9 +16,20 @@ function ConfirmationContent() {
 
   return (
     <div className="flex flex-col items-center justify-center text-center max-w-md mx-auto py-20">
-      <div className="w-20 h-20 rounded-full bg-gradient-to-r from-pink to-cyan flex items-center justify-center mb-6">
-        <CheckCircle className="w-10 h-10 text-white" />
-      </div>
+      <motion.div
+        initial={{ scale: 0, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ type: 'spring', stiffness: 200, damping: 15, delay: 0.1 }}
+        className="w-20 h-20 rounded-full bg-pink flex items-center justify-center mb-6"
+      >
+        <motion.div
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ delay: 0.4, type: 'spring', stiffness: 300 }}
+        >
+          <CheckCircle className="w-10 h-10 text-white" />
+        </motion.div>
+      </motion.div>
       <h1 className="text-3xl font-bold mb-2">Order Confirmed</h1>
       <p className="text-text-secondary mb-4">Thank you for your purchase.</p>
       <div className="w-full p-4 rounded-xl bg-card border border-border mb-6">
@@ -41,12 +54,13 @@ export default function ConfirmationPage() {
   return (
     <div className="min-h-screen flex flex-col">
       <ShopHeader />
-      <main className="flex-1 pt-20 px-4">
+      <main className="flex-1 pt-24 px-6 md:px-12 lg:px-16 pb-mobile-nav">
         <Suspense fallback={<div className="flex items-center justify-center py-20 text-text-muted">Loading...</div>}>
           <ConfirmationContent />
         </Suspense>
       </main>
       <Footer />
+      <MobileBottomNav />
     </div>
   )
 }

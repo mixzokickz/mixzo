@@ -6,6 +6,8 @@ import { CheckCircle, XCircle, Loader2, Unplug } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { SITE_NAME, BUSINESS_EMAIL, BUSINESS_PHONE, BUSINESS_INSTAGRAM, BUSINESS_LOCATION } from '@/lib/constants'
 import { toast } from 'sonner'
+import { motion } from 'framer-motion'
+import { cn } from '@/lib/utils'
 
 export default function SettingsPage() {
   const searchParams = useSearchParams()

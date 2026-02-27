@@ -23,7 +23,7 @@ const US_STATES = [
 
 export default function CheckoutPage() {
   const router = useRouter()
-  const { items, getTotal, clear } = useCartStore()
+  const { items, getTotal, getCleaningTotal, setCleaning, clear } = useCartStore()
   const [loading, setLoading] = useState(false)
   const [summaryOpen, setSummaryOpen] = useState(false)
   const [form, setForm] = useState({
@@ -64,10 +64,12 @@ export default function CheckoutPage() {
         total,
         status: 'pending',
       })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Checkout failed')
       clear()
-      router.push(`/checkout/confirmation?order=${orderId}`)
-    } catch {
-      toast.error('Something went wrong. Please try again.')
+      router.push(`/checkout/confirmation?order=${data.order_number}`)
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Something went wrong. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -77,7 +79,7 @@ export default function CheckoutPage() {
     return (
       <div className="min-h-screen flex flex-col">
         <ShopHeader />
-        <main className="flex-1 pt-20 flex flex-col items-center justify-center text-center px-4">
+        <main className="flex-1 pt-24 flex flex-col items-center justify-center text-center px-6 md:px-12 lg:px-16">
           <CreditCard className="w-16 h-16 text-text-muted mb-4" />
           <h1 className="text-2xl font-bold mb-2">Nothing to checkout</h1>
           <p className="text-text-muted mb-6">Add some items to your cart first.</p>
@@ -93,7 +95,7 @@ export default function CheckoutPage() {
   return (
     <div className="min-h-screen flex flex-col">
       <ShopHeader />
-      <main className="flex-1 pt-20 px-4 pb-12">
+      <main className="flex-1 pt-24 px-6 md:px-12 lg:px-16 pb-12">
         <div className="max-w-5xl mx-auto">
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             <Link href="/cart" className="inline-flex items-center gap-1.5 text-sm text-text-muted hover:text-text transition-colors mb-6">
@@ -142,7 +144,7 @@ export default function CheckoutPage() {
                 <h2 className="text-lg font-semibold mb-3">Payment</h2>
                 <div className="flex items-center gap-3 p-4 rounded-xl bg-elevated text-sm text-text-muted">
                   <Lock className="w-5 h-5 text-cyan shrink-0" />
-                  Stripe payment integration coming soon. Orders will be confirmed via email.
+                  Secure payment processing. Orders will be confirmed via email.
                 </div>
               </div>
             </motion.div>
@@ -181,6 +183,9 @@ export default function CheckoutPage() {
 
                 <div className="space-y-2 pt-3 border-t border-border text-sm">
                   <div className="flex justify-between"><span className="text-text-secondary">Subtotal</span><span>{formatPrice(subtotal)}</span></div>
+                  {getCleaningTotal() > 0 && (
+                    <div className="flex justify-between"><span className="text-text-secondary">Cleaning Services</span><span className="text-[#00C2D6]">{formatPrice(getCleaningTotal())}</span></div>
+                  )}
                   <div className="flex justify-between"><span className="text-text-secondary">Shipping</span><span>{shipping === 0 ? 'Free' : formatPrice(shipping)}</span></div>
                 </div>
 

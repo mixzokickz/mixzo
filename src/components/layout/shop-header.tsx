@@ -8,6 +8,14 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useCartStore } from '@/stores/cart'
 import { cn } from '@/lib/utils'
 import { SearchOverlay } from '@/components/shop/search-overlay'
+import { BUSINESS_INSTAGRAM } from '@/lib/constants'
+
+const NAV_LINKS = [
+  { href: '/shop', label: 'Shop' },
+  { href: '/deals', label: 'Deals' },
+  { href: '/cleaning', label: 'Cleaning' },
+  { href: '/about', label: 'About' },
+]
 
 const NAV_LINKS = [
   { href: '/shop', label: 'Shop' },
@@ -71,6 +79,8 @@ export function ShopHeader() {
               </Link>
             ))}
           </nav>
+          {/* Empty spacer for mobile when nav is hidden */}
+          <div className="md:hidden" />
 
           <div className="flex items-center gap-1">
             <button
