@@ -116,8 +116,10 @@ function ShopContent() {
   const hasFilters = condition !== 'all' || search || selectedSizes.length > 0 || selectedBrands.length > 0
 
   return (
-    <div className="px-4 py-6 pb-mobile-nav">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen flex flex-col">
+      <ShopHeader />
+      <main className="flex-1 pt-20 px-4 py-6 pb-mobile-nav">
+        <div className="max-w-7xl mx-auto">
         {/* Search */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
@@ -258,7 +260,10 @@ function ShopContent() {
             ))}
           </div>
         )}
-      </div>
+        </div>
+      </main>
+      <Footer />
+      <MobileBottomNav />
     </div>
   )
 }
