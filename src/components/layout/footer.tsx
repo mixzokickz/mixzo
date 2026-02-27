@@ -15,7 +15,14 @@ export function Footer() {
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-10 lg:gap-12">
           {/* Brand */}
           <div className="col-span-2 sm:col-span-3 lg:col-span-1">
-            <span className="text-2xl font-black tracking-[-0.04em]"><span className="bg-gradient-to-r from-[#FF2E88] to-[#FF5C9A] bg-clip-text text-transparent">MIXZO</span><span className="text-white">KICKZ</span></span>
+            <div className="flex flex-col items-center leading-none">
+              <span className="text-2xl font-black tracking-[-0.02em] italic bg-gradient-to-r from-[#FF2E88] via-[#FF5C9A] to-[#00C2D6] bg-clip-text text-transparent">MIXZO</span>
+              <div className="flex items-center gap-1.5 -mt-0.5">
+                <span className="w-4 h-[2px] bg-gradient-to-r from-[#FF2E88] to-[#FF2E88]/60" />
+                <span className="text-[9px] font-bold tracking-[0.35em] text-[#A0A0B8]">KICKZ</span>
+                <span className="w-4 h-[2px] bg-gradient-to-l from-[#00C2D6] to-[#00C2D6]/60" />
+              </div>
+            </div>
             <p className="mt-4 text-sm text-[#6A6A80] leading-relaxed">
               New and preowned sneakers, authenticated and shipped from Denver, Colorado.
             </p>

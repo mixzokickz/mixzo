@@ -42,12 +42,20 @@ export function ShopHeader() {
       )}>
         <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16 h-16 md:h-20 grid grid-cols-[auto_1fr_auto] items-center">
           {/* Logo — hard left */}
-          <Link href="/" className="group flex items-center gap-2 justify-self-start relative">
+          <Link href="/" className="group flex items-center justify-self-start relative">
             <div className="absolute -inset-3 bg-gradient-to-r from-[#FF2E88]/20 to-[#00C2D6]/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            <span className="relative text-2xl font-black tracking-[-0.04em]">
-              <span className="bg-gradient-to-r from-[#FF2E88] to-[#FF5C9A] bg-clip-text text-transparent">MIXZO</span>
-              <span className="text-white group-hover:text-[#00C2D6] transition-colors duration-300">KICKZ</span>
-            </span>
+            <div className="relative flex flex-col items-center leading-none">
+              <span className="text-2xl md:text-3xl font-black tracking-[-0.02em] italic bg-gradient-to-r from-[#FF2E88] via-[#FF5C9A] to-[#00C2D6] bg-clip-text text-transparent">
+                MIXZO
+              </span>
+              <div className="flex items-center gap-1.5 -mt-0.5">
+                <span className="w-4 md:w-5 h-[2px] bg-gradient-to-r from-[#FF2E88] to-[#FF2E88]/60" />
+                <span className="text-[9px] md:text-[10px] font-bold tracking-[0.35em] text-[#A0A0B8] group-hover:text-white transition-colors duration-300">
+                  KICKZ
+                </span>
+                <span className="w-4 md:w-5 h-[2px] bg-gradient-to-l from-[#00C2D6] to-[#00C2D6]/60" />
+              </div>
+            </div>
           </Link>
 
           {/* Desktop Nav — true center */}
