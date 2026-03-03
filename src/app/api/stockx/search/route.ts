@@ -76,10 +76,16 @@ export async function GET(request: Request) {
 
     if (!query) return NextResponse.json({ error: 'Query required', products: [] }, { status: 400 })
 
-    // Try StockX first (if authenticated), fallback to GOAT
-    let products = await searchStockX(query, limit)
+    // GOAT Algolia is primary (free, no auth, always works)
+    let products = await searchGOAT(query, limit)
+
+    // Fallback to StockX only if GOAT returned nothing and we have a token
     if (!products || products.length === 0) {
-      products = await searchGOAT(query, limit)
+      try {
+        products = await searchStockX(query, limit)
+      } catch {
+        // StockX auth may not be configured — that's fine
+      }
     }
 
     return NextResponse.json({ products: products || [] })

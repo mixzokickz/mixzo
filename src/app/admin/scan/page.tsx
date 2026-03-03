@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { supabase } from '@/lib/supabase'
 import { toast } from 'sonner'
+import { isBarcode, isStyleId, normalizeStyleId, barcodeSearchQueries } from '@/lib/barcode-utils'
 
 type Tab = 'scan' | 'camera' | 'search'
 type ScanState = 'idle' | 'looking_up' | 'found' | 'not_found' | 'adding' | 'added'
@@ -81,7 +82,22 @@ export default function ScanPage() {
     setScanState('looking_up')
     setResult(null)
 
+    const makeResult = (p: any, source: 'cache' | 'goat' | 'upc'): ProductResult => ({
+      id: p.id || '',
+      name: p.name || '',
+      brand: p.brand || null,
+      colorway: p.colorway || null,
+      styleId: p.styleId || p.sku || null,
+      size: p.size || null,
+      retailPrice: p.retailPrice || null,
+      imageUrl: p.image || p.thumb || p.imageUrl || '',
+      imageUrls: [p.image || p.thumb || p.imageUrl || ''].filter(Boolean),
+      source,
+      goatProductId: p.goatProductId || p.id,
+    })
+
     try {
+      // ── Step 1: Always check barcode cache first ──
       try {
         const cacheRes = await fetch(`/api/admin/barcode-cache?barcode=${encodeURIComponent(code)}`)
         const cacheData = await cacheRes.json()
@@ -108,69 +124,74 @@ export default function ScanPage() {
         }
       } catch {}
 
-      const isBarcode = /^\d{10,14}$/.test(code)
+      const codeIsBarcode = isBarcode(code)
 
-      if (!isBarcode) {
-        const res = await fetch(`/api/stockx/search?q=${encodeURIComponent(code)}`)
+      // ── Step 2: Text queries (style IDs, shoe names) → search GOAT directly ──
+      if (!codeIsBarcode) {
+        const searchTerm = isStyleId(code) ? normalizeStyleId(code) : code
+        const res = await fetch(`/api/stockx/search?q=${encodeURIComponent(searchTerm)}`)
         const data = await res.json()
         const products = data.products || []
 
         if (products.length > 0) {
           const p = products[0]
-          setResult({
-            id: p.id || '',
-            name: p.name || '',
-            brand: p.brand || null,
-            colorway: p.colorway || null,
-            styleId: p.styleId || p.sku || null,
-            size: null,
-            retailPrice: p.retailPrice || null,
-            imageUrl: p.image || p.thumb || '',
-            imageUrls: [p.image || p.thumb || ''].filter(Boolean),
-            source: 'goat',
-            goatProductId: p.id,
-          })
+          const product = makeResult(p, 'goat')
+          setResult(product)
           if (p.retailPrice) setPrice(p.retailPrice.toString())
           setScanState('found')
           toast.success(`Found: ${p.name}`)
           return
         }
+
+        // Text search failed — show not found
+        setScanState('not_found')
+        setPendingBarcode(null)
+        toast('No products found — try different keywords')
+        return
       }
 
-      if (isBarcode) {
+      // ── Step 3: Barcode path — try GOAT direct barcode search ──
+      const queries = barcodeSearchQueries(code)
+      for (const q of queries) {
         try {
-          const upcRes = await fetch(`/api/upc-lookup?upc=${encodeURIComponent(code)}`)
-          const upcData = await upcRes.json()
-          if (upcData.title || upcData.brand) {
-            const searchTerm = upcData.title || upcData.brand
-            const res = await fetch(`/api/stockx/search?q=${encodeURIComponent(searchTerm)}`)
-            const data = await res.json()
-            if ((data.products || []).length > 0) {
-              const p = data.products[0]
-              const result: ProductResult = {
-                id: p.id || '',
-                name: p.name || '',
-                brand: p.brand || null,
-                colorway: p.colorway || null,
-                styleId: p.styleId || p.sku || null,
-                size: null,
-                retailPrice: p.retailPrice || null,
-                imageUrl: p.image || p.thumb || '',
-                imageUrls: [p.image || p.thumb || ''].filter(Boolean),
-                source: 'upc',
-                goatProductId: p.id,
-              }
-              setResult(result)
-              if (p.retailPrice) setPrice(p.retailPrice.toString())
-              setScanState('found')
-              toast.success(`Found via UPC: ${p.name}`)
-              saveToCache(code, result)
-              return
-            }
+          const res = await fetch(`/api/stockx/search?q=${encodeURIComponent(q)}`)
+          const data = await res.json()
+          const products = data.products || []
+          if (products.length > 0) {
+            const p = products[0]
+            const product = makeResult(p, 'goat')
+            setResult(product)
+            if (p.retailPrice) setPrice(p.retailPrice.toString())
+            setScanState('found')
+            toast.success(`Found: ${p.name}`)
+            saveToCache(code, product)
+            return
           }
         } catch {}
       }
 
+      // ── Step 4: UPC database lookup → get product name → GOAT search ──
+      try {
+        const upcRes = await fetch(`/api/upc-lookup?upc=${encodeURIComponent(code)}`)
+        const upcData = await upcRes.json()
+        if (upcData.title || upcData.brand) {
+          const searchTerm = upcData.title || upcData.brand
+          const res = await fetch(`/api/stockx/search?q=${encodeURIComponent(searchTerm)}`)
+          const data = await res.json()
+          if ((data.products || []).length > 0) {
+            const p = data.products[0]
+            const product = makeResult(p, 'upc')
+            setResult(product)
+            if (p.retailPrice) setPrice(p.retailPrice.toString())
+            setScanState('found')
+            toast.success(`Found via UPC: ${p.name}`)
+            saveToCache(code, product)
+            return
+          }
+        }
+      } catch {}
+
+      // ── Step 5: Nothing found — prompt manual search with barcode linking ──
       setScanState('not_found')
       setPendingBarcode(code)
       setSearchQuery('')
@@ -179,7 +200,14 @@ export default function ScanPage() {
     } catch (err) {
       console.error('Lookup error:', err)
       setScanState('not_found')
-      toast.error('Lookup failed')
+      if (isBarcode(code)) {
+        setPendingBarcode(code)
+        setSearchQuery('')
+        setTab('search')
+        toast('Lookup failed — try searching by name')
+      } else {
+        toast.error('Lookup failed')
+      }
     }
   }, [])
 
