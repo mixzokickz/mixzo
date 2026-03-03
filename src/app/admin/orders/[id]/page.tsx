@@ -25,14 +25,18 @@ export default function OrderDetailPage() {
 
   useEffect(() => {
     supabase.from('orders').select('*').eq('id', params.id).single()
-      .then(({ data }) => { setOrder(data); setLoading(false) })
+      .then(({ data, error }) => {
+        if (error) toast.error('Failed to load order')
+        setOrder(data)
+        setLoading(false)
+      })
   }, [params.id])
 
   async function updateStatus(status: string) {
     setUpdating(true)
     const token = (await supabase.auth.getSession()).data.session?.access_token
     const res = await fetch(`/api/admin/orders/${params.id}/edit`, {
-      method: 'PUT',
+      method: 'PATCH',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
       body: JSON.stringify({ status }),
     })
@@ -51,13 +55,17 @@ export default function OrderDetailPage() {
     const trackingNumber = (form.elements.namedItem('tracking') as HTMLInputElement).value
     setUpdating(true)
     const token = (await supabase.auth.getSession()).data.session?.access_token
-    await fetch(`/api/admin/orders/${params.id}/edit`, {
-      method: 'PUT',
+    const res = await fetch(`/api/admin/orders/${params.id}/edit`, {
+      method: 'PATCH',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
       body: JSON.stringify({ tracking_number: trackingNumber, status: 'shipped' }),
     })
-    setOrder(prev => prev ? { ...prev, tracking_number: trackingNumber, status: 'shipped' } : prev)
-    toast.success('Tracking added')
+    if (res.ok) {
+      setOrder(prev => prev ? { ...prev, tracking_number: trackingNumber, status: 'shipped' } : prev)
+      toast.success('Tracking added')
+    } else {
+      toast.error('Failed to add tracking')
+    }
     setUpdating(false)
   }
 

@@ -6,6 +6,7 @@ import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, User, Mail, Phone, MapPin, ShoppingBag } from 'lucide-react'
 import { formatPrice, formatDate } from '@/lib/utils'
+import { toast } from 'sonner'
 
 interface Customer {
   id: string; full_name: string; email: string; phone?: string; created_at: string;
@@ -24,12 +25,17 @@ export default function CustomerDetailPage() {
 
   useEffect(() => {
     async function load() {
-      const [{ data: c }, { data: o }] = await Promise.all([
-        supabase.from('profiles').select('*').eq('id', params.id).single(),
-        supabase.from('orders').select('id, created_at, status, total').eq('customer_id', params.id).order('created_at', { ascending: false }),
-      ])
-      setCustomer(c)
-      setOrders(o || [])
+      try {
+        const [{ data: c, error: cErr }, { data: o, error: oErr }] = await Promise.all([
+          supabase.from('profiles').select('*').eq('id', params.id).single(),
+          supabase.from('orders').select('id, created_at, status, total').eq('customer_id', params.id).order('created_at', { ascending: false }),
+        ])
+        if (cErr) toast.error('Failed to load customer')
+        setCustomer(c)
+        setOrders(o || [])
+      } catch {
+        toast.error('Failed to load customer')
+      }
       setLoading(false)
     }
     load()

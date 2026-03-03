@@ -43,7 +43,7 @@ export default function MonitoringPage() {
       const lat = Date.now() - authStart
       setChecks(prev => prev.map((c, i) => i === 1 ? { ...c, status: res.ok ? 'ok' : 'error', latency: lat, detail: res.ok ? `Operational (${lat}ms)` : 'Service degraded' } : c))
     } catch {
-      setChecks(prev => prev.map((c, i) => i === 1 ? { ...c, status: 'ok', latency: 45, detail: 'Auth service operational (45ms)' } : c))
+      setChecks(prev => prev.map((c, i) => i === 1 ? { ...c, status: 'error', detail: 'Auth check failed' } : c))
     }
 
     // StockX
@@ -64,7 +64,7 @@ export default function MonitoringPage() {
       const lat = Date.now() - feStart
       setChecks(prev => prev.map((c, i) => i === 3 ? { ...c, status: res.ok ? 'ok' : 'error', latency: lat, detail: res.ok ? `Responding (${lat}ms)` : 'Site unreachable' } : c))
     } catch {
-      setChecks(prev => prev.map((c, i) => i === 3 ? { ...c, status: 'ok', latency: 12, detail: 'Site responding (12ms)' } : c))
+      setChecks(prev => prev.map((c, i) => i === 3 ? { ...c, status: 'error', detail: 'Site check failed' } : c))
     }
 
     setLastCheck(new Date().toLocaleString())
