@@ -205,6 +205,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                           className="object-contain p-10 md:p-12"
                           sizes="(max-width: 768px) 100vw, 50vw"
                           priority
+                          quality={85}
                           style={{ filter: 'drop-shadow(0 8px 30px rgba(0,0,0,0.15))' }}
                         />
                       </motion.div>

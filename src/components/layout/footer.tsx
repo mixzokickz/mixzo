@@ -101,6 +101,12 @@ export function Footer() {
                 </div>
                 <span>{BUSINESS_LOCATION}</span>
               </li>
+              <li className="flex items-center gap-3 text-sm text-[#6A6A80] group">
+                <div className="w-8 h-8 rounded-lg bg-[#1A1A22] flex items-center justify-center shrink-0 group-hover:bg-[#FF2E88]/10 transition-colors duration-300">
+                  <Instagram className="w-3.5 h-3.5 group-hover:text-[#FF2E88] transition-colors" />
+                </div>
+                <a href={`https://instagram.com/${BUSINESS_INSTAGRAM.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors flex items-center gap-1">{BUSINESS_INSTAGRAM} <ArrowUpRight className="w-3 h-3" /></a>
+              </li>
             </ul>
           </div>
         </div>

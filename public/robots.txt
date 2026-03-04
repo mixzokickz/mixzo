@@ -5,4 +5,4 @@ Disallow: /api
 Disallow: /account
 Disallow: /checkout
 
-Sitemap: https://mixzokickz.com/sitemap.xml
+Sitemap: https://www.mixzokickz.com/sitemap.xml

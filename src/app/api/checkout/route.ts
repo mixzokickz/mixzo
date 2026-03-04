@@ -5,8 +5,13 @@ import type Stripe from 'stripe'
 import { getStripe } from '@/lib/stripe'
 import { supabaseAdmin } from '@/lib/supabase-server'
 import { FREE_SHIPPING_THRESHOLD } from '@/lib/constants'
+import { rateLimit, getClientIp } from '@/lib/rate-limit'
 
 export async function POST(request: Request) {
+  const ip = getClientIp(request)
+  const { ok } = rateLimit(ip, { maxRequests: 5, windowMs: 60000 })
+  if (!ok) return NextResponse.json({ error: 'Too many requests. Please wait a moment.' }, { status: 429 })
+
   const stripe = getStripe()
   try {
     const { items, customer, shipping_address, discount_code, gift_card_code, cleaning_services } = await request.json()

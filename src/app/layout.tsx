@@ -38,7 +38,7 @@ export const metadata: Metadata = {
       { url: '/favicon.ico', sizes: '32x32' },
       { url: '/favicon.png', sizes: '192x192', type: 'image/png' },
     ],
-    apple: '/favicon.png',
+    apple: '/apple-touch-icon.png',
   },
   robots: { index: true, follow: true },
   metadataBase: new URL('https://mixzokickz.com'),
@@ -48,6 +48,29 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={inter.variable}>
       <body className="font-sans antialiased">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'Store',
+              name: 'MixzoKickz',
+              url: 'https://mixzokickz.com',
+              logo: 'https://mixzokickz.com/favicon.png',
+              description: 'Premium new and preowned sneakers. Professional sneaker cleaning service. Based in Denver, Colorado.',
+              telephone: '720-720-5015',
+              email: 'Mixzo.kickz@gmail.com',
+              address: {
+                '@type': 'PostalAddress',
+                addressLocality: 'Denver',
+                addressRegion: 'CO',
+                addressCountry: 'US',
+              },
+              sameAs: ['https://instagram.com/mixzo.kickz'],
+              priceRange: '$$',
+            }),
+          }}
+        />
         {children}
         <Toaster
           position="top-right"

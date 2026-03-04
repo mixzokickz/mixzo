@@ -45,6 +45,8 @@ export function ProductCard({ product }: ProductCardProps) {
               fill
               className="object-contain p-5 transition-all duration-700 ease-out group-hover:scale-110 group-hover:rotate-[-2deg]"
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+              quality={80}
+              loading="lazy"
               style={{ filter: 'drop-shadow(0 6px 20px rgba(0,0,0,0.15))' }}
             />
           ) : (
