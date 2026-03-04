@@ -1,3 +1,5 @@
+export const runtime = 'nodejs'
+
 import { NextResponse } from 'next/server'
 import { getStripe } from '@/lib/stripe'
 import { supabaseAdmin } from '@/lib/supabase-server'

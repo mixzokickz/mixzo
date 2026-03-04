@@ -9,8 +9,9 @@ import { ORDER_STATUSES } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 
 interface Order {
-  id: string; created_at: string; status: string; total: number;
+  id: string; order_number?: string; created_at: string; status: string; total: number;
   customer_name: string; customer_email: string; items: Array<{ name: string; quantity: number }>;
+  payment_method?: string; shipping_address?: any;
 }
 
 export default function OrdersPage() {
@@ -28,7 +29,7 @@ export default function OrdersPage() {
     if (statusFilter !== 'all' && o.status !== statusFilter) return false
     if (search) {
       const q = search.toLowerCase()
-      return o.id.toLowerCase().includes(q) || o.customer_name?.toLowerCase().includes(q) || o.customer_email?.toLowerCase().includes(q)
+      return o.id.toLowerCase().includes(q) || o.order_number?.toLowerCase().includes(q) || o.customer_name?.toLowerCase().includes(q) || o.customer_email?.toLowerCase().includes(q)
     }
     return true
   })
@@ -80,7 +81,7 @@ export default function OrdersPage() {
               <Link key={order.id} href={`/admin/orders/${order.id}`} className="block bg-[var(--bg-card)] border border-[var(--border)] rounded-xl p-4 hover:border-[var(--pink)]/30 transition-colors">
                 <div className="flex items-start justify-between">
                   <div>
-                    <p className="text-sm font-medium text-white">#{order.id.slice(0, 8).toUpperCase()}</p>
+                    <p className="text-sm font-medium text-white">{order.order_number || `#${order.id.slice(0, 8).toUpperCase()}`}</p>
                     <p className="text-xs text-[var(--text-muted)]">{order.customer_name || 'Guest'} &middot; {formatDate(order.created_at)}</p>
                   </div>
                   <div className="text-right">
