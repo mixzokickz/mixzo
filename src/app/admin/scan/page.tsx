@@ -23,28 +23,9 @@ interface ProductResult {
   imageUrls: string[]
   source: 'cache' | 'goat' | 'upc' | 'stockx'
   goatProductId?: string
-  availableSizes?: string[]
 }
 
 // Fetch StockX product detail for sizes + better images
-async function fetchStockXDetail(productId: string): Promise<{ sizes: string[], imageUrl: string, imageUrls: string[] } | null> {
-  try {
-    const res = await fetch(`/api/stockx/product/${productId}`)
-    if (!res.ok) return null
-    const data = await res.json()
-    const sizes = (data.variants || [])
-      .map((v: any) => v.size)
-      .filter((s: string) => s && s !== '')
-      .sort((a: string, b: string) => parseFloat(a) - parseFloat(b))
-    return {
-      sizes,
-      imageUrl: data.imageUrl || '',
-      imageUrls: data.imageUrls || [],
-    }
-  } catch {
-    return null
-  }
-}
 
 const SNEAKER_SIZES = [
   '3.5', '4', '4.5', '5', '5.5', '6', '6.5', '7', '7.5', '8', '8.5',
@@ -73,8 +54,8 @@ export default function ScanPage() {
   const [barcode, setBarcode] = useState('')
   
   const [result, setResult] = useState<ProductResult | null>(null)
-  const [availableSizes, setAvailableSizes] = useState<string[]>([])
-  const [loadingSizes, setLoadingSizes] = useState(false)
+  
+  
 
   const [selectedSize, setSelectedSize] = useState('')
   const [condition, setCondition] = useState<'new' | 'preowned'>('new')
@@ -100,28 +81,11 @@ export default function ScanPage() {
     if (tab === 'search') setTimeout(() => searchInputRef.current?.focus(), 100)
   }, [tab, scanState])
 
-  // After finding a product, fetch StockX detail for available sizes + hi-res images
-  const enrichWithDetail = useCallback(async (productId: string) => {
-    setLoadingSizes(true)
-    const detail = await fetchStockXDetail(productId)
-    if (detail) {
-      if (detail.sizes.length > 0) setAvailableSizes(detail.sizes)
-      // Update image if detail has a better one
-      setResult(prev => {
-        if (!prev) return prev
-        const newImg = detail.imageUrl || prev.imageUrl
-        const newImgs = detail.imageUrls.length > 0 ? detail.imageUrls : prev.imageUrls
-        return { ...prev, imageUrl: newImg || prev.imageUrl, imageUrls: newImgs.length > 0 ? newImgs : prev.imageUrls }
-      })
-    }
-    setLoadingSizes(false)
-  }, [])
 
   const lookupBarcode = useCallback(async (code: string) => {
     if (!code.trim()) return
     setScanState('looking_up')
     setResult(null)
-    setAvailableSizes([])
 
     const makeResult = (p: any, source: 'cache' | 'goat' | 'upc' | 'stockx'): ProductResult => ({
       id: p.id || '',
@@ -162,7 +126,6 @@ export default function ScanPage() {
           setScanState('found')
           toast.success(`Found (scan #${cacheData.scanCount}): ${cp.name}`)
           // Fetch sizes from StockX if we have a product ID
-          if (cp.goatProductId || cp.stockxProductId) enrichWithDetail(cp.goatProductId || cp.stockxProductId)
           return
         }
       } catch {}
@@ -183,7 +146,6 @@ export default function ScanPage() {
           if (p.retailPrice) setPrice(p.retailPrice.toString())
           setScanState('found')
           toast.success(`Found: ${p.name}`)
-          if (p.id) enrichWithDetail(p.id)
           return
         }
 
@@ -208,7 +170,6 @@ export default function ScanPage() {
             setScanState('found')
             toast.success(`Found: ${p.name}`)
             saveToCache(code, product)
-            if (p.id) enrichWithDetail(p.id)
             return
           }
         } catch {}
@@ -230,19 +191,21 @@ export default function ScanPage() {
             setScanState('found')
             toast.success(`Found via UPC: ${p.name}`)
             saveToCache(code, product)
-            if (p.id) enrichWithDetail(p.id)
             return
           }
         }
       } catch {}
 
-      // ── Step 5: Nothing found ──
+      // ── Step 5: Nothing found — auto-switch to search tab ──
       setScanState('not_found')
-      toast('Barcode not recognized — try searching by name instead')
+      setTab('search')
+      setSearchQuery('')
+      toast('Barcode not in database — search by shoe name or style ID')
     } catch (err) {
       console.error('Lookup error:', err)
       setScanState('not_found')
-      toast.error('Lookup failed')
+      setTab('search')
+      toast.error('Lookup failed — try searching by name')
     }
   }, [])
 
@@ -295,12 +258,10 @@ export default function ScanPage() {
     setResult(product)
     if (p.retailPrice) setPrice(p.retailPrice.toString())
     setSelectedSize('')
-    setAvailableSizes([])
     setSearchResults([])
     setTab('scan')
     setScanState('found')
     toast.success(`Selected: ${p.name}`)
-    if (p.id) enrichWithDetail(p.id)
   }
 
   const handleAdd = async () => {
@@ -363,7 +324,6 @@ export default function ScanPage() {
     setScanState('idle')
     setResult(null)
     setBarcode('')
-    setAvailableSizes([])
     setSelectedSize('')
     setCondition('new')
     setHasBox(true)
@@ -743,10 +703,10 @@ export default function ScanPage() {
               <div className="relative">
                 <label className="text-xs text-[var(--text-secondary)] mb-3 block font-semibold uppercase tracking-wider">
                   Size {selectedSize && <span className="text-[#FF2E88] normal-case tracking-normal">— {selectedSize}</span>}
-                  {loadingSizes && <span className="text-[#00C2D6] ml-2 normal-case tracking-normal animate-pulse">Loading sizes...</span>}
+                  
                 </label>
                 <motion.div variants={stagger} initial="hidden" animate="visible" className="grid grid-cols-7 sm:grid-cols-9 gap-1.5">
-                  {(availableSizes.length > 0 ? availableSizes : SNEAKER_SIZES).map(s => (
+                  {SNEAKER_SIZES.map(s => (
                     <motion.button
                       key={s}
                       variants={scaleIn}
@@ -763,11 +723,6 @@ export default function ScanPage() {
                     </motion.button>
                   ))}
                 </motion.div>
-                {availableSizes.length > 0 && (
-                  <p className="text-[10px] text-[var(--text-muted)] mt-2">
-                    {availableSizes.length} sizes available from StockX
-                  </p>
-                )}
               </div>
 
               {/* Condition + Box Row */}

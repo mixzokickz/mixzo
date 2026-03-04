@@ -105,17 +105,16 @@ export async function GET(request: Request) {
 
     if (!query) return NextResponse.json({ error: 'Query required', products: [] }, { status: 400 })
 
-    // StockX is primary
-    let products: any[] | null = null
-    try {
-      products = await searchStockX(query, limit)
-    } catch {
-      // StockX auth may fail — fall through to GOAT
-    }
+    // GOAT Algolia is primary (free, always works for name/style ID)
+    let products = await searchGOAT(query, limit)
 
-    // GOAT Algolia as fallback if StockX returned nothing
+    // Try StockX as fallback if GOAT found nothing and we have a valid token
     if (!products || products.length === 0) {
-      products = await searchGOAT(query, limit)
+      try {
+        products = await searchStockX(query, limit)
+      } catch {
+        // StockX auth may not be configured
+      }
     }
 
     return NextResponse.json({ products: products || [] })
