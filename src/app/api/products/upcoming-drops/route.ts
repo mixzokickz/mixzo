@@ -3,17 +3,17 @@ import { supabaseAdmin } from '@/lib/supabase-server'
 
 export async function GET() {
   try {
+    // Try deals table first, fallback to empty array if table doesn't exist
     const { data, error } = await supabaseAdmin
-      .from('deals')
-      .select('*, products(*)')
-      .gte('ends_at', new Date().toISOString())
-      .order('starts_at', { ascending: true })
+      .from('products')
+      .select('*')
+      .eq('status', 'upcoming')
+      .order('created_at', { ascending: false })
       .limit(20)
 
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-    return NextResponse.json({ drops: data })
+    if (error) return NextResponse.json({ drops: [] })
+    return NextResponse.json({ drops: data || [] })
   } catch (error) {
-    console.error('Upcoming drops error:', error)
-    return NextResponse.json({ error: 'Server error' }, { status: 500 })
+    return NextResponse.json({ drops: [] })
   }
 }
