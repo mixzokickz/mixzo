@@ -157,9 +157,29 @@ export default function ScanPage() {
         return
       }
 
-      // ── Step 3: Barcode path — try GOAT direct barcode search ──
+      // ── Step 3: Barcode path — search StockX (matches GTINs in variants) ──
+      {
+        const res = await fetch(`/api/stockx/search?q=${encodeURIComponent(code)}`)
+        const data = await res.json()
+        const products = data.products || []
+        if (products.length > 0) {
+          const p = products[0]
+          const product = makeResult(p, 'stockx')
+          setResult(product)
+          if (p.retailPrice) setPrice(p.retailPrice.toString())
+          // Auto-select size if barcode matched a specific variant
+          if (p.matchedSize) setSelectedSize(p.matchedSize)
+          setScanState('found')
+          toast.success(p.matchedSize ? `Found: ${p.name} — Size ${p.matchedSize}` : `Found: ${p.name}`)
+          saveToCache(code, product)
+          return
+        }
+      }
+
+      // ── Step 4: Try alternate barcode queries ──
       const queries = barcodeSearchQueries(code)
       for (const q of queries) {
+        if (q === code) continue // Already tried exact barcode
         try {
           const res = await fetch(`/api/stockx/search?q=${encodeURIComponent(q)}`)
           const data = await res.json()
@@ -176,27 +196,6 @@ export default function ScanPage() {
           }
         } catch {}
       }
-
-      // ── Step 4: UPC database lookup → get product name → GOAT search ──
-      try {
-        const upcRes = await fetch(`/api/upc-lookup?upc=${encodeURIComponent(code)}`)
-        const upcData = await upcRes.json()
-        if (upcData.title || upcData.brand) {
-          const searchTerm = upcData.title || upcData.brand
-          const res = await fetch(`/api/stockx/search?q=${encodeURIComponent(searchTerm)}`)
-          const data = await res.json()
-          if ((data.products || []).length > 0) {
-            const p = data.products[0]
-            const product = makeResult(p, 'stockx')
-            setResult(product)
-            if (p.retailPrice) setPrice(p.retailPrice.toString())
-            setScanState('found')
-            toast.success(`Found via UPC: ${p.name}`)
-            saveToCache(code, product)
-            return
-          }
-        }
-      } catch {}
 
       // ── Step 5: Nothing found — auto-switch to search tab ──
       setScanState('not_found')

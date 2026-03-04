@@ -1,12 +1,25 @@
 import { NextResponse } from 'next/server'
-import { getStockXToken } from '@/lib/stockx'
+import { getStockXToken, stockxFetch } from '@/lib/stockx'
 
 const STOCKX_API_KEY = process.env.STOCKX_API_KEY || ''
 
 const GOAT_ALGOLIA_APP = '2FWOTDVM2O'
 const GOAT_ALGOLIA_KEY = 'ac96de6fef0e02bb95d433d8d5c7038a'
 
-async function searchStockX(query: string, limit: number) {
+interface ProductResult {
+  id: string
+  name: string
+  brand: string
+  colorway: string
+  retailPrice: number | null
+  styleId: string
+  image: string
+  thumb: string
+  availableSizes: string[]
+  imageUrls: string[]
+}
+
+async function searchStockX(query: string, limit: number): Promise<ProductResult[] | null> {
   const token = await getStockXToken()
   if (!token || !STOCKX_API_KEY) return null
 
@@ -22,49 +35,130 @@ async function searchStockX(query: string, limit: number) {
   )
   if (!res.ok) return null
   const data = await res.json()
-  return (data.products || []).map((p: any) => ({
-    id: p.id,
-    name: p.title || p.name,
-    brand: p.brand,
-    colorway: p.colorway,
-    retailPrice: p.retailPrice,
-    styleId: p.styleId,
-    image: p.media?.imageUrl || p.media?.thumbUrl || '',
-    thumb: p.media?.thumbUrl || p.media?.imageUrl || '',
-    // Include all images if available
-    imageUrls: [
-      p.media?.imageUrl,
-      p.media?.thumbUrl,
-      ...(p.media?.gallery || []),
-    ].filter(Boolean),
-  }))
+  const products = data.products || []
+  if (products.length === 0) return null
+
+  // For each product, fetch variants to get sizes + images
+  const results: ProductResult[] = []
+  for (const p of products.slice(0, limit)) {
+    const productId = p.productId || p.id
+    let sizes: string[] = []
+    let imageUrl = p.media?.imageUrl || p.media?.thumbUrl || ''
+
+    // Fetch variants for sizes
+    try {
+      const varRes = await fetch(
+        `https://api.stockx.com/v2/catalog/products/${productId}/variants?pageSize=100`,
+        { headers }
+      )
+      if (varRes.ok) {
+        const varData = await varRes.json()
+        const variants = Array.isArray(varData) ? varData : (varData.variants || [])
+        sizes = Array.from(new Set<string>(
+          variants
+            .map((v: any) => v.sizeChart?.defaultConversion?.size || v.variantValue || '')
+            .filter(Boolean)
+        )).sort((a: string, b: string) => parseFloat(a) - parseFloat(b))
+      }
+    } catch {}
+
+    // Try to resolve image from StockX CDN if media URL is missing
+    if (!imageUrl) {
+      const urlKey = p.urlKey || ''
+      if (urlKey) {
+        imageUrl = `https://images.stockx.com/images/${urlKey}.jpg`
+      }
+    }
+
+    results.push({
+      id: productId,
+      name: p.title || p.name || '',
+      brand: p.brand || '',
+      colorway: p.productAttributes?.colorway || p.colorway || '',
+      retailPrice: p.productAttributes?.retailPrice || p.retailPrice || null,
+      styleId: p.styleId || p.productAttributes?.sku || '',
+      image: imageUrl,
+      thumb: p.media?.thumbUrl || imageUrl,
+      availableSizes: sizes,
+      imageUrls: [imageUrl, p.media?.thumbUrl, ...(p.media?.gallery || [])].filter(Boolean),
+    })
+  }
+
+  return results.length > 0 ? results : null
 }
 
-// Fetch product detail from StockX to get available sizes
-async function getStockXProductDetail(productId: string) {
+// Search by barcode — look through StockX variants for matching GTIN
+async function searchStockXByBarcode(barcode: string): Promise<ProductResult | null> {
   const token = await getStockXToken()
   if (!token || !STOCKX_API_KEY) return null
 
-  try {
-    const res = await fetch(
-      `https://api.stockx.com/v2/catalog/products/${productId}`,
-      {
-        headers: {
-          'x-api-key': STOCKX_API_KEY,
-          'Authorization': `Bearer ${token}`,
-          'Accept': 'application/json',
-        },
-      }
-    )
-    if (!res.ok) return null
-    return await res.json()
-  } catch {
-    return null
+  const headers = {
+    'x-api-key': STOCKX_API_KEY,
+    'Authorization': `Bearer ${token}`,
+    'Accept': 'application/json',
   }
+
+  // StockX catalog search can match barcodes directly
+  const res = await fetch(
+    `https://api.stockx.com/v2/catalog/search?query=${encodeURIComponent(barcode)}&pageSize=5`,
+    { headers }
+  )
+  if (!res.ok) return null
+  const data = await res.json()
+  const products = data.products || []
+
+  // Check each product's variants for GTIN match
+  for (const p of products) {
+    const productId = p.productId || p.id
+    try {
+      const varRes = await fetch(
+        `https://api.stockx.com/v2/catalog/products/${productId}/variants?pageSize=100`,
+        { headers }
+      )
+      if (!varRes.ok) continue
+      const varData = await varRes.json()
+      const variants = Array.isArray(varData) ? varData : (varData.variants || [])
+
+      // Check GTINs for barcode match
+      let matchedSize = ''
+      for (const v of variants) {
+        const gtins = (v.gtins || []).map((g: any) => typeof g === 'string' ? g : g.identifier).filter(Boolean)
+        if (gtins.includes(barcode)) {
+          matchedSize = v.sizeChart?.defaultConversion?.size || v.variantValue || ''
+          break
+        }
+      }
+
+      // If barcode matched or this is the first result, return it
+      const allSizes = Array.from(new Set<string>(
+        variants
+          .map((v: any) => v.sizeChart?.defaultConversion?.size || v.variantValue || '')
+          .filter(Boolean)
+      )).sort((a: string, b: string) => parseFloat(a) - parseFloat(b))
+
+      const imageUrl = p.media?.imageUrl || p.media?.thumbUrl || (p.urlKey ? `https://images.stockx.com/images/${p.urlKey}.jpg` : '')
+
+      return {
+        id: productId,
+        name: p.title || p.name || '',
+        brand: p.brand || '',
+        colorway: p.productAttributes?.colorway || p.colorway || '',
+        retailPrice: p.productAttributes?.retailPrice || p.retailPrice || null,
+        styleId: p.styleId || p.productAttributes?.sku || '',
+        image: imageUrl,
+        thumb: p.media?.thumbUrl || imageUrl,
+        availableSizes: allSizes,
+        imageUrls: [imageUrl].filter(Boolean),
+        // Include matched size info
+        ...(matchedSize ? { matchedSize } : {}),
+      } as ProductResult
+    } catch {}
+  }
+
+  return null
 }
 
-async function searchGOAT(query: string, limit: number) {
-  // Fetch with distinct: false to get ALL size variants, then group by product
+async function searchGOAT(query: string, limit: number): Promise<ProductResult[] | null> {
   const res = await fetch(`https://${GOAT_ALGOLIA_APP}-dsn.algolia.net/1/indexes/product_variants_v2/query`, {
     method: 'POST',
     headers: {
@@ -82,7 +176,6 @@ async function searchGOAT(query: string, limit: number) {
   if (!res.ok) return null
   const data = await res.json()
 
-  // Group variants by product_template_id to collect all sizes
   const grouped = new Map<string, { hit: any; sizes: Set<string> }>()
   for (const h of (data.hits || [])) {
     const pid = String(h.product_template_id || h.sku || h.name)
@@ -104,7 +197,12 @@ async function searchGOAT(query: string, limit: number) {
       image: h.main_picture_url || h.picture_url || '',
       thumb: h.main_picture_url || h.picture_url || '',
       availableSizes: Array.from(sizes).sort((a, b) => parseFloat(a) - parseFloat(b)),
+      imageUrls: [h.main_picture_url || h.picture_url || ''].filter(Boolean),
     }))
+}
+
+function isBarcode(query: string): boolean {
+  return /^\d{10,14}$/.test(query.trim())
 }
 
 export async function GET(request: Request) {
@@ -115,19 +213,27 @@ export async function GET(request: Request) {
 
     if (!query) return NextResponse.json({ error: 'Query required', products: [] }, { status: 400 })
 
-    // GOAT Algolia is primary (free, always works for name/style ID)
-    let products = await searchGOAT(query, limit)
+    const trimmed = query.trim()
 
-    // Try StockX as fallback if GOAT found nothing and we have a valid token
-    if (!products || products.length === 0) {
-      try {
-        products = await searchStockX(query, limit)
-      } catch {
-        // StockX auth may not be configured
+    // If barcode, try StockX barcode lookup first (matches GTINs in variants)
+    if (isBarcode(trimmed)) {
+      const barcodeResult = await searchStockXByBarcode(trimmed)
+      if (barcodeResult) {
+        return NextResponse.json({ products: [barcodeResult], source: 'stockx-barcode' })
       }
     }
 
-    return NextResponse.json({ products: products || [] })
+    // StockX is primary search (name, style ID, or barcode fallback)
+    let products = await searchStockX(trimmed, limit)
+    let source = 'stockx'
+
+    // GOAT Algolia as fallback if StockX returned nothing
+    if (!products || products.length === 0) {
+      products = await searchGOAT(trimmed, limit)
+      source = 'goat'
+    }
+
+    return NextResponse.json({ products: products || [], source })
   } catch (error) {
     console.error('Search failed:', error)
     return NextResponse.json({ error: 'Search failed', products: [] }, { status: 500 })

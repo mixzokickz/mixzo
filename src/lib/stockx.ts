@@ -83,25 +83,47 @@ async function fetchClientCredentialsToken(): Promise<{
 
 export async function getStockXToken(): Promise<string | null> {
   const tokens = await getStockXTokens()
-  if (tokens) {
-    const now = new Date()
-    const expiresAt = new Date(tokens.expires_at)
-    if (expiresAt.getTime() - now.getTime() > 5 * 60 * 1000) {
-      return tokens.access_token
+  if (!tokens) return null
+
+  const now = new Date()
+  const expiresAt = new Date(tokens.expires_at)
+
+  // Token still valid (with 5 min buffer)
+  if (expiresAt.getTime() - now.getTime() > 5 * 60 * 1000) {
+    return tokens.access_token
+  }
+
+  // Token expired — try refresh
+  if (tokens.refresh_token) {
+    try {
+      const res = await fetch(STOCKX_TOKEN_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          grant_type: 'refresh_token',
+          client_id: STOCKX_CLIENT_ID,
+          client_secret: STOCKX_CLIENT_SECRET,
+          refresh_token: tokens.refresh_token,
+        }),
+      })
+      if (res.ok) {
+        const newTokens = await res.json()
+        await saveStockXTokens({
+          access_token: newTokens.access_token,
+          refresh_token: newTokens.refresh_token || tokens.refresh_token,
+          token_type: newTokens.token_type,
+          expires_in: newTokens.expires_in,
+          scope: newTokens.scope,
+        })
+        return newTokens.access_token
+      }
+      console.error('StockX token refresh failed:', res.status)
+    } catch (err) {
+      console.error('StockX token refresh error:', err)
     }
   }
 
-  // Try client_credentials
-  const ccToken = await fetchClientCredentialsToken()
-  if (ccToken) {
-    await saveStockXTokens({
-      access_token: ccToken.access_token,
-      expires_in: ccToken.expires_in,
-      token_type: ccToken.token_type,
-    })
-    return ccToken.access_token
-  }
-
+  // Token expired and refresh failed — need re-auth
   return null
 }
 
@@ -114,10 +136,11 @@ export async function stockxFetch(url: string): Promise<Response> {
 }
 
 export async function isStockXConnected(): Promise<boolean> {
-  // Simple check — can we search?
   try {
+    const token = await getStockXToken()
+    if (!token) return false
     const res = await fetch(`https://api.stockx.com/v2/catalog/search?query=test&pageSize=1`, {
-      headers: { 'x-api-key': STOCKX_API_KEY, Accept: 'application/json' },
+      headers: { 'x-api-key': STOCKX_API_KEY, Authorization: `Bearer ${token}`, Accept: 'application/json' },
     })
     return res.ok
   } catch {
