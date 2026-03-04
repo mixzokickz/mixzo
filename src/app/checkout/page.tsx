@@ -1,25 +1,24 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
-import { ArrowLeft, AlertTriangle, Lock, CreditCard, Sparkles, Droplets } from 'lucide-react'
+import { ArrowLeft, AlertTriangle, Lock, CreditCard, Sparkles, Droplets, ShieldCheck } from 'lucide-react'
 import { useCartStore } from '@/stores/cart'
 import { ShopHeader } from '@/components/layout/shop-header'
 import { Footer } from '@/components/layout/footer'
 import { MobileBottomNav } from '@/components/layout/mobile-bottom-nav'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { formatPrice, generateOrderId } from '@/lib/utils'
+import { formatPrice } from '@/lib/utils'
 import { FREE_SHIPPING_THRESHOLD } from '@/lib/constants'
-import { supabase } from '@/lib/supabase'
 import { toast } from 'sonner'
 
 export default function CheckoutPage() {
-  const router = useRouter()
-  const { items, getTotal, getCleaningTotal, setCleaning, clear } = useCartStore()
+  const { items, getTotal, getCleaningTotal, setCleaning } = useCartStore()
   const [loading, setLoading] = useState(false)
+  const [discountCode, setDiscountCode] = useState('')
+  const [giftCardCode, setGiftCardCode] = useState('')
   const [form, setForm] = useState({
     firstName: '', lastName: '', email: '', phone: '',
     address: '', city: '', state: '', zip: '',
@@ -45,6 +44,17 @@ export default function CheckoutPage() {
 
     setLoading(true)
     try {
+      // Build cleaning services array
+      const cleaningServices = items
+        .filter(i => i.cleaning)
+        .map(i => ({
+          product_id: i.id,
+          product_name: i.name,
+          size: i.size,
+          tier: i.cleaning,
+          quantity: i.quantity,
+        }))
+
       const res = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -62,15 +72,22 @@ export default function CheckoutPage() {
             postal_code: form.zip,
             country: 'US',
           },
+          discount_code: discountCode || undefined,
+          gift_card_code: giftCardCode || undefined,
+          cleaning_services: cleaningServices.length > 0 ? cleaningServices : undefined,
         }),
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Checkout failed')
-      clear()
-      router.push(`/checkout/confirmation?order=${data.order_number}`)
+
+      // Redirect to Stripe Checkout
+      if (data.url) {
+        window.location.href = data.url
+      } else {
+        throw new Error('No checkout URL returned')
+      }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Something went wrong. Please try again.')
-    } finally {
       setLoading(false)
     }
   }
@@ -180,11 +197,29 @@ export default function CheckoutPage() {
                 </div>
               )}
 
+              {/* Discount / Gift Card */}
+              <div className="rounded-xl bg-card border border-border p-6">
+                <h2 className="text-lg font-semibold mb-4">Discount & Gift Cards</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <Input placeholder="Discount code" value={discountCode} onChange={(e) => setDiscountCode(e.target.value)} />
+                  <Input placeholder="Gift card code" value={giftCardCode} onChange={(e) => setGiftCardCode(e.target.value)} />
+                </div>
+                <p className="text-xs text-text-muted mt-2">Codes will be applied at checkout.</p>
+              </div>
+
+              {/* Payment info */}
               <div className="rounded-xl bg-card border border-border p-6">
                 <h2 className="text-lg font-semibold mb-2">Payment</h2>
                 <div className="flex items-center gap-3 p-4 rounded-lg bg-elevated text-sm text-text-muted">
                   <Lock className="w-5 h-5 text-cyan shrink-0" />
-                  Secure payment processing. Orders will be confirmed via email.
+                  <div>
+                    <p className="text-text font-medium mb-1">Secure checkout powered by Stripe</p>
+                    <p>You&apos;ll be redirected to Stripe&apos;s secure payment page to complete your purchase.</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 mt-3 text-text-muted">
+                  <ShieldCheck className="w-4 h-4 shrink-0" />
+                  <p className="text-xs">Cards, Apple Pay, Google Pay accepted</p>
                 </div>
               </div>
             </div>
@@ -222,7 +257,20 @@ export default function CheckoutPage() {
                   All sales are final. Please review your order carefully.
                 </div>
                 <Button type="submit" className="w-full" size="lg" disabled={loading}>
-                  {loading ? 'Placing Order...' : 'Place Order'}
+                  {loading ? (
+                    <span className="flex items-center gap-2">
+                      <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                      </svg>
+                      Redirecting to payment...
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-2">
+                      <Lock className="w-4 h-4" />
+                      Pay with Stripe
+                    </span>
+                  )}
                 </Button>
               </div>
             </div>
