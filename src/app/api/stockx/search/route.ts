@@ -10,15 +10,15 @@ async function searchStockX(query: string, limit: number) {
   const token = await getStockXToken()
   if (!token || !STOCKX_API_KEY) return null
 
+  const headers = {
+    'x-api-key': STOCKX_API_KEY,
+    'Authorization': `Bearer ${token}`,
+    'Accept': 'application/json',
+  }
+
   const res = await fetch(
     `https://api.stockx.com/v2/catalog/search?query=${encodeURIComponent(query)}&pageSize=${limit}`,
-    {
-      headers: {
-        'x-api-key': STOCKX_API_KEY,
-        'Authorization': `Bearer ${token}`,
-        'Accept': 'application/json',
-      },
-    }
+    { headers }
   )
   if (!res.ok) return null
   const data = await res.json()
@@ -31,7 +31,36 @@ async function searchStockX(query: string, limit: number) {
     styleId: p.styleId,
     image: p.media?.imageUrl || p.media?.thumbUrl || '',
     thumb: p.media?.thumbUrl || p.media?.imageUrl || '',
+    // Include all images if available
+    imageUrls: [
+      p.media?.imageUrl,
+      p.media?.thumbUrl,
+      ...(p.media?.gallery || []),
+    ].filter(Boolean),
   }))
+}
+
+// Fetch product detail from StockX to get available sizes
+async function getStockXProductDetail(productId: string) {
+  const token = await getStockXToken()
+  if (!token || !STOCKX_API_KEY) return null
+
+  try {
+    const res = await fetch(
+      `https://api.stockx.com/v2/catalog/products/${productId}`,
+      {
+        headers: {
+          'x-api-key': STOCKX_API_KEY,
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json',
+        },
+      }
+    )
+    if (!res.ok) return null
+    return await res.json()
+  } catch {
+    return null
+  }
 }
 
 async function searchGOAT(query: string, limit: number) {
