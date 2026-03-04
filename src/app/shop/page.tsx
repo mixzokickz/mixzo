@@ -10,6 +10,7 @@ import { Footer } from '@/components/layout/footer'
 import { MobileBottomNav } from '@/components/layout/mobile-bottom-nav'
 import { ProductCard } from '@/components/shop/product-card'
 import { cn } from '@/lib/utils'
+import { SizeFilterSelector } from '@/components/ui/size-selector'
 
 interface Product {
   id: string
@@ -23,11 +24,6 @@ interface Product {
   colorway: string | null
   created_at: string
 }
-
-const SIZES = [
-  '4','4.5','5','5.5','6','6.5','7','7.5','8','8.5',
-  '9','9.5','10','10.5','11','11.5','12','12.5','13','14','15'
-]
 
 const BRANDS = ['Nike','Jordan','Adidas','New Balance','Yeezy','Puma','Reebok','Asics','Converse','Vans']
 
@@ -222,23 +218,7 @@ export default function ShopPage() {
 
                 {/* Size */}
                 <div>
-                  <label className="text-[10px] font-bold text-[#4A4A5A] mb-3 block uppercase tracking-[0.15em]">Size</label>
-                  <div className="flex flex-wrap gap-2">
-                    {SIZES.map(s => (
-                      <button
-                        key={s}
-                        onClick={() => setSelectedSize(selectedSize === s ? '' : s)}
-                        className={cn(
-                          'w-11 py-2 rounded-lg text-xs font-semibold border transition-all duration-300 text-center',
-                          selectedSize === s
-                            ? 'bg-[#FF2E88] text-white border-[#FF2E88] shadow-md shadow-[#FF2E88]/20'
-                            : 'bg-[#1A1A22] border-[#1E1E26] text-[#6A6A80] hover:border-[#FF2E88]/30 hover:text-[#A0A0B8]'
-                        )}
-                      >
-                        {s}
-                      </button>
-                    ))}
-                  </div>
+                  <SizeFilterSelector value={selectedSize} onSizeChange={setSelectedSize} />
                 </div>
               </div>
 

@@ -6,12 +6,8 @@ import { useRouter } from 'next/navigation'
 import { ArrowLeft, Check, Loader2, Sparkles, ShoppingBag, Box, ImagePlus, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
-
-const SNEAKER_SIZES = [
-  '3.5','4','4.5','5','5.5','6','6.5','7','7.5','8','8.5',
-  '9','9.5','10','10.5','11','11.5','12','12.5','13','13.5',
-  '14','14.5','15','16','17','18',
-]
+import { SizeSelector } from '@/components/ui/size-selector'
+import { SizeCategory } from '@/lib/constants'
 
 const BRANDS = ['Nike','Jordan','Adidas','New Balance','Yeezy','Puma','Reebok','Asics','Converse','Vans']
 
@@ -24,6 +20,7 @@ export default function NewProductPage() {
   const [styleId, setStyleId] = useState('')
   const [colorway, setColorway] = useState('')
   const [selectedSize, setSelectedSize] = useState('')
+  const [sizeCategory, setSizeCategory] = useState<SizeCategory>('MEN')
   const [condition, setCondition] = useState<'new' | 'preowned'>('new')
   const [hasBox, setHasBox] = useState(true)
   const [price, setPrice] = useState('')
@@ -154,27 +151,13 @@ export default function NewProductPage() {
         </div>
 
         {/* Size Grid */}
-        <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl p-5 space-y-4">
-          <label className="text-xs text-[var(--text-secondary)] block font-medium">
-            Size * {selectedSize && <span className="text-[var(--pink)]">— {selectedSize}</span>}
-          </label>
-          <div className="grid grid-cols-7 sm:grid-cols-9 gap-1.5">
-            {SNEAKER_SIZES.map(s => (
-              <button
-                key={s}
-                type="button"
-                onClick={() => setSelectedSize(s)}
-                className={cn(
-                  'py-2 rounded-lg text-xs font-semibold transition-all border',
-                  selectedSize === s
-                    ? 'bg-[#FF2E88] text-white border-[#FF2E88] shadow-lg shadow-[#FF2E88]/20'
-                    : 'bg-[var(--bg-elevated)] border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--pink)]/40 hover:text-white'
-                )}
-              >
-                {s}
-              </button>
-            ))}
-          </div>
+        <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl p-5">
+          <SizeSelector
+            value={selectedSize}
+            category={sizeCategory}
+            onSizeChange={setSelectedSize}
+            onCategoryChange={setSizeCategory}
+          />
         </div>
 
         {/* Condition + Box */}

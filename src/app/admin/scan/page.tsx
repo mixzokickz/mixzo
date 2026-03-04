@@ -28,11 +28,8 @@ interface ProductResult {
 
 // Fetch StockX product detail for sizes + better images
 
-const SNEAKER_SIZES = [
-  '3.5', '4', '4.5', '5', '5.5', '6', '6.5', '7', '7.5', '8', '8.5',
-  '9', '9.5', '10', '10.5', '11', '11.5', '12', '12.5', '13', '13.5',
-  '14', '14.5', '15', '16', '17', '18',
-]
+import { SizeSelector } from '@/components/ui/size-selector'
+import { SizeCategory } from '@/lib/constants'
 
 const fadeUp = {
   hidden: { opacity: 0, y: 16 },
@@ -59,6 +56,7 @@ export default function ScanPage() {
   
 
   const [selectedSize, setSelectedSize] = useState('')
+  const [sizeCategory, setSizeCategory] = useState<SizeCategory>('MEN')
   const [condition, setCondition] = useState<'new' | 'preowned'>('new')
   const [hasBox, setHasBox] = useState(true)
   const [price, setPrice] = useState('')
@@ -701,29 +699,16 @@ export default function ScanPage() {
                 </h3>
               </div>
 
-              {/* Size — Auto-detected from barcode */}
+              {/* Size — Category tabs + grid */}
               <div className="relative">
-                <label className="text-xs text-[var(--text-secondary)] mb-2.5 block font-semibold uppercase tracking-wider">
-                  Size
-                </label>
-                {selectedSize ? (
-                  <div className="flex items-center gap-3">
-                    <div className="bg-[#FF2E88] text-white text-2xl font-black px-6 py-3 rounded-2xl shadow-lg shadow-[#FF2E88]/25">
-                      {selectedSize}
-                    </div>
-                    <span className="text-xs text-[var(--text-muted)]">Auto-detected from barcode</span>
-                  </div>
-                ) : (
-                  <div>
-                    <input
-                      type="text"
-                      placeholder="Enter size (e.g. 10.5)"
-                      value={selectedSize}
-                      onChange={(e) => setSelectedSize(e.target.value)}
-                      className="w-full px-4 py-3 bg-[var(--bg)] border border-[var(--border)] rounded-xl text-white text-lg font-bold placeholder:text-[var(--text-muted)] placeholder:font-normal focus:border-[#FF2E88] focus:ring-1 focus:ring-[#FF2E88] outline-none transition-all"
-                    />
-                    <p className="text-[10px] text-[var(--text-muted)] mt-1.5">Scan barcode for auto-detection, or type manually</p>
-                  </div>
+                <SizeSelector
+                  value={selectedSize}
+                  category={sizeCategory}
+                  onSizeChange={setSelectedSize}
+                  onCategoryChange={setSizeCategory}
+                />
+                {selectedSize && (
+                  <p className="text-xs text-[#FF2E88] font-semibold mt-2">Selected: {selectedSize}</p>
                 )}
               </div>
 
