@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect, useCallback } from 'react'
-import { Keyboard, Camera, Search, Loader2, Check, X, Package, RotateCcw, Link2, Sparkles, ShoppingBag, Box, ImagePlus, Zap, ScanBarcode, ArrowRight, ChevronRight, Tag } from 'lucide-react'
+import { Keyboard, Camera, Search, Loader2, Check, X, Package, RotateCcw, Sparkles, ShoppingBag, Box, ImagePlus, Zap, ScanBarcode, ArrowRight, ChevronRight, Tag } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { supabase } from '@/lib/supabase'
@@ -50,7 +50,7 @@ export default function ScanPage() {
   const [tab, setTab] = useState<Tab>('scan')
   const [scanState, setScanState] = useState<ScanState>('idle')
   const [barcode, setBarcode] = useState('')
-  const [pendingBarcode, setPendingBarcode] = useState<string | null>(null)
+  
   const [result, setResult] = useState<ProductResult | null>(null)
 
   const [selectedSize, setSelectedSize] = useState('')
@@ -145,7 +145,6 @@ export default function ScanPage() {
 
         // Text search failed — show not found
         setScanState('not_found')
-        setPendingBarcode(null)
         toast('No products found — try different keywords')
         return
       }
@@ -191,23 +190,13 @@ export default function ScanPage() {
         }
       } catch {}
 
-      // ── Step 5: Nothing found — prompt manual search with barcode linking ──
+      // ── Step 5: Nothing found ──
       setScanState('not_found')
-      setPendingBarcode(code)
-      setSearchQuery('')
-      setTab('search')
-      toast('Barcode not recognized — search by shoe name to link it')
+      toast('Barcode not recognized — try searching by name instead')
     } catch (err) {
       console.error('Lookup error:', err)
       setScanState('not_found')
-      if (isBarcode(code)) {
-        setPendingBarcode(code)
-        setSearchQuery('')
-        setTab('search')
-        toast('Lookup failed — try searching by name')
-      } else {
-        toast.error('Lookup failed')
-      }
+      toast.error('Lookup failed')
     }
   }, [])
 
@@ -265,11 +254,6 @@ export default function ScanPage() {
     setScanState('found')
     toast.success(`Selected: ${p.name}`)
 
-    if (pendingBarcode) {
-      saveToCache(pendingBarcode, product)
-      toast.success(`Barcode ${pendingBarcode} linked! Future scans will be instant.`)
-      setPendingBarcode(null)
-    }
   }
 
   const handleAdd = async () => {
@@ -332,7 +316,6 @@ export default function ScanPage() {
     setScanState('idle')
     setResult(null)
     setBarcode('')
-    setPendingBarcode(null)
     setSelectedSize('')
     setCondition('new')
     setHasBox(true)
@@ -418,28 +401,6 @@ export default function ScanPage() {
           </button>
         ))}
       </motion.div>
-
-      {/* Pending barcode banner */}
-      <AnimatePresence>
-        {pendingBarcode && tab === 'search' && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="overflow-hidden"
-          >
-            <div className="bg-gradient-to-r from-[#00C2D6]/10 to-[#FF2E88]/10 border border-[#00C2D6]/30 rounded-2xl px-5 py-4 flex items-center gap-4">
-              <div className="w-10 h-10 rounded-xl bg-[#00C2D6]/15 flex items-center justify-center shrink-0">
-                <Link2 size={18} className="text-[#00C2D6]" />
-              </div>
-              <div>
-                <p className="text-sm text-white font-semibold">Linking barcode: <span className="font-mono text-[#00C2D6]">{pendingBarcode}</span></p>
-                <p className="text-xs text-[var(--text-muted)] mt-0.5">Search for the shoe below. Selecting it will link this barcode for instant future scans.</p>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* ── Tab: Scan / Type ── */}
       <AnimatePresence mode="wait">
@@ -590,11 +551,6 @@ export default function ScanPage() {
                         <span className="flex items-center gap-1 text-xs text-[#FF2E88] font-semibold group-hover:translate-x-0.5 transition-transform">
                           Select <ChevronRight size={14} />
                         </span>
-                        {pendingBarcode && (
-                          <span className="text-[10px] text-[#00C2D6] flex items-center gap-1">
-                            <Link2 size={10} /> Link barcode
-                          </span>
-                        )}
                       </div>
                     </motion.button>
                   ))}
