@@ -129,7 +129,7 @@ export default function HomePage() {
         <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] rounded-full bg-[#00C2D6]/[0.04] blur-[120px] pointer-events-none" />
 
         <motion.div style={{ opacity: heroOpacity }} className="max-w-7xl mx-auto relative">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
+          <div className="grid gap-16 items-center">
             {/* Left: Text */}
             <div>
               <motion.div
@@ -188,8 +188,10 @@ export default function HomePage() {
               </motion.div>
             </div>
 
-            {/* Right: Hero Showcase */}
-            <HeroShowcase />
+            {/* Hero Showcase — mobile only */}
+            <div className="lg:hidden">
+              <HeroShowcase />
+            </div>
           </div>
 
           {/* Trust signals */}
