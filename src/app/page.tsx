@@ -129,7 +129,7 @@ export default function HomePage() {
         <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] rounded-full bg-[#00C2D6]/[0.04] blur-[120px] pointer-events-none" />
 
         <motion.div style={{ opacity: heroOpacity }} className="max-w-7xl mx-auto relative">
-          <div className="grid lg:grid-cols-[1fr,300px] gap-12 lg:gap-12 items-start">
+          <div className="grid md:grid-cols-[1fr,220px] lg:grid-cols-[1fr,260px] gap-8 md:gap-8 lg:gap-12 items-start">
             {/* Left: Text */}
             <div>
               <motion.div
@@ -188,16 +188,14 @@ export default function HomePage() {
               </motion.div>
 
               {/* Raffle Promo — MOBILE ONLY (below buttons) */}
-              <div className="block lg:hidden mt-10 max-w-sm">
+              <div className="block md:hidden mt-8">
                 <RafflePromo />
               </div>
             </div>
 
-            {/* Raffle Promo — DESKTOP ONLY (right column, beside hero text) */}
-            <div className="hidden lg:flex lg:items-start lg:pt-4">
-              <div className="w-full">
-                <RafflePromo />
-              </div>
+            {/* Raffle Promo — DESKTOP/TABLET (right column, beside hero text) */}
+            <div className="hidden md:block pt-4">
+              <RafflePromo />
             </div>
           </div>
 

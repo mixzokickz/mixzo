@@ -40,7 +40,7 @@ export function CountdownTimer({ endDate, className = '', size = 'md' }: Countdo
   }
 
   const sizeClasses = {
-    sm: { box: 'w-10 h-10', num: 'text-sm', label: 'text-[8px]', gap: 'gap-1.5' },
+    sm: { box: 'w-8 h-8 lg:w-9 lg:h-9', num: 'text-[10px] lg:text-xs', label: 'text-[7px]', gap: 'gap-1' },
     md: { box: 'w-14 h-14', num: 'text-lg', label: 'text-[9px]', gap: 'gap-2' },
     lg: { box: 'w-18 h-18', num: 'text-2xl', label: 'text-[10px]', gap: 'gap-3' },
   }
