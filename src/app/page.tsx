@@ -129,7 +129,7 @@ export default function HomePage() {
         <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] rounded-full bg-[#00C2D6]/[0.04] blur-[120px] pointer-events-none" />
 
         <motion.div style={{ opacity: heroOpacity }} className="max-w-7xl mx-auto relative">
-          <div className="grid lg:grid-cols-[1fr,340px] gap-12 lg:gap-16 items-start">
+          <div className="grid lg:grid-cols-[1fr,260px] gap-12 lg:gap-10 items-start">
             {/* Left: Text */}
             <div>
               <motion.div
@@ -194,7 +194,7 @@ export default function HomePage() {
             </div>
 
             {/* Raffle Promo — DESKTOP ONLY (right column) */}
-            <div className="hidden lg:block pt-8">
+            <div className="hidden lg:block pt-8 max-w-[260px]">
               <RafflePromo />
             </div>
           </div>

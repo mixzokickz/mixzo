@@ -62,8 +62,8 @@ export function RafflePromo() {
         <div className="absolute -bottom-16 -left-16 w-32 h-32 bg-[#00C2D6]/[0.04] rounded-full blur-[50px] pointer-events-none" />
 
         {/* Raffle badge */}
-        <div className="relative px-5 pt-4 pb-0">
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#FF2E88]/10 border border-[#FF2E88]/20 text-[#FF2E88] text-[10px] font-bold uppercase tracking-wider">
+        <div className="relative px-3 pt-3 pb-0">
+          <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-[#FF2E88]/10 border border-[#FF2E88]/20 text-[#FF2E88] text-[9px] font-bold uppercase tracking-wider">
             <span className="relative flex h-1.5 w-1.5">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#FF2E88] opacity-75" />
               <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#FF2E88]" />
@@ -73,8 +73,8 @@ export function RafflePromo() {
         </div>
 
         {/* Product image */}
-        <div className="relative px-5 pt-3 pb-0">
-          <div className="relative w-full aspect-[4/3] rounded-xl overflow-hidden bg-[#0F0F13] border border-[#1E1E26]/50">
+        <div className="relative px-3 pt-2.5 pb-0">
+          <div className="relative w-full aspect-square rounded-lg overflow-hidden bg-[#0F0F13] border border-[#1E1E26]/50">
             {raffle.product_image ? (
               <img
                 src={raffle.product_image}
@@ -90,32 +90,32 @@ export function RafflePromo() {
         </div>
 
         {/* Info */}
-        <div className="relative px-5 pt-4 pb-5">
-          <h3 className="text-base font-bold text-[#F4F4F4] leading-snug truncate">
+        <div className="relative px-3 pt-2.5 pb-3.5">
+          <h3 className="text-sm font-bold text-[#F4F4F4] leading-snug truncate">
             {raffle.product_name || raffle.title}
           </h3>
           {raffle.product_size && (
-            <p className="text-xs text-[#6A6A80] mt-0.5">Size {raffle.product_size}</p>
+            <p className="text-[10px] text-[#6A6A80] mt-0.5">Size {raffle.product_size}</p>
           )}
 
-          <div className="mt-3">
+          <div className="mt-2">
             <CountdownTimer endDate={raffle.end_date} size="sm" />
           </div>
 
-          <div className="mt-4 flex items-center gap-3">
-            <Link href="/raffles" className="flex-1">
-              <button className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold bg-[#FF2E88] hover:bg-[#FF2E88]/90 text-white transition-all shadow-lg shadow-[#FF2E88]/25 cursor-pointer group">
+          <div className="mt-3">
+            <Link href="/raffles" className="block">
+              <button className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold bg-[#FF2E88] hover:bg-[#FF2E88]/90 text-white transition-all shadow-lg shadow-[#FF2E88]/25 cursor-pointer group">
                 ${raffle.entry_price} to Enter
-                <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
+                <ArrowRight className="w-3 h-3 transition-transform group-hover:translate-x-0.5" />
               </button>
             </Link>
           </div>
 
-          <div className="mt-2.5 flex items-center justify-between">
-            <span className="text-[10px] text-[#6A6A80]">
+          <div className="mt-2 flex items-center justify-between">
+            <span className="text-[9px] text-[#6A6A80]">
               {raffle.entry_count || 0} entries
             </span>
-            <span className="text-[10px] text-[#6A6A80]">
+            <span className="text-[9px] text-[#6A6A80]">
               Terms apply
             </span>
           </div>
