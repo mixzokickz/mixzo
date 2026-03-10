@@ -54,7 +54,7 @@ export function RafflePromo() {
       initial={{ opacity: 0, y: 20, scale: 0.95 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ duration: 0.8, ease: easeOutExpo, delay: 0.5 }}
-      className="w-full"
+      className="w-full max-w-[300px] lg:max-w-none"
     >
       <div className="relative rounded-2xl overflow-hidden border border-[#FF2E88]/20 bg-[#141418]/80 backdrop-blur-xl shadow-2xl shadow-[#FF2E88]/[0.08]">
         {/* Subtle glow */}
