@@ -10,6 +10,7 @@ const nextConfig: NextConfig = {
       { protocol: 'https', hostname: 'cdn.goat.com' },
       { protocol: 'https', hostname: 'image.goat.com' },
       { protocol: 'https', hostname: 'afmtwymcqprwaukkpfta.supabase.co' },
+      { protocol: 'https', hostname: '**' },
     ],
   },
 }
