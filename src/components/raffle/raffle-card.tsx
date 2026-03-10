@@ -1,6 +1,5 @@
 'use client'
 
-import Image from 'next/image'
 import { Users, Ticket } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { CountdownTimer } from './countdown-timer'
@@ -35,11 +34,10 @@ export function RaffleCard({ raffle, onEnter }: RaffleCardProps) {
       {/* Image */}
       <div className="relative aspect-square bg-[#0F0F13] overflow-hidden">
         {raffle.product_image ? (
-          <Image
+          <img
             src={raffle.product_image}
             alt={raffle.product_name || raffle.title}
-            fill
-            className="object-cover group-hover:scale-105 transition-transform duration-500"
+            className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center">

@@ -1,9 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { Ticket, Trophy, ArrowRight } from 'lucide-react'
-import { motion } from 'framer-motion'
+import { Ticket, Trophy, X, Mail, User, ArrowRight, Loader2 } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
 import { ShopHeader } from '@/components/layout/shop-header'
 import { Footer } from '@/components/layout/footer'
@@ -29,11 +29,16 @@ const easeOutExpo = [0.16, 1, 0.3, 1] as const
 export default function RafflesPage() {
   const [raffles, setRaffles] = useState<Raffle[]>([])
   const [loading, setLoading] = useState(true)
+  const [entryModal, setEntryModal] = useState<Raffle | null>(null)
+  const [email, setEmail] = useState('')
+  const [name, setName] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+  const emailRef = useRef<HTMLInputElement>(null)
   const searchParams = useSearchParams()
 
   useEffect(() => {
     if (searchParams.get('entered') === 'true') {
-      toast.success('You have been entered into the raffle! Check your email for confirmation.')
+      toast.success('You\'re in! Check your email for confirmation.')
     }
   }, [searchParams])
 
@@ -52,34 +57,49 @@ export default function RafflesPage() {
     load()
   }, [])
 
-  async function handleEnter(raffleId: string) {
+  // Focus email input when modal opens
+  useEffect(() => {
+    if (entryModal) {
+      setTimeout(() => emailRef.current?.focus(), 100)
+    }
+  }, [entryModal])
+
+  function openEntryModal(raffleId: string) {
     const raffle = raffles.find((r) => r.id === raffleId)
-    if (!raffle) return
+    if (raffle) {
+      setEntryModal(raffle)
+      setEmail('')
+      setName('')
+    }
+  }
 
-    const email = prompt('Enter your email address:')
-    if (!email) return
-    const name = prompt('Enter your full name:')
-    if (!name) return
+  async function handleSubmitEntry(e: React.FormEvent) {
+    e.preventDefault()
+    if (!entryModal || !email || !name) return
 
+    setSubmitting(true)
     try {
-      const res = await fetch(`/api/raffles/${raffleId}/enter`, {
+      const res = await fetch(`/api/raffles/${entryModal.id}/enter`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ customer_email: email, customer_name: name }),
+        body: JSON.stringify({ customer_email: email.trim(), customer_name: name.trim() }),
       })
 
       const data = await res.json()
 
       if (!res.ok) {
         toast.error(data.error || 'Failed to enter raffle')
+        setSubmitting(false)
         return
       }
 
+      // Redirect to Stripe checkout
       if (data.url) {
         window.location.href = data.url
       }
     } catch {
       toast.error('Something went wrong. Please try again.')
+      setSubmitting(false)
     }
   }
 
@@ -155,7 +175,7 @@ export default function RafflesPage() {
                     viewport={{ once: true }}
                     transition={{ delay: i * 0.05, duration: 0.5, ease: easeOutExpo }}
                   >
-                    <RaffleCard raffle={raffle} onEnter={handleEnter} />
+                    <RaffleCard raffle={raffle} onEnter={openEntryModal} />
                   </motion.div>
                 ))}
               </div>
@@ -189,6 +209,134 @@ export default function RafflesPage() {
           </div>
         </section>
       )}
+
+      {/* ─── Entry Modal ─── */}
+      <AnimatePresence>
+        {entryModal && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => !submitting && setEntryModal(null)}
+              className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm"
+            />
+
+            {/* Modal */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ duration: 0.3, ease: easeOutExpo }}
+              className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            >
+              <div className="relative w-full max-w-md rounded-2xl bg-[#141418] border border-[#1E1E26] shadow-2xl shadow-black/40 overflow-hidden">
+                {/* Glow */}
+                <div className="absolute -top-20 -right-20 w-40 h-40 bg-[#FF2E88]/[0.06] rounded-full blur-[60px] pointer-events-none" />
+
+                {/* Close button */}
+                <button
+                  onClick={() => !submitting && setEntryModal(null)}
+                  className="absolute top-4 right-4 w-8 h-8 rounded-full bg-[#0C0C0C] border border-[#1E1E26] flex items-center justify-center text-[#6A6A80] hover:text-white transition-colors z-10 cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+
+                {/* Header with product */}
+                <div className="relative p-6 pb-4">
+                  <div className="flex items-center gap-4">
+                    {entryModal.product_image && (
+                      <div className="w-16 h-16 rounded-xl overflow-hidden bg-[#0F0F13] border border-[#1E1E26] shrink-0">
+                        <img
+                          src={entryModal.product_image}
+                          alt=""
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    )}
+                    <div className="min-w-0">
+                      <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-[#FF2E88]/10 text-[#FF2E88] text-[10px] font-bold uppercase tracking-wider mb-1">
+                        <Ticket className="w-3 h-3" />
+                        Raffle Entry
+                      </div>
+                      <h3 className="text-lg font-bold text-[#F4F4F4] truncate">
+                        {entryModal.product_name || entryModal.title}
+                      </h3>
+                      {entryModal.product_size && (
+                        <p className="text-xs text-[#6A6A80]">Size {entryModal.product_size}</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Form */}
+                <form onSubmit={handleSubmitEntry} className="px-6 pb-6">
+                  <div className="space-y-3">
+                    {/* Email */}
+                    <div>
+                      <label className="block text-xs font-medium text-[#6A6A80] mb-1.5">Email</label>
+                      <div className="relative">
+                        <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6A6A80]" />
+                        <input
+                          ref={emailRef}
+                          type="email"
+                          required
+                          placeholder="your@email.com"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          disabled={submitting}
+                          className="w-full pl-10 pr-4 py-3 rounded-xl bg-[#0C0C0C] border border-[#1E1E26] text-sm text-[#F4F4F4] placeholder:text-[#4A4A5A] focus:border-[#FF2E88]/40 focus:outline-none focus:ring-1 focus:ring-[#FF2E88]/20 transition-colors disabled:opacity-50"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Name */}
+                    <div>
+                      <label className="block text-xs font-medium text-[#6A6A80] mb-1.5">Full Name</label>
+                      <div className="relative">
+                        <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6A6A80]" />
+                        <input
+                          type="text"
+                          required
+                          placeholder="John Doe"
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
+                          disabled={submitting}
+                          className="w-full pl-10 pr-4 py-3 rounded-xl bg-[#0C0C0C] border border-[#1E1E26] text-sm text-[#F4F4F4] placeholder:text-[#4A4A5A] focus:border-[#FF2E88]/40 focus:outline-none focus:ring-1 focus:ring-[#FF2E88]/20 transition-colors disabled:opacity-50"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Submit */}
+                  <button
+                    type="submit"
+                    disabled={submitting || !email || !name}
+                    className="w-full mt-5 py-3.5 rounded-xl bg-[#FF2E88] hover:bg-[#FF2E88]/90 disabled:bg-[#FF2E88]/50 disabled:cursor-not-allowed text-white text-sm font-bold transition-all shadow-lg shadow-[#FF2E88]/25 flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    {submitting ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Redirecting to checkout...
+                      </>
+                    ) : (
+                      <>
+                        Enter for ${entryModal.entry_price}
+                        <ArrowRight className="w-4 h-4" />
+                      </>
+                    )}
+                  </button>
+
+                  <p className="text-[10px] text-[#6A6A80] text-center mt-3">
+                    You&apos;ll be redirected to secure checkout. One entry per person. Terms apply.
+                  </p>
+                </form>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
 
       <Footer />
       <MobileBottomNav />
