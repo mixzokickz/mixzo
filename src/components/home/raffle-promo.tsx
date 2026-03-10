@@ -99,7 +99,7 @@ export function RafflePromo() {
       </div>
 
       {/* Desktop/Tablet: vertical compact card */}
-      <div className="hidden md:block">
+      <div className="hidden md:block max-w-[260px]">
         <div className="relative rounded-xl overflow-hidden border border-[#FF2E88]/15 bg-[#141418]/80 backdrop-blur-xl shadow-xl shadow-black/20">
           <div className="absolute -top-12 -right-12 w-24 h-24 bg-[#FF2E88]/[0.05] rounded-full blur-[40px] pointer-events-none" />
 
@@ -116,9 +116,9 @@ export function RafflePromo() {
 
           {/* Image */}
           <div className="relative px-2.5 pt-2 pb-0">
-            <div className="relative w-full aspect-[4/3] rounded-lg overflow-hidden bg-[#0F0F13] border border-[#1E1E26]/40">
+            <div className="relative w-full rounded-lg overflow-hidden bg-[#0F0F13] border border-[#1E1E26]/40" style={{ aspectRatio: '4/3', maxHeight: '160px' }}>
               {raffle.product_image ? (
-                <img src={raffle.product_image} alt={raffle.product_name || raffle.title} className="w-full h-full object-cover" />
+                <img src={raffle.product_image} alt={raffle.product_name || raffle.title} className="absolute inset-0 w-full h-full object-cover" />
               ) : (
                 <div className="absolute inset-0 flex items-center justify-center">
                   <Ticket className="w-10 h-10 text-[#1E1E26]" />

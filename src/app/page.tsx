@@ -194,7 +194,7 @@ export default function HomePage() {
             </div>
 
             {/* Raffle Promo — DESKTOP/TABLET (right column, beside hero text) */}
-            <div className="hidden md:block pt-4">
+            <div className="hidden md:block pt-4 w-full max-w-[220px] lg:max-w-[260px] overflow-hidden">
               <RafflePromo />
             </div>
           </div>
