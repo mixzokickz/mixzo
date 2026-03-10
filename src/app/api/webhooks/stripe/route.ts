@@ -4,7 +4,7 @@ import { NextResponse } from 'next/server'
 import type Stripe from 'stripe'
 import { getStripe } from '@/lib/stripe'
 import { supabaseAdmin } from '@/lib/supabase-server'
-import { sendOrderConfirmation } from '@/lib/email'
+import { sendOrderConfirmation, sendRaffleEntryConfirmation } from '@/lib/email'
 
 export async function POST(request: Request) {
   const stripe = getStripe()
@@ -55,8 +55,80 @@ export async function POST(request: Request) {
   return NextResponse.json({ received: true })
 }
 
+async function handleRaffleEntry(session: Stripe.Checkout.Session) {
+  const metadata = session.metadata || {}
+  const raffleId = metadata.raffle_id
+  const customerEmail = metadata.customer_email
+  const customerName = metadata.customer_name
+
+  if (!raffleId || !customerEmail) {
+    console.error('Missing raffle metadata')
+    return
+  }
+
+  // Get next entry number
+  const { count } = await supabaseAdmin
+    .from('raffle_entries')
+    .select('*', { count: 'exact', head: true })
+    .eq('raffle_id', raffleId)
+
+  const entryNumber = (count || 0) + 1
+
+  // Insert entry
+  const { error } = await supabaseAdmin.from('raffle_entries').insert({
+    raffle_id: raffleId,
+    customer_email: customerEmail,
+    customer_name: customerName,
+    stripe_payment_id: typeof session.payment_intent === 'string'
+      ? session.payment_intent
+      : session.payment_intent?.id || null,
+    stripe_session_id: session.id,
+    entry_number: entryNumber,
+    status: 'confirmed',
+  })
+
+  if (error) {
+    console.error('Failed to create raffle entry:', error)
+    return
+  }
+
+  console.log(`Raffle entry #${entryNumber} created for ${customerEmail} in raffle ${raffleId}`)
+
+  // Send confirmation email
+  try {
+    const { data: raffle } = await supabaseAdmin
+      .from('raffles')
+      .select('title, end_date, entry_price, product_image, product_name')
+      .eq('id', raffleId)
+      .single()
+
+    if (raffle) {
+      await sendRaffleEntryConfirmation({
+        customer_email: customerEmail,
+        customer_name: customerName,
+        raffle_title: raffle.title,
+        entry_number: entryNumber,
+        entry_price: raffle.entry_price,
+        end_date: raffle.end_date,
+        product_image: raffle.product_image,
+        product_name: raffle.product_name,
+      })
+      console.log(`Raffle entry confirmation sent to ${customerEmail}`)
+    }
+  } catch (emailError) {
+    console.error('Failed to send raffle entry email:', emailError)
+  }
+}
+
 async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   const metadata = session.metadata || {}
+
+  // Handle raffle entry payments
+  if (metadata.type === 'raffle_entry') {
+    await handleRaffleEntry(session)
+    return
+  }
+
   const orderNumber = metadata.order_number
 
   if (!orderNumber) {

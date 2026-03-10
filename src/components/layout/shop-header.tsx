@@ -10,6 +10,7 @@ import { BUSINESS_INSTAGRAM } from '@/lib/constants'
 
 const NAV_LINKS = [
   { href: '/shop', label: 'Shop' },
+  { href: '/raffles', label: 'Raffles' },
   { href: '/deals', label: 'Deals' },
   { href: '/cleaning', label: 'Cleaning' },
   { href: '/about', label: 'About' },

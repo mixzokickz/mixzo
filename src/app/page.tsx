@@ -10,6 +10,7 @@ import { ShopHeader } from '@/components/layout/shop-header'
 import { Footer } from '@/components/layout/footer'
 import { MobileBottomNav } from '@/components/layout/mobile-bottom-nav'
 import { HeroShowcase } from '@/components/home/hero-showcase'
+import { RafflePromo } from '@/components/home/raffle-promo'
 import { ProductCard } from '@/components/shop/product-card'
 import { FilterTabs } from '@/components/shop/filter-tabs'
 import { ProductGridSkeleton } from '@/components/ui/skeleton'
@@ -224,6 +225,9 @@ export default function HomePage() {
           </motion.div>
         </motion.div>
       </section>
+
+      {/* ─── Raffle Promo ─── */}
+      <RafflePromo />
 
       {/* ─── Category Spotlights ─── */}
       <section className="px-6 md:px-12 lg:px-16 py-16">

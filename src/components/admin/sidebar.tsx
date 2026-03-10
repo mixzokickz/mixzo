@@ -7,8 +7,8 @@ import {
   LayoutDashboard, ScanBarcode, Package, ShoppingCart,
   Users, Flame, BarChart3, Settings, Menu, X, LogOut,
   Tag, FileText, Boxes, Truck,
-  Activity, Star, Link2, Gift, HelpCircle, Calculator, 
-  Receipt, Bell, UserCog, Sparkles, ExternalLink, MessageSquare
+  Activity, Star, Link2, Gift, HelpCircle, Calculator,
+  Receipt, Bell, UserCog, Sparkles, ExternalLink, MessageSquare, Ticket
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { SITE_NAME } from '@/lib/constants'
@@ -50,6 +50,7 @@ const NAV_SECTIONS = [
       { href: '/admin/daily-deals', label: 'Deals', icon: Flame },
       { href: '/admin/discounts', label: 'Discount Codes', icon: Tag },
       { href: '/admin/gift-cards', label: 'Gift Cards', icon: Gift },
+      { href: '/admin/raffles', label: 'Raffles', icon: Ticket },
     ],
   },
   {

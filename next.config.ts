@@ -1,9 +1,7 @@
 import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
-  turbopack: {
-    root: '/home/botskii/Mixzo/',
-  },
+  turbopack: {},
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: 'images.stockx.com' },

@@ -384,3 +384,164 @@ export async function sendAbandonedCartEmail(data: AbandonedCartEmailData) {
     throw error
   }
 }
+
+// ============================================
+// Raffle Emails
+// ============================================
+
+interface RaffleEntryEmailData {
+  customer_email: string
+  customer_name: string
+  raffle_title: string
+  entry_number: number
+  entry_price: number
+  end_date: string
+  product_image?: string | null
+  product_name?: string | null
+}
+
+export async function sendRaffleEntryConfirmation(data: RaffleEntryEmailData) {
+  const endDate = new Date(data.end_date).toLocaleDateString('en-US', {
+    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+    hour: 'numeric', minute: '2-digit', timeZoneName: 'short',
+  })
+
+  const content = `
+    <div style="text-align:center;padding:0 0 24px 0;">
+      ${data.product_image ? `<img src="${data.product_image}" alt="${data.product_name || data.raffle_title}" width="200" height="200" style="border-radius:16px;object-fit:cover;background:${BG_ELEVATED};margin-bottom:16px;" />` : ''}
+      <div style="display:inline-block;width:56px;height:56px;border-radius:50%;background:${PINK};line-height:56px;text-align:center;font-size:24px;">&#127915;</div>
+      <h1 style="margin:16px 0 4px 0;font-size:24px;font-weight:700;color:${TEXT_PRIMARY};">You're In!</h1>
+      <p style="margin:0;font-size:15px;color:${TEXT_SECONDARY};">Your raffle entry has been confirmed, ${data.customer_name || 'there'}!</p>
+    </div>
+
+    <div style="background:${BG_ELEVATED};border-radius:12px;padding:16px;margin-bottom:24px;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+          <td>
+            <p style="margin:0 0 4px 0;font-size:12px;color:${TEXT_MUTED};text-transform:uppercase;letter-spacing:1px;">Raffle</p>
+            <p style="margin:0;font-size:16px;font-weight:700;color:${TEXT_PRIMARY};">${data.raffle_title}</p>
+          </td>
+          <td align="right">
+            <p style="margin:0 0 4px 0;font-size:12px;color:${TEXT_MUTED};text-transform:uppercase;letter-spacing:1px;">Entry #</p>
+            <p style="margin:0;font-size:16px;font-weight:700;color:${PINK};">${data.entry_number}</p>
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <div style="background:${BG_ELEVATED};border-radius:12px;padding:16px;text-align:center;margin-bottom:24px;">
+      <p style="margin:0 0 4px 0;font-size:12px;color:${TEXT_MUTED};text-transform:uppercase;letter-spacing:1px;">Drawing Date</p>
+      <p style="margin:0;font-size:15px;font-weight:600;color:${CYAN};">${endDate}</p>
+    </div>
+
+    <p style="margin:0 0 24px 0;font-size:14px;color:${TEXT_SECONDARY};text-align:center;line-height:1.6;">
+      We'll notify you as soon as the winner is drawn. Good luck!
+    </p>
+
+    <div style="text-align:center;">
+      <a href="${SITE_URL}/raffles" style="display:inline-block;padding:14px 32px;background:${PINK};color:#fff;text-decoration:none;border-radius:12px;font-weight:600;font-size:15px;">View Raffles</a>
+    </div>
+  `
+
+  const { error } = await getResend().emails.send({
+    from: FROM_ADDRESS,
+    to: [data.customer_email],
+    subject: `You're in! Raffle entry confirmed — ${data.raffle_title}`,
+    html: emailLayout(content, `Your entry for the ${data.raffle_title} raffle is confirmed! Entry #${data.entry_number}. Good luck!`),
+  })
+
+  if (error) {
+    console.error('Resend raffle entry email error:', error)
+    throw error
+  }
+}
+
+interface RaffleWinnerEmailData {
+  customer_email: string
+  customer_name: string
+  raffle_title: string
+  product_name?: string | null
+  product_image?: string | null
+  product_size?: string | null
+}
+
+export async function sendRaffleWinnerNotification(data: RaffleWinnerEmailData) {
+  const content = `
+    <div style="text-align:center;padding:0 0 24px 0;">
+      ${data.product_image ? `<img src="${data.product_image}" alt="${data.product_name || data.raffle_title}" width="240" height="240" style="border-radius:16px;object-fit:cover;background:${BG_ELEVATED};margin-bottom:16px;" />` : ''}
+      <h1 style="margin:16px 0 4px 0;font-size:28px;font-weight:700;color:${TEXT_PRIMARY};">Congratulations!</h1>
+      <p style="margin:0;font-size:17px;color:${TEXT_SECONDARY};">${data.customer_name || 'Hey'}, you won the raffle!</p>
+    </div>
+
+    <div style="background:linear-gradient(135deg, ${PINK}15, ${CYAN}15);border-radius:12px;padding:20px;text-align:center;margin-bottom:24px;border:1px solid ${PINK}30;">
+      <p style="margin:0 0 8px 0;font-size:13px;color:${TEXT_MUTED};text-transform:uppercase;letter-spacing:1px;">You Won</p>
+      <p style="margin:0;font-size:20px;font-weight:700;color:${TEXT_PRIMARY};">${data.raffle_title}</p>
+      ${data.product_size ? `<p style="margin:4px 0 0 0;font-size:14px;color:${TEXT_SECONDARY};">Size ${data.product_size}</p>` : ''}
+    </div>
+
+    <div style="background:${BG_ELEVATED};border-radius:12px;padding:16px;margin-bottom:24px;">
+      <p style="margin:0 0 8px 0;font-size:14px;font-weight:600;color:${TEXT_PRIMARY};">What happens next?</p>
+      <ul style="margin:0;padding-left:20px;">
+        <li style="padding:4px 0;font-size:14px;color:${TEXT_SECONDARY};">An order has been created for your winning pair</li>
+        <li style="padding:4px 0;font-size:14px;color:${TEXT_SECONDARY};">We'll prepare your sneakers for shipping</li>
+        <li style="padding:4px 0;font-size:14px;color:${TEXT_SECONDARY};">You'll receive tracking info once shipped</li>
+      </ul>
+    </div>
+
+    <div style="text-align:center;">
+      <a href="${SITE_URL}/orders/lookup" style="display:inline-block;padding:14px 32px;background:${PINK};color:#fff;text-decoration:none;border-radius:12px;font-weight:600;font-size:15px;">View Your Order</a>
+    </div>
+  `
+
+  const { error } = await getResend().emails.send({
+    from: FROM_ADDRESS,
+    to: [data.customer_email],
+    subject: `You won the ${data.raffle_title} raffle!`,
+    html: emailLayout(content, `Congratulations! You've won the ${data.raffle_title} raffle! Check your order details.`),
+  })
+
+  if (error) {
+    console.error('Resend raffle winner email error:', error)
+    throw error
+  }
+}
+
+interface RaffleNotSelectedEmailData {
+  customer_email: string
+  customer_name: string
+  raffle_title: string
+}
+
+export async function sendRaffleNotSelectedNotification(data: RaffleNotSelectedEmailData) {
+  const content = `
+    <div style="text-align:center;padding:0 0 24px 0;">
+      <h1 style="margin:0 0 8px 0;font-size:24px;font-weight:700;color:${TEXT_PRIMARY};">Raffle Results</h1>
+      <p style="margin:0;font-size:15px;color:${TEXT_SECONDARY};">Thanks for entering, ${data.customer_name || 'there'}.</p>
+    </div>
+
+    <div style="background:${BG_ELEVATED};border-radius:12px;padding:20px;text-align:center;margin-bottom:24px;">
+      <p style="margin:0 0 8px 0;font-size:14px;color:${TEXT_SECONDARY};">Unfortunately, you weren't selected for</p>
+      <p style="margin:0;font-size:18px;font-weight:700;color:${TEXT_PRIMARY};">${data.raffle_title}</p>
+    </div>
+
+    <p style="margin:0 0 24px 0;font-size:14px;color:${TEXT_SECONDARY};text-align:center;line-height:1.6;">
+      Don't worry — we have more raffles coming soon. Keep an eye out for your next chance to win!
+    </p>
+
+    <div style="text-align:center;">
+      <a href="${SITE_URL}/raffles" style="display:inline-block;padding:14px 32px;background:${PINK};color:#fff;text-decoration:none;border-radius:12px;font-weight:600;font-size:15px;">Browse Upcoming Raffles</a>
+    </div>
+  `
+
+  const { error } = await getResend().emails.send({
+    from: FROM_ADDRESS,
+    to: [data.customer_email],
+    subject: `Raffle results — ${data.raffle_title}`,
+    html: emailLayout(content, `Thanks for entering the ${data.raffle_title} raffle. Unfortunately, you weren't selected this time.`),
+  })
+
+  if (error) {
+    console.error('Resend raffle not-selected email error:', error)
+    throw error
+  }
+}
