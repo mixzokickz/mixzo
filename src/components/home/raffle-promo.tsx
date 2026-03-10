@@ -82,8 +82,8 @@ export function RafflePromo() {
                 <span className="text-[9px] font-bold uppercase tracking-wider text-[#FF2E88]">Live Raffle</span>
               </div>
               <p className="text-xs font-bold text-[#F4F4F4] truncate">{raffle.product_name || raffle.title}</p>
-              <div className="flex items-center gap-2 mt-1">
-                <span className="text-[10px] text-[#6A6A80]">{raffle.entry_count || 0} entries</span>
+              <div className="mt-1">
+                <CountdownTimer endDate={raffle.end_date} size="sm" />
               </div>
             </div>
 
