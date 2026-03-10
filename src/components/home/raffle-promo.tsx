@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import Image from 'next/image'
 import Link from 'next/link'
 import { Ticket, ArrowRight } from 'lucide-react'
 import { motion } from 'framer-motion'
@@ -18,6 +17,8 @@ interface FeaturedRaffle {
   product_size?: string | null
   entry_count?: number
 }
+
+const easeOutExpo = [0.16, 1, 0.3, 1] as const
 
 export function RafflePromo() {
   const [raffle, setRaffle] = useState<FeaturedRaffle | null>(null)
@@ -49,73 +50,77 @@ export function RafflePromo() {
   if (!raffle) return null
 
   return (
-    <section className="px-6 md:px-12 lg:px-16 py-8">
-      <div className="max-w-7xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-          className="relative rounded-3xl overflow-hidden border border-[#1E1E26] noise"
-        >
-          <div className="absolute inset-0 bg-gradient-to-br from-[#141418] via-[#0F0F13] to-[#0C0C0C]" />
-          <div className="absolute top-0 left-0 w-[400px] h-[400px] bg-[#FF2E88]/[0.04] rounded-full blur-[120px]" />
-          <div className="absolute bottom-0 right-0 w-[300px] h-[300px] bg-[#00C2D6]/[0.04] rounded-full blur-[100px]" />
+    <motion.div
+      initial={{ opacity: 0, y: 20, scale: 0.95 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ duration: 0.8, ease: easeOutExpo, delay: 0.5 }}
+      className="w-full"
+    >
+      <div className="relative rounded-2xl overflow-hidden border border-[#FF2E88]/20 bg-[#141418]/80 backdrop-blur-xl shadow-2xl shadow-[#FF2E88]/[0.08]">
+        {/* Subtle glow */}
+        <div className="absolute -top-20 -right-20 w-40 h-40 bg-[#FF2E88]/[0.06] rounded-full blur-[60px] pointer-events-none" />
+        <div className="absolute -bottom-16 -left-16 w-32 h-32 bg-[#00C2D6]/[0.04] rounded-full blur-[50px] pointer-events-none" />
 
-          <div className="relative grid md:grid-cols-2 gap-8 p-8 md:p-12 items-center">
-            {/* Product Image */}
-            <div className="flex items-center justify-center">
-              <div className="relative w-full max-w-[320px] aspect-square rounded-2xl overflow-hidden bg-[#0F0F13] border border-[#1E1E26]">
-                {raffle.product_image ? (
-                  <Image
-                    src={raffle.product_image}
-                    alt={raffle.product_name || raffle.title}
-                    fill
-                    className="object-cover"
-                  />
-                ) : (
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <Ticket className="w-20 h-20 text-[#1E1E26]" />
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Info */}
-            <div>
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#FF2E88]/10 border border-[#FF2E88]/20 text-[#FF2E88] text-xs font-medium mb-4">
-                <Ticket className="w-3.5 h-3.5" />
-                Active Raffle
-              </div>
-
-              <h2 className="text-2xl md:text-3xl font-black tracking-tight text-[#F4F4F4] mb-2">
-                {raffle.product_name || raffle.title}
-              </h2>
-              {raffle.product_size && (
-                <p className="text-sm text-[#A0A0B8] mb-4">Size {raffle.product_size}</p>
-              )}
-
-              <CountdownTimer endDate={raffle.end_date} size="md" className="mb-6" />
-
-              <div className="flex flex-wrap items-center gap-4 mb-4">
-                <Link href={`/raffles`}>
-                  <button className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold bg-[#FF2E88] hover:bg-[#FF2E88]/90 text-white transition-all shadow-lg shadow-[#FF2E88]/25 cursor-pointer group">
-                    ${raffle.entry_price} to Enter
-                    <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-                  </button>
-                </Link>
-                <span className="text-xs text-[#6A6A80]">
-                  {raffle.entry_count || 0} entries so far
-                </span>
-              </div>
-
-              <p className="text-[11px] text-[#6A6A80]">
-                Terms apply. One entry per person. Winner drawn after countdown ends.
-              </p>
-            </div>
+        {/* Raffle badge */}
+        <div className="relative px-5 pt-4 pb-0">
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#FF2E88]/10 border border-[#FF2E88]/20 text-[#FF2E88] text-[10px] font-bold uppercase tracking-wider">
+            <span className="relative flex h-1.5 w-1.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#FF2E88] opacity-75" />
+              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#FF2E88]" />
+            </span>
+            Live Raffle
           </div>
-        </motion.div>
+        </div>
+
+        {/* Product image */}
+        <div className="relative px-5 pt-3 pb-0">
+          <div className="relative w-full aspect-[4/3] rounded-xl overflow-hidden bg-[#0F0F13] border border-[#1E1E26]/50">
+            {raffle.product_image ? (
+              <img
+                src={raffle.product_image}
+                alt={raffle.product_name || raffle.title}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <Ticket className="w-16 h-16 text-[#1E1E26]" />
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Info */}
+        <div className="relative px-5 pt-4 pb-5">
+          <h3 className="text-base font-bold text-[#F4F4F4] leading-snug truncate">
+            {raffle.product_name || raffle.title}
+          </h3>
+          {raffle.product_size && (
+            <p className="text-xs text-[#6A6A80] mt-0.5">Size {raffle.product_size}</p>
+          )}
+
+          <div className="mt-3">
+            <CountdownTimer endDate={raffle.end_date} size="sm" />
+          </div>
+
+          <div className="mt-4 flex items-center gap-3">
+            <Link href="/raffles" className="flex-1">
+              <button className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold bg-[#FF2E88] hover:bg-[#FF2E88]/90 text-white transition-all shadow-lg shadow-[#FF2E88]/25 cursor-pointer group">
+                ${raffle.entry_price} to Enter
+                <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
+              </button>
+            </Link>
+          </div>
+
+          <div className="mt-2.5 flex items-center justify-between">
+            <span className="text-[10px] text-[#6A6A80]">
+              {raffle.entry_count || 0} entries
+            </span>
+            <span className="text-[10px] text-[#6A6A80]">
+              Terms apply
+            </span>
+          </div>
+        </div>
       </div>
-    </section>
+    </motion.div>
   )
 }

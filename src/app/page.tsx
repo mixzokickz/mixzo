@@ -9,7 +9,6 @@ import { supabase } from '@/lib/supabase'
 import { ShopHeader } from '@/components/layout/shop-header'
 import { Footer } from '@/components/layout/footer'
 import { MobileBottomNav } from '@/components/layout/mobile-bottom-nav'
-import { HeroShowcase } from '@/components/home/hero-showcase'
 import { RafflePromo } from '@/components/home/raffle-promo'
 import { ProductCard } from '@/components/shop/product-card'
 import { FilterTabs } from '@/components/shop/filter-tabs'
@@ -130,7 +129,7 @@ export default function HomePage() {
         <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] rounded-full bg-[#00C2D6]/[0.04] blur-[120px] pointer-events-none" />
 
         <motion.div style={{ opacity: heroOpacity }} className="max-w-7xl mx-auto relative">
-          <div className="grid gap-16 items-center">
+          <div className="grid lg:grid-cols-[1fr,340px] gap-12 lg:gap-16 items-start">
             {/* Left: Text */}
             <div>
               <motion.div
@@ -187,11 +186,16 @@ export default function HomePage() {
                   </button>
                 </Link>
               </motion.div>
+
+              {/* Raffle Promo — MOBILE ONLY (below buttons) */}
+              <div className="lg:hidden mt-10">
+                <RafflePromo />
+              </div>
             </div>
 
-            {/* Hero Showcase — mobile only */}
-            <div className="lg:hidden">
-              <HeroShowcase />
+            {/* Raffle Promo — DESKTOP ONLY (right column) */}
+            <div className="hidden lg:block pt-8">
+              <RafflePromo />
             </div>
           </div>
 
@@ -225,9 +229,6 @@ export default function HomePage() {
           </motion.div>
         </motion.div>
       </section>
-
-      {/* ─── Raffle Promo ─── */}
-      <RafflePromo />
 
       {/* ─── Category Spotlights ─── */}
       <section className="px-6 md:px-12 lg:px-16 py-16">
