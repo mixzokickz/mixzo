@@ -3,23 +3,42 @@ export const runtime = 'nodejs'
 import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-server'
 
-// GET active raffles (public)
-export async function GET() {
+// GET active raffles (public + admin)
+export async function GET(request: Request) {
   try {
-    const { data, error } = await supabaseAdmin
-      .from('raffles')
-      .select('*, raffle_entries(count)')
-      .in('status', ['active', 'completed', 'drawing'])
-      .order('created_at', { ascending: false })
+    const { searchParams } = new URL(request.url)
+    const all = searchParams.get('all')
 
+    let query = supabaseAdmin.from('raffles').select('*')
+
+    if (!all) {
+      query = query.in('status', ['active', 'completed', 'drawing'])
+    }
+
+    const { data, error } = await query.order('created_at', { ascending: false })
     if (error) throw error
 
-    const raffles = (data || []).map((r: Record<string, unknown>) => ({
+    // Get entry counts separately
+    const raffleIds = (data || []).map((r: { id: string }) => r.id)
+    let entryCounts: Record<string, number> = {}
+
+    if (raffleIds.length > 0) {
+      const { data: entries } = await supabaseAdmin
+        .from('raffle_entries')
+        .select('raffle_id')
+        .in('raffle_id', raffleIds)
+        .eq('status', 'confirmed')
+
+      if (entries) {
+        for (const e of entries) {
+          entryCounts[e.raffle_id] = (entryCounts[e.raffle_id] || 0) + 1
+        }
+      }
+    }
+
+    const raffles = (data || []).map((r: { id: string }) => ({
       ...r,
-      entry_count: Array.isArray(r.raffle_entries) && r.raffle_entries.length > 0
-        ? (r.raffle_entries[0] as { count: number }).count
-        : 0,
-      raffle_entries: undefined,
+      entry_count: entryCounts[r.id] || 0,
     }))
 
     return NextResponse.json(raffles)

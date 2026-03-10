@@ -41,7 +41,7 @@ export default function AdminRafflesPage() {
 
   async function loadRaffles() {
     try {
-      const res = await fetch('/api/raffles')
+      const res = await fetch('/api/raffles?all=1')
       if (!res.ok) throw new Error('Failed to fetch')
       const data = await res.json()
       setRaffles(data)

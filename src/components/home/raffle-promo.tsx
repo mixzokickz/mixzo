@@ -26,7 +26,7 @@ export function RafflePromo() {
     async function load() {
       const { data } = await supabase
         .from('raffles')
-        .select('id, title, entry_price, end_date, product_image, product_name, product_size, raffle_entries(count)')
+        .select('id, title, entry_price, end_date, product_image, product_name, product_size')
         .eq('status', 'active')
         .eq('featured', true)
         .gt('end_date', new Date().toISOString())
@@ -35,10 +35,12 @@ export function RafflePromo() {
         .single()
 
       if (data) {
-        const entry_count = Array.isArray(data.raffle_entries) && data.raffle_entries.length > 0
-          ? (data.raffle_entries[0] as { count: number }).count
-          : 0
-        setRaffle({ ...data, entry_count, raffle_entries: undefined } as FeaturedRaffle)
+        const { count } = await supabase
+          .from('raffle_entries')
+          .select('*', { count: 'exact', head: true })
+          .eq('raffle_id', data.id)
+          .eq('status', 'confirmed')
+        setRaffle({ ...data, entry_count: count || 0 } as FeaturedRaffle)
       }
     }
     load()

@@ -13,7 +13,7 @@ export async function GET(
 
     const { data: raffle, error } = await supabaseAdmin
       .from('raffles')
-      .select('*, raffle_entries(count)')
+      .select('*')
       .eq('id', id)
       .single()
 
@@ -21,11 +21,13 @@ export async function GET(
       return NextResponse.json({ error: 'Raffle not found' }, { status: 404 })
     }
 
-    const entry_count = Array.isArray(raffle.raffle_entries) && raffle.raffle_entries.length > 0
-      ? (raffle.raffle_entries[0] as { count: number }).count
-      : 0
+    const { count } = await supabaseAdmin
+      .from('raffle_entries')
+      .select('*', { count: 'exact', head: true })
+      .eq('raffle_id', id)
+      .eq('status', 'confirmed')
 
-    return NextResponse.json({ ...raffle, entry_count, raffle_entries: undefined })
+    return NextResponse.json({ ...raffle, entry_count: count || 0 })
   } catch (error) {
     console.error('Failed to fetch raffle:', error)
     return NextResponse.json({ error: 'Failed to fetch raffle' }, { status: 500 })
