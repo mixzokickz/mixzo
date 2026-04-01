@@ -836,6 +836,7 @@ export default function ScanPage() {
                   category={sizeCategory}
                   onSizeChange={setSelectedSize}
                   onCategoryChange={setSizeCategory}
+                  availableSizes={result?.availableSizes}
                 />
                 {selectedSize && (
                   <p className="text-xs text-[#FF2E88] font-semibold mt-2">Selected: {selectedSize}</p>

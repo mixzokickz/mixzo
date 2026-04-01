@@ -6,6 +6,59 @@ const STOCKX_API_KEY = process.env.STOCKX_API_KEY || ''
 const GOAT_ALGOLIA_APP = '2FWOTDVM2O'
 const GOAT_ALGOLIA_KEY = 'ac96de6fef0e02bb95d433d8d5c7038a'
 
+// Abbreviations that should be UPPERCASED in title-cased URL keys
+const ABBREVS = new Set(['ps', 'gs', 'td', 'og', 'se', 'sp', 'pe', 'qs', 'nrg', 'wmns', 'i', 'w'])
+
+function buildTitleCase(key: string): string {
+  return key.split('-').filter(Boolean)
+    .map(w => ABBREVS.has(w.toLowerCase()) ? w.toUpperCase() : w.charAt(0).toUpperCase() + w.slice(1))
+    .join('-')
+}
+
+// Try multiple StockX CDN URL patterns
+async function findCdnImage(urlKey: string | undefined): Promise<string | null> {
+  if (!urlKey) return null
+  const lower = urlKey.toLowerCase()
+  const title = buildTitleCase(urlKey)
+  const candidates = [
+    `https://images.stockx.com/images/${title}.jpg`,
+    `https://images.stockx.com/images/${lower}.jpg`,
+    `https://images.stockx.com/images/${title}.png`,
+    `https://images.stockx.com/images/${lower}.png`,
+  ]
+  for (const url of candidates) {
+    try {
+      const r = await fetch(url, { method: 'HEAD', signal: AbortSignal.timeout(2000) })
+      if (r.ok) return url
+    } catch {}
+  }
+  return null
+}
+
+// GOAT image fallback
+async function findGoatImage(styleCode: string | undefined, productName: string | undefined): Promise<string | null> {
+  const query = styleCode || productName
+  if (!query) return null
+  try {
+    const resp = await fetch(
+      `https://${GOAT_ALGOLIA_APP}-dsn.algolia.net/1/indexes/product_variants_v2/query`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-algolia-application-id': GOAT_ALGOLIA_APP,
+          'x-algolia-api-key': GOAT_ALGOLIA_KEY,
+        },
+        body: JSON.stringify({ query, hitsPerPage: 1 }),
+      }
+    )
+    if (!resp.ok) return null
+    const data = await resp.json()
+    const hit = data?.hits?.[0]
+    return hit?.main_picture_url || hit?.grid_picture_url || hit?.original_picture_url || null
+  } catch { return null }
+}
+
 interface ProductResult {
   id: string
   name: string
@@ -44,39 +97,68 @@ async function searchStockX(query: string, limit: number): Promise<ProductResult
     const productId = p.productId || p.id
     let sizes: string[] = []
     let imageUrl = p.media?.imageUrl || p.media?.thumbUrl || ''
+    const urlKey = p.urlKey || p.url_key || ''
+    const styleId = p.styleId || p.productAttributes?.sku || ''
+    const productName = p.title || p.name || ''
 
-    // Fetch variants for sizes
-    try {
-      const varRes = await fetch(
-        `https://api.stockx.com/v2/catalog/products/${productId}/variants?pageSize=100`,
-        { headers }
-      )
-      if (varRes.ok) {
-        const varData = await varRes.json()
-        const variants = Array.isArray(varData) ? varData : (varData.variants || [])
-        sizes = Array.from(new Set<string>(
-          variants
-            .map((v: any) => v.sizeChart?.defaultConversion?.size || v.variantValue || '')
-            .filter(Boolean)
-        )).sort((a: string, b: string) => parseFloat(a) - parseFloat(b))
-      }
-    } catch {}
+    // Fetch variants for sizes (in parallel with image resolution)
+    const [variantResult, imageResult] = await Promise.all([
+      // Fetch variants
+      (async () => {
+        try {
+          const varRes = await fetch(
+            `https://api.stockx.com/v2/catalog/products/${productId}/variants?pageSize=100`,
+            { headers }
+          )
+          if (varRes.ok) {
+            const varData = await varRes.json()
+            const variants = Array.isArray(varData) ? varData : (varData.variants || [])
+            return Array.from(new Set<string>(
+              variants
+                .map((v: any) => v.sizeChart?.defaultConversion?.size || v.variantValue || '')
+                .filter(Boolean)
+            )).sort((a: string, b: string) => parseFloat(a) - parseFloat(b))
+          }
+        } catch {}
+        return [] as string[]
+      })(),
+      // Resolve image if missing
+      (async () => {
+        if (imageUrl) return imageUrl
+        // Step 1: Try product detail API
+        if (productId) {
+          try {
+            const detailRes = await stockxFetch(`https://api.stockx.com/v2/catalog/products/${productId}`)
+            if (detailRes.ok) {
+              const detail = await detailRes.json()
+              const prod = detail.product || detail
+              const detailImg = prod?.media?.imageUrl || prod?.media?.thumbUrl || prod?.media?.smallImageUrl || ''
+              if (detailImg) return detailImg
+            }
+          } catch {}
+        }
+        // Step 2: Try StockX CDN URL patterns
+        if (urlKey) {
+          const cdnImg = await findCdnImage(urlKey)
+          if (cdnImg) return cdnImg
+        }
+        // Step 3: GOAT Algolia fallback
+        const goatImg = await findGoatImage(styleId, productName)
+        if (goatImg) return goatImg
+        return ''
+      })(),
+    ])
 
-    // Try to resolve image from StockX CDN if media URL is missing
-    if (!imageUrl) {
-      const urlKey = p.urlKey || ''
-      if (urlKey) {
-        imageUrl = `https://images.stockx.com/images/${urlKey}.jpg`
-      }
-    }
+    sizes = variantResult
+    imageUrl = imageResult
 
     results.push({
       id: productId,
-      name: p.title || p.name || '',
+      name: productName,
       brand: p.brand || '',
       colorway: p.productAttributes?.colorway || p.colorway || '',
       retailPrice: p.productAttributes?.retailPrice || p.retailPrice || null,
-      styleId: p.styleId || p.productAttributes?.sku || '',
+      styleId,
       image: imageUrl,
       thumb: p.media?.thumbUrl || imageUrl,
       availableSizes: sizes,
