@@ -187,13 +187,13 @@ CREATE POLICY "raffles_admin_all" ON raffles
   FOR ALL USING (is_admin()) WITH CHECK (is_admin());
 
 -- ============================================
--- RAFFLE_ENTRIES: Own entries, admin all
+-- RAFFLE_ENTRIES: Public can insert (buy entry), admin manages
 -- ============================================
-CREATE POLICY "raffle_entries_own_read" ON raffle_entries
-  FOR SELECT USING (user_id = auth.uid() OR is_admin());
+CREATE POLICY "raffle_entries_public_read" ON raffle_entries
+  FOR SELECT USING (true);
 
-CREATE POLICY "raffle_entries_own_insert" ON raffle_entries
-  FOR INSERT WITH CHECK (user_id = auth.uid());
+CREATE POLICY "raffle_entries_public_insert" ON raffle_entries
+  FOR INSERT WITH CHECK (true);
 
 CREATE POLICY "raffle_entries_admin_all" ON raffle_entries
   FOR ALL USING (is_admin()) WITH CHECK (is_admin());
