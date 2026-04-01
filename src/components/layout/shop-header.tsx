@@ -6,6 +6,7 @@ import { Search, ShoppingBag, User, Menu, X, Instagram, Sparkles } from 'lucide-
 import { useCartStore } from '@/stores/cart'
 import { cn } from '@/lib/utils'
 import { SearchOverlay } from '@/components/shop/search-overlay'
+import { CartDrawer } from '@/components/shop/cart-drawer'
 import { BUSINESS_INSTAGRAM } from '@/lib/constants'
 
 const NAV_LINKS = [
@@ -21,6 +22,9 @@ export function ShopHeader() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
   const count = useCartStore((s) => s.getCount())
+  const drawerOpen = useCartStore((s) => s.drawerOpen)
+  const openDrawer = useCartStore((s) => s.openDrawer)
+  const closeDrawer = useCartStore((s) => s.closeDrawer)
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20)
@@ -91,9 +95,9 @@ export function ShopHeader() {
             >
               <Instagram className="w-[18px] h-[18px]" />
             </a>
-            <Link
-              href="/cart"
-              className="relative h-10 w-10 flex items-center justify-center rounded-xl text-[#A0A0B8] hover:text-white hover:bg-white/[0.04] transition-all duration-300"
+            <button
+              onClick={openDrawer}
+              className="relative h-10 w-10 flex items-center justify-center rounded-xl text-[#A0A0B8] hover:text-white hover:bg-white/[0.04] transition-all duration-300 cursor-pointer"
             >
               <ShoppingBag className="w-[18px] h-[18px]" />
               {count > 0 && (
@@ -101,7 +105,7 @@ export function ShopHeader() {
                   {count}
                 </span>
               )}
-            </Link>
+            </button>
             <Link
               href="/login"
               className="hidden md:flex h-10 w-10 items-center justify-center rounded-xl text-[#A0A0B8] hover:text-white hover:bg-white/[0.04] transition-all duration-300"
@@ -142,6 +146,7 @@ export function ShopHeader() {
       )}
 
       <SearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} />
+      <CartDrawer open={drawerOpen} onClose={closeDrawer} />
     </>
   )
 }

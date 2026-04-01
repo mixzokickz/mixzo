@@ -19,6 +19,9 @@ export interface CartItem {
 
 interface CartStore {
   items: CartItem[]
+  drawerOpen: boolean
+  openDrawer: () => void
+  closeDrawer: () => void
   addItem: (item: Omit<CartItem, 'quantity' | 'cleaning'>) => void
   removeItem: (id: string) => void
   updateQuantity: (id: string, quantity: number) => void
@@ -33,6 +36,9 @@ export const useCartStore = create<CartStore>()(
   persist(
     (set, get) => ({
       items: [],
+      drawerOpen: false,
+      openDrawer: () => set({ drawerOpen: true }),
+      closeDrawer: () => set({ drawerOpen: false }),
       addItem: (item) => {
         const existing = get().items.find((i) => i.id === item.id)
         if (existing) {
@@ -40,9 +46,13 @@ export const useCartStore = create<CartStore>()(
             items: get().items.map((i) =>
               i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i
             ),
+            drawerOpen: true,
           })
         } else {
-          set({ items: [...get().items, { ...item, quantity: 1, cleaning: null }] })
+          set({
+            items: [...get().items, { ...item, quantity: 1, cleaning: null }],
+            drawerOpen: true,
+          })
         }
       },
       removeItem: (id) => {

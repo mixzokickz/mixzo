@@ -76,7 +76,9 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
               ))}
             </div>
             <div className="p-4 border-t border-border space-y-3">
-              {total < FREE_SHIPPING_THRESHOLD && (
+              {total >= FREE_SHIPPING_THRESHOLD ? (
+                <p className="text-xs text-green-400 text-center font-medium">✓ Free shipping on this order</p>
+              ) : (
                 <p className="text-xs text-text-muted text-center">
                   Add {formatPrice(FREE_SHIPPING_THRESHOLD - total)} more for free shipping
                 </p>
@@ -85,8 +87,11 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
                 <span>Total</span>
                 <span>{formatPrice(total)}</span>
               </div>
-              <Link href="/cart" onClick={onClose}>
-                <Button className="w-full" size="lg">View Cart</Button>
+              <Link href="/checkout" onClick={onClose}>
+                <Button className="w-full" size="lg">Checkout — {formatPrice(total)}</Button>
+              </Link>
+              <Link href="/cart" onClick={onClose} className="block text-center text-xs text-text-muted hover:text-white transition-colors">
+                View full cart
               </Link>
             </div>
           </>
