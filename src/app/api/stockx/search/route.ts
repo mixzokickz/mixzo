@@ -35,10 +35,20 @@ async function findCdnImage(urlKey: string | undefined): Promise<string | null> 
   return null
 }
 
-// GOAT image fallback
-async function findGoatImage(styleCode: string | undefined, productName: string | undefined): Promise<string | null> {
+// Normalize size strings: "10.5C" -> "10.5", "1Y" -> "1", "10.0" -> "10"
+function normalizeSize(raw: string): string {
+  if (!raw) return ''
+  // Strip trailing letters (C for child, Y for youth, W for women)
+  let s = raw.replace(/[CcYyWw]$/, '').trim()
+  // Strip trailing .0
+  s = s.replace(/\.0$/, '')
+  return s
+}
+
+// GOAT enrichment — returns image + sizes
+async function enrichFromGoat(styleCode: string | undefined, productName: string | undefined): Promise<{ image: string | null; sizes: string[] }> {
   const query = styleCode || productName
-  if (!query) return null
+  if (!query) return { image: null, sizes: [] }
   try {
     const resp = await fetch(
       `https://${GOAT_ALGOLIA_APP}-dsn.algolia.net/1/indexes/product_variants_v2/query`,
@@ -49,14 +59,32 @@ async function findGoatImage(styleCode: string | undefined, productName: string 
           'x-algolia-application-id': GOAT_ALGOLIA_APP,
           'x-algolia-api-key': GOAT_ALGOLIA_KEY,
         },
-        body: JSON.stringify({ query, hitsPerPage: 1 }),
+        body: JSON.stringify({
+          query,
+          hitsPerPage: 50,
+          distinct: false,
+          attributesToRetrieve: ['main_picture_url', 'grid_picture_url', 'original_picture_url', 'size', 'product_template_id'],
+        }),
       }
     )
-    if (!resp.ok) return null
+    if (!resp.ok) return { image: null, sizes: [] }
     const data = await resp.json()
-    const hit = data?.hits?.[0]
-    return hit?.main_picture_url || hit?.grid_picture_url || hit?.original_picture_url || null
-  } catch { return null }
+    const hits = data?.hits || []
+    if (hits.length === 0) return { image: null, sizes: [] }
+
+    const image = hits[0]?.main_picture_url || hits[0]?.grid_picture_url || hits[0]?.original_picture_url || null
+
+    // Collect unique sizes from all variants of the same product
+    const firstPid = hits[0]?.product_template_id
+    const sizeSet = new Set<string>()
+    for (const h of hits) {
+      if (firstPid && h.product_template_id !== firstPid) continue
+      if (h.size) sizeSet.add(normalizeSize(String(h.size)))
+    }
+    const sizes = Array.from(sizeSet).filter(Boolean).sort((a, b) => parseFloat(a) - parseFloat(b))
+
+    return { image, sizes }
+  } catch { return { image: null, sizes: [] } }
 }
 
 interface ProductResult {
@@ -101,9 +129,9 @@ async function searchStockX(query: string, limit: number): Promise<ProductResult
     const styleId = p.styleId || p.productAttributes?.sku || ''
     const productName = p.title || p.name || ''
 
-    // Fetch variants for sizes (in parallel with image resolution)
-    const [variantResult, imageResult] = await Promise.all([
-      // Fetch variants
+    // Fetch StockX variants + GOAT enrichment in parallel
+    const [variantResult, goatResult] = await Promise.all([
+      // Fetch StockX variants for sizes
       (async () => {
         try {
           const varRes = await fetch(
@@ -115,42 +143,42 @@ async function searchStockX(query: string, limit: number): Promise<ProductResult
             const variants = Array.isArray(varData) ? varData : (varData.variants || [])
             return Array.from(new Set<string>(
               variants
-                .map((v: any) => v.sizeChart?.defaultConversion?.size || v.variantValue || '')
+                .map((v: any) => normalizeSize(v.sizeChart?.defaultConversion?.size || v.variantValue || ''))
                 .filter(Boolean)
             )).sort((a: string, b: string) => parseFloat(a) - parseFloat(b))
           }
         } catch {}
         return [] as string[]
       })(),
-      // Resolve image if missing
-      (async () => {
-        if (imageUrl) return imageUrl
-        // Step 1: Try product detail API
-        if (productId) {
-          try {
-            const detailRes = await stockxFetch(`https://api.stockx.com/v2/catalog/products/${productId}`)
-            if (detailRes.ok) {
-              const detail = await detailRes.json()
-              const prod = detail.product || detail
-              const detailImg = prod?.media?.imageUrl || prod?.media?.thumbUrl || prod?.media?.smallImageUrl || ''
-              if (detailImg) return detailImg
-            }
-          } catch {}
-        }
-        // Step 2: Try StockX CDN URL patterns
-        if (urlKey) {
-          const cdnImg = await findCdnImage(urlKey)
-          if (cdnImg) return cdnImg
-        }
-        // Step 3: GOAT Algolia fallback
-        const goatImg = await findGoatImage(styleId, productName)
-        if (goatImg) return goatImg
-        return ''
-      })(),
+      // Always fetch GOAT for image + sizes fallback
+      enrichFromGoat(styleId, productName),
     ])
 
-    sizes = variantResult
-    imageUrl = imageResult
+    // Use StockX sizes if available, otherwise GOAT sizes
+    sizes = variantResult.length > 0 ? variantResult : goatResult.sizes
+
+    // Use StockX image if available, otherwise try CDN, then GOAT
+    if (!imageUrl) {
+      // Try StockX product detail
+      if (productId) {
+        try {
+          const detailRes = await stockxFetch(`https://api.stockx.com/v2/catalog/products/${productId}`)
+          if (detailRes.ok) {
+            const detail = await detailRes.json()
+            const prod = detail.product || detail
+            imageUrl = prod?.media?.imageUrl || prod?.media?.thumbUrl || prod?.media?.smallImageUrl || ''
+          }
+        } catch {}
+      }
+      // Try CDN
+      if (!imageUrl && urlKey) {
+        imageUrl = (await findCdnImage(urlKey)) || ''
+      }
+      // Use GOAT image
+      if (!imageUrl && goatResult.image) {
+        imageUrl = goatResult.image
+      }
+    }
 
     results.push({
       id: productId,
@@ -206,7 +234,7 @@ async function searchStockXByBarcode(barcode: string): Promise<ProductResult | n
       for (const v of variants) {
         const gtins = (v.gtins || []).map((g: any) => typeof g === 'string' ? g : g.identifier).filter(Boolean)
         if (gtins.includes(barcode)) {
-          matchedSize = v.sizeChart?.defaultConversion?.size || v.variantValue || ''
+          matchedSize = normalizeSize(v.sizeChart?.defaultConversion?.size || v.variantValue || '')
           break
         }
       }
@@ -214,11 +242,18 @@ async function searchStockXByBarcode(barcode: string): Promise<ProductResult | n
       // If barcode matched or this is the first result, return it
       const allSizes = Array.from(new Set<string>(
         variants
-          .map((v: any) => v.sizeChart?.defaultConversion?.size || v.variantValue || '')
+          .map((v: any) => normalizeSize(v.sizeChart?.defaultConversion?.size || v.variantValue || ''))
           .filter(Boolean)
       )).sort((a: string, b: string) => parseFloat(a) - parseFloat(b))
 
-      const imageUrl = p.media?.imageUrl || p.media?.thumbUrl || (p.urlKey ? `https://images.stockx.com/images/${p.urlKey}.jpg` : '')
+      // Get image — try StockX first, then GOAT
+      const sxStyleId = p.styleId || p.productAttributes?.sku || ''
+      const sxName = p.title || p.name || ''
+      let imageUrl = p.media?.imageUrl || p.media?.thumbUrl || ''
+      if (!imageUrl) {
+        const goat = await enrichFromGoat(sxStyleId, sxName)
+        imageUrl = goat.image || (p.urlKey ? `https://images.stockx.com/images/${p.urlKey}.jpg` : '')
+      }
 
       return {
         id: productId,
@@ -264,7 +299,7 @@ async function searchGOAT(query: string, limit: number): Promise<ProductResult[]
     if (!grouped.has(pid)) {
       grouped.set(pid, { hit: h, sizes: new Set() })
     }
-    if (h.size) grouped.get(pid)!.sizes.add(String(h.size))
+    if (h.size) grouped.get(pid)!.sizes.add(normalizeSize(String(h.size)))
   }
 
   return Array.from(grouped.values())
