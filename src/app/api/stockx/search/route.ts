@@ -120,14 +120,36 @@ async function searchStockX(query: string, limit: number): Promise<ProductResult
   if (products.length === 0) return null
 
   // For each product, fetch variants to get sizes + images
+  // Only enrich first 5 with variants/GOAT (rest get basic data) for speed
+  const ENRICH_LIMIT = 5
   const results: ProductResult[] = []
-  for (const p of products.slice(0, limit)) {
+  for (let idx = 0; idx < Math.min(products.length, limit); idx++) {
+    const p = products[idx]
     const productId = p.productId || p.id
     let sizes: string[] = []
     let imageUrl = p.media?.imageUrl || p.media?.thumbUrl || ''
     const urlKey = p.urlKey || p.url_key || ''
     const styleId = p.styleId || p.productAttributes?.sku || ''
     const productName = p.title || p.name || ''
+
+    // Only do expensive enrichment (variants + GOAT) for first few results
+    if (idx >= ENRICH_LIMIT) {
+      // Basic result without variant fetch
+      const quickGoatImg = !imageUrl ? (await enrichFromGoat(styleId, productName)).image : null
+      results.push({
+        id: productId,
+        name: productName,
+        brand: p.brand || '',
+        colorway: p.productAttributes?.colorway || p.colorway || '',
+        retailPrice: p.productAttributes?.retailPrice || p.retailPrice || null,
+        styleId,
+        image: imageUrl || quickGoatImg || '',
+        thumb: p.media?.thumbUrl || imageUrl || quickGoatImg || '',
+        availableSizes: [],
+        imageUrls: [imageUrl || quickGoatImg || ''].filter(Boolean),
+      })
+      continue
+    }
 
     // Fetch StockX variants + GOAT enrichment in parallel
     const [variantResult, goatResult] = await Promise.all([
@@ -322,11 +344,13 @@ function isBarcode(query: string): boolean {
   return /^\d{10,14}$/.test(query.trim())
 }
 
+export const maxDuration = 30
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url)
     const query = searchParams.get('q')
-    const limit = parseInt(searchParams.get('limit') || '20')
+    const limit = Math.min(parseInt(searchParams.get('limit') || '10'), 10)
 
     if (!query) return NextResponse.json({ error: 'Query required', products: [] }, { status: 400 })
 
