@@ -83,7 +83,19 @@ async function fetchClientCredentialsToken(): Promise<{
 
 export async function getStockXToken(): Promise<string | null> {
   const tokens = await getStockXTokens()
-  if (!tokens) return null
+  if (!tokens) {
+    // No tokens in DB at all — try client credentials to bootstrap
+    const ccToken = await fetchClientCredentialsToken()
+    if (ccToken) {
+      await saveStockXTokens({
+        access_token: ccToken.access_token,
+        expires_in: ccToken.expires_in,
+        token_type: ccToken.token_type,
+      })
+      return ccToken.access_token
+    }
+    return null
+  }
 
   const now = new Date()
   const expiresAt = new Date(tokens.expires_at)
@@ -123,7 +135,18 @@ export async function getStockXToken(): Promise<string | null> {
     }
   }
 
-  // Token expired and refresh failed — need re-auth
+  // Token expired and refresh failed — try client credentials as last resort
+  const ccToken = await fetchClientCredentialsToken()
+  if (ccToken) {
+    await saveStockXTokens({
+      access_token: ccToken.access_token,
+      expires_in: ccToken.expires_in,
+      token_type: ccToken.token_type,
+    })
+    return ccToken.access_token
+  }
+
+  // All auth methods failed — need re-auth
   return null
 }
 
@@ -133,6 +156,30 @@ export async function stockxFetch(url: string): Promise<Response> {
   const token = await getStockXToken()
   if (token) headers['Authorization'] = `Bearer ${token}`
   return fetch(url, { headers })
+}
+
+export async function getStockXHeaders(): Promise<Record<string, string> | null> {
+  const token = await getStockXToken()
+
+  if (!token) {
+    const ccToken = await fetchClientCredentialsToken()
+    if (!ccToken) return null
+    await saveStockXTokens({
+      access_token: ccToken.access_token,
+      expires_in: ccToken.expires_in,
+    })
+    return {
+      'x-api-key': STOCKX_API_KEY,
+      'Authorization': `Bearer ${ccToken.access_token}`,
+      'Accept': 'application/json',
+    }
+  }
+
+  return {
+    'x-api-key': STOCKX_API_KEY,
+    'Authorization': `Bearer ${token}`,
+    'Accept': 'application/json',
+  }
 }
 
 export async function isStockXConnected(): Promise<boolean> {
