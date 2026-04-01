@@ -61,9 +61,21 @@ export default function ProductsPage() {
   async function deleteProduct(id: string, e: React.MouseEvent) {
     e.stopPropagation()
     if (!confirm('Delete this product?')) return
-    await fetch(`/api/admin/products?id=${id}`, { method: 'DELETE' })
-    toast.success('Product deleted')
-    loadProducts()
+    try {
+      const token = (await supabase.auth.getSession()).data.session?.access_token
+      const res = await fetch(`/api/admin/products?id=${id}`, {
+        method: 'DELETE',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      })
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        throw new Error(data.error || 'Delete failed')
+      }
+      toast.success('Product deleted')
+      loadProducts()
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to delete product')
+    }
   }
 
   // Group products by name (same shoe, different sizes = one row with expandable variants)
